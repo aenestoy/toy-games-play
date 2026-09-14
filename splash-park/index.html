@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Splash Park</title>
+    <style>
+      /* Fonts ship with the game (no calls to Google): portals and YouTube Playables forbid outside requests. SIL Open Font License, see docs/ASSET-LOG.md. */
+      @font-face { font-family: "Patrick Hand"; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/patrick-hand.woff2) format("woff2"); }
+      @font-face { font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 200 800; font-stretch: 75% 100%; font-display: swap; src: url(fonts/bricolage-grotesque.woff2) format("woff2"); }
+      /* Phone notches and home bars: the game reads these and keeps its HUD clear of them. */
+      :root { --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-left: env(safe-area-inset-left, 0px); --safe-right: env(safe-area-inset-right, 0px); }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #f4efe6; }
+      body { display: flex; align-items: center; justify-content: center; touch-action: none; -webkit-user-select: none; user-select: none; }
+      /* Phones: the game owns the whole screen. */
+      #game { width: 100%; height: 100%; }
+      canvas { display: block; }
+      /* Wide screens (desktop portal iframes): show the game inside a portrait phone frame. */
+      /* Only when there is room for a decent phone (≥ 640px tall); smaller portal iframes (e.g. 800×450) get the game full-frame instead. */
+      @media (min-width: 700px) and (min-aspect-ratio: 5/6) and (min-height: 640px) {
+        body { background: radial-gradient(ellipse at 50% 40%, #e9e1d2 0%, #d9cfbb 70%); }
+        /* ?frame=0 disables the phone frame (used to record landscape preview videos). */
+        body.noframe #game { width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+        #game {
+          width: calc((100vh - 32px) * 9 / 16);
+          height: calc(100vh - 32px);
+          border-radius: 28px;
+          overflow: hidden;
+          box-shadow: 0 0 0 10px #0a0c12, 0 0 0 12px #2a3040, 0 24px 60px rgba(0, 0, 0, 0.6);
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-CE6Xa2qo.js"></script>
+  </head>
+  <body>
+    <div id="game"></div>
+    <script>
+      if (new URLSearchParams(location.search).get('frame') === '0') document.body.classList.add('noframe');
+    </script>
+  </body>
+</html>
