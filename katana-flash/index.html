@@ -5,16 +5,28 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#120814" />
     <title>Katana Flash</title>
     <style>
       html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #120814; }
-      body { display: flex; align-items: center; justify-content: center; touch-action: none; -webkit-user-select: none; user-select: none; }
-      #game { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+      body { touch-action: none; -webkit-user-select: none; user-select: none; }
+      /* Phaser centres the canvas itself (Scale.CENTER_BOTH); a flex parent would centre it a second time. */
+      #game { width: 100%; height: 100%; }
       canvas { display: block; }
+      /* Phones held upright: the arena is landscape, so ask for a turn (the game keeps running underneath). */
+      #rotate { display: none; }
+      @media (orientation: portrait) and (pointer: coarse) {
+        #rotate { display: flex; position: fixed; inset: 0; z-index: 10; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: rgba(18, 8, 20, 0.92); color: #fff; font: 900 26px Impact, "Arial Black", sans-serif; letter-spacing: 0.04em; text-align: center; pointer-events: none; }
+        #rotate i { width: 56px; height: 92px; border: 5px solid #fff; border-radius: 12px; animation: turn 1.8s ease-in-out infinite; }
+        @keyframes turn { 0%, 30% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); border-color: #ff2a3a; } }
+      }
     </style>
-    <script type="module" crossorigin src="./assets/index-BnLMJJH7.js"></script>
+    <script type="module" crossorigin src="./assets/index-Cz0Km1cp.js"></script>
   </head>
   <body>
     <div id="game"></div>
+    <div id="rotate"><i></i>TURN YOUR PHONE</div>
   </body>
 </html>
