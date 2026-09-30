@@ -20,19 +20,20 @@
       /* Portals, phone held upright: the arena is landscape, so ask for a turn (the game keeps running underneath). */
       #rotate { display: none; }
       @media (orientation: portrait) and (pointer: coarse) {
-        body:not(.gated) #rotate { display: flex; position: fixed; inset: 0; z-index: 10; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: rgba(18, 8, 20, 0.92); color: #fff; font: 900 26px Impact, "Arial Black", sans-serif; letter-spacing: 0.04em; text-align: center; pointer-events: none; }
+        body:not(.gated) #rotate { display: flex; position: fixed; inset: 0; z-index: 10; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: rgba(18, 8, 20, 0.92); color: #fff; font: 400 26px Anton, Impact, sans-serif; letter-spacing: 0.04em; text-align: center; pointer-events: none; }
       }
       .phone { width: 46px; height: 76px; border: 5px solid #fff; border-radius: 11px; animation: turn 1.8s ease-in-out infinite; }
       @keyframes turn { 0%, 30% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); border-color: #ff2a3a; } }
 
+      /* Anton is bundled and registered by src/fonts.ts (no outside font requests); it has one weight, so never ask for bold. */
       /* Our own pages on a phone: start gate. PLAY goes fullscreen and sideways (src/fullscreen.ts). */
       #gate {
         position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: min(5vh, 28px);
         padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px);
         background: radial-gradient(circle at 50% 42%, rgba(255, 240, 170, 0.55), rgba(255, 150, 90, 0.25) 28%, transparent 55%), linear-gradient(#ffbf6a, #e8506a 45%, #35143f);
-        color: #fff; font-family: Impact, "Arial Black", sans-serif; text-align: center; touch-action: manipulation;
+        color: #fff; font-family: Anton, Impact, sans-serif; font-weight: 400; text-align: center; touch-action: manipulation;
       }
-      #gate h1 { margin: 0; line-height: 0.86; font-weight: 900; transform: rotate(-4deg); }
+      #gate h1 { margin: 0; line-height: 0.86; font-weight: 400; transform: rotate(-4deg); }
       #gate h1 span { display: block; font-size: min(22vw, 17vh, 150px); -webkit-text-stroke: 5px #0b0710; paint-order: stroke fill; text-shadow: 4px 4px 0 #0b0710; }
       #gate h1 span + span { color: #ff2a3a; font-size: min(19vw, 15vh, 130px); }
       #gate .slash { width: min(70vw, 420px); height: 6px; background: linear-gradient(90deg, transparent, #fff 20%, #ff2a3a 80%, transparent); transform: rotate(-8deg); box-shadow: 0 0 18px #ff2a3a; }
@@ -48,7 +49,7 @@
       #gate.asked .turn { display: flex; }
       @media (prefers-reduced-motion: reduce) { #gate-play, .phone { animation: none; } }
     </style>
-    <script type="module" crossorigin src="./assets/index-C2vIUfZ9.js"></script>
+    <script type="module" crossorigin src="./assets/index-Bm0av1Ef.js"></script>
   </head>
   <body>
     <div id="game"></div>
