@@ -7,7 +7,39 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#1b2a4a" />
     <title>Lap Rivals</title>
-    <script type="module" crossorigin src="./assets/index-By8Y7pre.js"></script>
+    <!-- studio-error-capture: errors for the studio panel's error reports (src/stats.ts sends them where statistics
+         are on). The page's first errors and unhandled rejections wait here until that module is ready. It only
+         listens: every error still reaches the browser and a portal's own listeners as before. The one-portal
+         builds (Yandex, Playgama) cut this block out (vite.config.ts). -->
+    <script>
+      (function () {
+        var q = [], sink = null, t0 = Date.now();
+        function state() { try { return window.__lrErrState ? window.__lrErrState() : 'boot'; } catch (e) { return 'boot'; } }
+        function put(r) { try { r.t = (Date.now() - t0) / 1000; r.state = state(); if (sink) sink(r); else if (q.length < 10) q.push(r); } catch (e) { /* never */ } }
+        function text(v) { try { return String(v); } catch (e) { return typeof v; } }
+        function named(x) { return x && typeof x === 'object' && typeof x.message === 'string' ? (x.name || 'Error') + ': ' + x.message : null; }
+        window.addEventListener('error', function (e) {
+          if (!e || (e.target && e.target !== window)) return; // a file that did not load is not an error of the code
+          var x = e.error;
+          if (x && x.__lrReported) return; // RaceScene already reported it (kind 'frame')
+          if (!x && /^ResizeObserver loop/.test(e.message || '')) return; // a browser notice, not an error of the code
+          put({ kind: 'error', msg: named(x) || text(e.message || 'Script error.'), src: (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0), stack: x && typeof x.stack === 'string' ? x.stack : '' });
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          var r = e && e.reason, m = named(r);
+          if (!m) m = typeof r === 'string' ? r : 'non-Error rejection: ' + (r === null ? 'null' : typeof r);
+          if (r && typeof r === 'object' && typeof r.code === 'string' && m.indexOf(r.code) < 0) m += ' (code ' + r.code + ')';
+          put({ kind: 'rejection', msg: m, src: '', stack: r && typeof r.stack === 'string' ? r.stack : '' });
+        });
+        window.__lrErr = {
+          // an error the game caught itself and goes on after (RaceScene.update: one frame)
+          report: function (kind, x) { put({ kind: kind, msg: named(x) || text(x), src: '', stack: x && typeof x.stack === 'string' ? x.stack : '' }); },
+          take: function (fn) { sink = fn; var l = q; q = []; for (var i = 0; i < l.length; i++) { try { fn(l[i]); } catch (e) { /* never */ } } },
+        };
+      })();
+    </script>
+    <!-- /studio-error-capture -->
+    <script type="module" crossorigin src="./assets/index-upRHPoPd.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-CmUI-Awk.css">
   </head>
   <body>
