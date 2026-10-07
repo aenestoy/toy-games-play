@@ -1135,7 +1135,7 @@ function populate() {
 function newMap() {
   for (const m of mons) if (m.c3) releaseMon(m);
   seedMap = (Math.random() * 1e9) | 0; genMap(seedMap); populate(); projs = []; fx = []; loot = []; delayed = []; portal = null; allies = []; pl.leap = null;
-  const s = START(); pl.x = s.x; pl.y = s.y; pl.life = pl.maxLife; pl.mana = pl.maxMana; pl.flask = 3; cam.x = pl.x; cam.y = pl.y;
+  const s = START(); pl.x = s.x; pl.y = s.y; pl.safe = null; pl.life = pl.maxLife; pl.mana = pl.maxMana; pl.flask = 3; cam.x = pl.x; cam.y = pl.y;
   build3D();
   banner = { t: 0, a: ZONE().n, b: 'Tier ' + P.tier + (ZONE().hazTxt ? ' · ' + ZONE().hazTxt : '') + (lootBonus() ? ' · +' + lootBonus() + '% loot' : '') };
 }
@@ -1495,7 +1495,7 @@ function update(dt) {
       pl.vx += (mx * sp - pl.vx) * k; pl.vy += (my * sp - pl.vy) * k;
       if (!pl.cast && (mx || my)) pl.face = Math.atan2(my, mx);
     }
-    if (!pl.leap) { pl.x += pl.vx * dt; pl.y += pl.vy * dt; } collide(pl); pl.walk += Math.hypot(pl.vx, pl.vy) * dt * 0.05;
+    if (!pl.leap) { const ns = Math.max(1, Math.ceil(Math.hypot(pl.vx, pl.vy) * dt / 12)); for (let k = 0; k < ns; k++) { pl.x += pl.vx * dt / ns; pl.y += pl.vy * dt / ns; collide(pl); } } else collide(pl); if (solidAt(pl.x, pl.y)) { if (pl.safe) { pl.x = pl.safe.x; pl.y = pl.safe.y; } } else pl.safe = { x: pl.x, y: pl.y }; pl.walk += Math.hypot(pl.vx, pl.vy) * dt * 0.05;
     if (pl.cast) { pl.cast.t += dt; if (pl.cast.t >= pl.cast.dur) { const c = pl.cast; pl.cast = null; execCast(c, false); } }
     if (!pl.cast) for (let i = 0; i < 4; i++) if (held[i] && P.slots[i].g) { startCast(i, aimPoint()); break; }
     for (const m of mons) if (!m.dead && Math.abs(m.x - pl.x) < 1300 && Math.abs(m.y - pl.y) < 1000) monUpdate(m, dt);
@@ -2099,7 +2099,7 @@ if (!P.cls) {
 }
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
 window.__grid = () => grid; window.__haz = () => hazards; window.__kill = (m) => killMon(m); window.__newMap = () => newMap();
-window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, hurtPl, skillInfo, mainDps, mkItem, hitMon, applyClass, TREE, SKILLS, get hero3() { return hero3; }, dropItem, dropGem, openPanel, closePanel };
+window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, hurtPl, skillInfo, mainDps, mkItem, hitMon, applyClass, TREE, SKILLS, SUPPORTS, BASES, K, held, step: (dt) => update(dt), equipItem, supportFits, get portal() { return portal; }, get hero3() { return hero3; }, dropItem, dropGem, openPanel, closePanel };
 let last = performance.now();
 let hitStop = 0;
 function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; update(hitStop > 0 ? dt * 0.06 : dt); hitStop -= dt; draw(); requestAnimationFrame(loop); }
