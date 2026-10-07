@@ -677,7 +677,7 @@ function hitMon(m, dmg, el, addFire, ign, kb = 40) {
   if (m.hp <= 0) killMon(m);
 }
 function killMon(m) {
-  m.dead = true; P.kills++; gainXp(Math.round(m.d.xp * [1, 2.5, 6, 1][m.rar] * (1 + 0.3 * (P.tier - 1))));
+  m.dead = true; if (m.tut) { tut.tutKills++; if (tut.tutKills === 3 && !loot.length) dropItem(m.x, m.y, 1, false); } P.kills++; gainXp(Math.round(m.d.xp * [1, 2.5, 6, 1][m.rar] * (1 + 0.3 * (P.tier - 1))));
   if (S.lok) pl.life = Math.min(pl.maxLife, pl.life + S.lok);
   pl.flaskKills++; if (pl.flaskKills >= 5 && pl.flask < 3) { pl.flaskKills = 0; pl.flask++; }
   for (let i = 0; i < 12; i++) { const a = rnd() * TAU, s = 60 + rnd() * 160; fx.push({ k: 'p', x: m.x, y: m.y - 14, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 60, t: 0, life: 0.5, col: m.d.col, s: 3 + rnd() * 3 }); }
@@ -701,7 +701,7 @@ function dropGem(x, y) {
 }
 function gainXp(n) { P.xp += n; while (P.xp >= xpNeed(P.lv)) { P.xp -= xpNeed(P.lv); P.lv++; calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; banner = { t: 0, a: 'LEVEL ' + P.lv, b: 'Passive point gained (P)' }; sfx('lvl'); fx.push({ k: 'nova', x: pl.x, y: pl.y, r: 10, R: 120, t: 0, life: 0.5, col: '#ffd890' }); markNew(); } }
 function hurtPl(d) { if (pl.ifr > 0 || state !== 'play') return; pl.life -= d; pl.hurtT = 0.25; shake = Math.max(shake, 5); sfx('hurt'); floater(pl.x, pl.y - 50, '-' + Math.round(d), '#ff6a6a', 16); if (pl.life <= 0) { pl.life = 0; die(); } }
-function dash() { if (pl.dashCd > 0 || state !== 'play') return; const [x, y] = moveDir(); const a = x || y ? Math.atan2(y, x) : pl.face; pl.vx = Math.cos(a) * 780; pl.vy = Math.sin(a) * 780; pl.dashT = 0.16; pl.ifr = 0.25; pl.dashCd = 1.2; pl.cast = null; sfx('dash'); }
+function dash() { if (pl.dashCd > 0 || state !== 'play') return; tipDone.dash = 1; const [x, y] = moveDir(); const a = x || y ? Math.atan2(y, x) : pl.face; pl.vx = Math.cos(a) * 780; pl.vy = Math.sin(a) * 780; pl.dashT = 0.16; pl.ifr = 0.25; pl.dashCd = 1.2; pl.cast = null; sfx('dash'); }
 function drink() { if (pl.flask <= 0 || pl.life >= pl.maxLife || state !== 'play') return; pl.flask--; pl.flaskT = 1.5; sfx('flask'); }
 function die() { state = 'dead'; setPads(false); setTimeout(() => $('#dead').classList.remove('hide'), 700); }
 function floater(x, y, s, col, size) { floats.push({ x, y, s, col, size, t: 0 }); }
@@ -798,6 +798,7 @@ function explode(p) {
   boom(p.x, p.y); if (p.twin) delayed.push({ t: 0.18, f: () => boom(p.x, p.y) }); sfx('boom');
 }
 function pickUp(l, i) {
+  tipDone.pick = 1;
   if (l.gem) { P.gemBag.push(l.gem); toast.push({ t: 0, s: (l.gem.g ? 'Skill gem: ' + SKILLS[l.gem.g].n : 'Support gem: ' + SUPPORTS[l.gem.sup].n), c: '#5fe0c0' }); loot.splice(i, 1); markNew(); sfx('drop'); save(); return; }
   if (P.bag.length >= 30) { if (!l.full) { l.full = 1; floater(pl.x, pl.y - 60, 'Bag full', '#ff8a8a', 16); } return; }
   P.bag.push(l.it); loot.splice(i, 1); sfx('drop'); toast.push({ t: 0, s: RN[l.it.rar] + ': ' + l.it.name, c: ['#d8d8d8', '#8888ff', '#ffff77', '#ff9a3a'][l.it.rar] });
@@ -810,16 +811,59 @@ function mapDone() {
   $('#done').classList.remove('hide');
 }
 
-// ---------- tips (the first minutes) ----------
+// ---------- tutorial: teaches while playing, one short step at a time (P.tip = current step) ----------
+// keys: [desktop text, touch text]; where(): the world point the arrow shows; start(): runs once when the step begins
 const TIPS = [
-  { t: 'Open Gems (G) and socket Multiple Projectiles into Fireball', done: () => P.slots.some((s) => s.s.includes('mp')) },
-  { t: 'Slay monsters. Loot: blue = magic, yellow = rare, orange = unique', done: () => P.kills >= 15 },
-  { t: 'Open Gear (C) and equip something better', done: () => tipDone.equip },
-  { t: 'Spend your passive point (P)', done: () => P.tree.length > 1 },
-  { t: 'Find the Hollow King in the east and slay him', done: () => !!portal },
-  { t: 'Step into the rift', done: () => false },
+  { k: ['[W][A][S][D]  to walk', 'Drag on the LEFT side of the screen to walk'], done: () => tut.moved > 260 },
+  { k: ['[LEFT CLICK]  casts Fireball where the mouse points', 'Tap  FIREBALL  — it aims for you'], start: () => tutSpawn(), where: () => mons.find((m) => m.tut && !m.dead), done: () => tut.tutKills >= 3 },
+  { k: ['Walk over the loot to pick it up', 'Walk over the loot to pick it up'], start: () => { if (!loot.length) dropItem(pl.x + 70, pl.y + 30, 1, false); }, where: () => loot.length ? loot.reduce((a, b) => (dist(a, pl) < dist(b, pl) ? a : b)) : null, done: () => tipDone.pick },
+  { k: ['[C]  Character → tap the new item → EQUIP', 'Tap  CHARACTER  → the new item → EQUIP'], ui: 1, done: () => tipDone.equip || P.bag.length === 0 },
+  { k: ['[G]  Gems → Multiple Projectiles → a glowing socket next to Fireball', 'CHARACTER → Gems → Multiple Projectiles → a glowing socket'], ui: 1, done: () => P.slots.some((s) => s.s.includes('mp')) },
+  { k: ['[SPACE]  dash: you are untouchable while dashing', 'Tap  DASH  to dodge: untouchable while dashing'], done: () => tipDone.dash },
+  { k: ['Clear the crypt. Blue and yellow monsters drop better loot', 'Clear the crypt. Blue and yellow monsters drop better loot'], done: () => P.kills >= 25 },
+  { k: ['Find the Hollow King: follow  ☠  on the map', 'Find the Hollow King: follow  ☠  on the map'], where: () => boss && !boss.dead ? boss : null, done: () => !!portal },
+  { k: ['Step into the purple rift: harder monsters, better loot', 'Step into the purple rift: harder monsters, better loot'], where: () => portal, done: () => false },
 ];
-function tips() { while (P.tip < TIPS.length - 1 && TIPS[P.tip].done()) P.tip++; }
+const tut = { moved: 0, tutKills: 0, started: -1, lx: 0, ly: 0 };
+function tutSpawn() {
+  // three slow, weak corpses walk in from the east so the first shots have a target
+  for (let i = 0; i < 3; i++) {
+    let x = pl.x + 330 + i * 40, y = pl.y + (i - 1) * 70; for (let k = 0; k < 12 && solidAt(x, y); k++) { x -= 30; }
+    if (solidAt(x, y)) { x = pl.x + 120; y = pl.y + (i - 1) * 50; }
+    const m = mkMon('zombie', x, y, 0); m.max = m.hp = 26; m.spd = 40; m.dmg = 2; m.aggro = true; m.tut = true; mons.push(m);
+  }
+}
+function tips() {
+  if (tut.lx || tut.ly) tut.moved += Math.hypot(pl.x - tut.lx, pl.y - tut.ly); tut.lx = pl.x; tut.ly = pl.y;
+  const cur = TIPS[P.tip];
+  if (cur && tut.started !== P.tip) { tut.started = P.tip; if (cur.start) cur.start(); }
+  if (cur && P.tip < TIPS.length - 1 && cur.done()) { P.tip++; sfx('drop'); tut.flash = 1; save(); }
+  $('#charBtn').classList.toggle('new', !!(TIPS[P.tip] && TIPS[P.tip].ui) || availPoints() > 0);
+}
+function drawTip() {
+  const tip = TIPS[P.tip]; if (!tip || state !== 'play') return;
+  // passive points interrupt any step
+  const s = availPoints() > 0 && P.tip >= 2 ? (TOUCH ? 'Level up!  Tap  CHARACTER  → Passives → a glowing node' : 'Level up!  [P]  Passives → a glowing node → ALLOCATE') : tip.k[TOUCH ? 1 : 0];
+  const sm = W < 600, fs = sm ? 13 : 16, y = TOUCH ? H * 0.25 : H - 120;
+  g.font = `700 ${fs}px Fredoka, sans-serif`;
+  // measure with key caps: [X] parts become boxed keys
+  const parts = s.split(/(\[[^\]]+\])/).filter(Boolean); let w = 0; for (const p of parts) w += g.measureText(p.replace(/[[\]]/g, '')).width + (p.startsWith('[') ? 14 : 0);
+  const bw = Math.min(W - 20, w + 56), bx = W / 2 - bw / 2, bh = fs + 22, pulse = 0.5 + 0.5 * Math.sin(T * 4);
+  g.fillStyle = 'rgba(10,6,4,.88)'; rrect(bx, y - bh / 2, bw, bh, 10); g.fill();
+  g.strokeStyle = `rgba(232,184,96,${0.55 + 0.45 * pulse})`; g.lineWidth = 2; rrect(bx, y - bh / 2, bw, bh, 10); g.stroke();
+  text((P.tip + 1) + '/' + TIPS.length, bx + 20, y, 11, '#9a8a6a', 'center', 'Fredoka', 3);
+  let x = W / 2 - w / 2 + 12; g.textBaseline = 'middle';
+  for (const p of parts) {
+    const key = p.startsWith('['), t2 = p.replace(/[[\]]/g, ''); g.font = `700 ${fs}px Fredoka, sans-serif`; const tw = g.measureText(t2).width;
+    if (key) { g.fillStyle = '#e8b860'; rrect(x, y - fs / 2 - 4, tw + 10, fs + 8, 5); g.fill(); g.fillStyle = '#1a1008'; g.textAlign = 'left'; g.fillText(t2, x + 5, y + 1); x += tw + 14; }
+    else { g.fillStyle = '#f4e6c8'; g.textAlign = 'left'; g.fillText(t2, x, y + 1); x += tw; }
+  }
+  // an arrow over the thing the step is about (or at the screen edge toward it)
+  const tg = tip.where && tip.where(); if (!tg) return;
+  const [sx, sy, ok] = toScreen(tg.x, tg.y, tg.boss ? 7.5 : 2.6);
+  if (ok && sx > 30 && sx < W - 30 && sy > 60 && sy < H - 60) { const by = sy - 18 - Math.abs(Math.sin(T * 5)) * 10; g.fillStyle = '#ffd890'; g.strokeStyle = '#1a1008'; g.lineWidth = 3; g.beginPath(); g.moveTo(sx, by + 16); g.lineTo(sx - 12, by); g.lineTo(sx - 5, by); g.lineTo(sx - 5, by - 16); g.lineTo(sx + 5, by - 16); g.lineTo(sx + 5, by); g.lineTo(sx + 12, by); g.closePath(); g.fill(); g.stroke(); }
+  else { const [px, py] = toScreen(pl.x, pl.y, 1.2), a = Math.atan2(sy - py, sx - px), r = Math.min(W, H) * 0.32; const ex = W / 2 + Math.cos(a) * r, ey = H / 2 + Math.sin(a) * r; g.save(); g.translate(ex, ey); g.rotate(a); g.fillStyle = '#ffd890'; g.strokeStyle = '#1a1008'; g.lineWidth = 3; g.beginPath(); g.moveTo(22, 0); g.lineTo(-10, -14); g.lineTo(-4, 0); g.lineTo(-10, 14); g.closePath(); g.fill(); g.stroke(); g.restore(); }
+}
 function markNew() { $('#charBtn').classList.add('new'); }
 
 // ---------- drawing ----------
@@ -963,7 +1007,7 @@ function hud() {
   const ty = TOUCH ? 14 + R * 2 + 62 : 16;
   text(`Sunken Crypt · Tier ${P.tier}`, 16, ty, 15, '#e8b860', 'left', 'Cinzel', 3); text(`Level ${P.lv}` + (availPoints() ? `  ·  ${availPoints()} passive point${availPoints() > 1 ? 's' : ''} (P)` : ''), 16, ty + 20, 13, availPoints() ? '#7be05a' : '#cbb894', 'left', 'Fredoka', 3);
   // tip
-  const tip = TIPS[P.tip]; if (tip) text('▸ ' + (TOUCH ? tip.t.replace(/ \(([A-Z])\)/g, ' (CHARACTER)') : tip.t), 16, ty + 42, TOUCH ? 12 : sm ? 12 : 14, '#ffd890', 'left', 'Fredoka', 3);
+  drawTip();
   // minimap
   const mw = sm ? 110 : 170, mh = mw * GH / GW, mx = W - mw - 12, my = TOUCH ? 52 : 12, s = mw / GW;
   g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(mx - 3, my - 3, mw + 6, mh + 6);
@@ -1060,7 +1104,7 @@ $('#keys').innerHTML = TOUCH ? '<span>Left thumb: move</span><span>Skill buttons
 $('#go').onclick = () => { $('#start').classList.add('hide'); state = 'play'; setPads(true); sfx('lvl'); };
 $('#rez').onclick = () => { $('#dead').classList.add('hide'); const s = START(); pl.x = s.x; pl.y = s.y; pl.life = pl.maxLife; pl.mana = pl.maxMana; pl.flask = 3; projs = []; state = 'play'; setPads(true); };
 $('#next').onclick = () => { $('#done').classList.add('hide'); newMap(); state = 'play'; setPads(true); };
-P = load() || freshProgress(); pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#charBtn').classList.add('hide');
+P = load() || freshProgress(); if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#charBtn').classList.add('hide');
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
 window.__rb = { strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, dropItem, dropGem, openPanel, closePanel };
 let last = performance.now();
