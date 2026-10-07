@@ -145,6 +145,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
     <p>Descend into the Sunken Crypt. Shape your exile with skill gems, support gems, loot and a passive tree. Slay the Hollow King, open the rift, go deeper.</p>
     <div class="keys" id="keys"></div>
     <button class="btn" id="go" disabled>LOADING…</button>
+    <div><button class="btn small hide" id="wipe" style="margin-top:12px;opacity:.75">NEW CHARACTER</button></div>
   </div>
 </div>
 <div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p>Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
@@ -783,8 +784,10 @@ function freshProgress() {
     slots: [{ g: 'fireball', s: [null, null] }, { g: 'cleave', s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }],
     gemBag: [{ sup: 'mp' }], tree: [0], tip: 0, kills: 0 };
 }
+if (/[?&]reset=1/.test(location.search)) { try { localStorage.removeItem(SAVE); } catch (e) { /* storage blocked */ } }
 function load() { try { const s = JSON.parse(localStorage.getItem(SAVE)); if (s && s.lv) return s; } catch (e) { /* storage blocked */ } return null; }
-function save() { try { localStorage.setItem(SAVE, JSON.stringify(P)); } catch (e) { /* storage blocked */ } }
+let wiped = false;
+function save() { if (wiped) return; try { localStorage.setItem(SAVE, JSON.stringify(P)); } catch (e) { /* storage blocked */ } }
 
 // ---------- items ----------
 function mkItem(slot, rar, tier, base) {
@@ -1832,6 +1835,9 @@ $('#next').onclick = () => { $('#done').classList.add('hide'); newMap(); state =
 P = load() || freshProgress(); lastKind = null; if (!P.map) P.map = { zone: (P.tier - 1) % 4, mods: [] }; if (!P.treeV2) { P.tree = [0]; P.treeV2 = 1; } if (!('offhand' in P.eq)) P.eq.offhand = null; for (const it of [...Object.values(P.eq), ...P.bag]) if (it) { if (it.base === 'Tattered Robe') { it.name = it.name.replace('Tattered Robe', 'Wizard Hat'); it.base = 'Wizard Hat'; } if (it.base === 'Scale Vest') { it.name = it.name.replace('Scale Vest', 'Iron Helm'); it.base = 'Iron Helm'; } } if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
 metaInit();
 if (!TOUCH) { $('#charBtn').textContent = '🎒 GEAR (C)'; $('#gemBtn').textContent = '💎 GEMS (G)'; $('#treeBtn').textContent = '✦ PASSIVES (P)'; $('#questBtn').textContent = '📜 QUESTS'; }
+if (P.kills > 0) $('#wipe').classList.remove('hide');
+let wipeArm = false;
+$('#wipe').onclick = () => { if (!wipeArm) { wipeArm = true; $('#wipe').textContent = 'SURE? CLICK AGAIN TO WIPE ALL PROGRESS'; $('#wipe').style.color = '#ff8a7a'; return; } wiped = true; try { localStorage.removeItem(SAVE); } catch (e) { /* storage blocked */ } location.replace(location.pathname); };
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
 window.__grid = () => grid; window.__haz = () => hazards; window.__kill = (m) => killMon(m); window.__newMap = () => newMap();
 window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, dropItem, dropGem, openPanel, closePanel };
