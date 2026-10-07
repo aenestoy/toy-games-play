@@ -102,7 +102,7 @@ const S3 = 4 / 80; // world px → 3D units: one 80 px tile = one 4 m KayKit flo
 const R3 = new THREE.WebGLRenderer({ canvas: document.getElementById('c3'), antialias: !matchMedia('(pointer: coarse)').matches, powerPreference: 'high-performance' });
 R3.setPixelRatio(Math.min(matchMedia('(pointer: coarse)').matches ? 1.25 : 1.5, devicePixelRatio || 1));
 R3.outputColorSpace = THREE.SRGBColorSpace; R3.toneMapping = THREE.ACESFilmicToneMapping; R3.toneMappingExposure = 1.15;
-const scene3 = new THREE.Scene(); scene3.background = new THREE.Color(0x040207); scene3.fog = new THREE.Fog(0x040207, 30, 52);
+const scene3 = new THREE.Scene(); scene3.background = new THREE.Color(0x040207); scene3.fog = new THREE.Fog(0x040207, 22, 42);
 const cam3 = new THREE.PerspectiveCamera(40, 1, 1, 150);
 function size3() { R3.setSize(innerWidth, innerHeight, false); cam3.aspect = innerWidth / innerHeight; cam3.updateProjectionMatrix(); }
 addEventListener('resize', size3); size3();
@@ -134,16 +134,28 @@ const [gMage, gWar, gMin, gRog, gSMage, wpn3, dn3] = await Promise.all([
   Promise.all(DN.map((n) => ld('dungeon/' + n + '.glb').then((g) => [n, g.scene]))).then(Object.fromEntries),
 ]);
 const GEAR = /Sword|Shield|Staff|Wand|Spellbook|Axe|Mug|Knife|Crossbow|Throwable|Helmet|Hat|Cape|Cloak|Hood/;
-function boneOf(root, name) { let b = null; root.traverse((o) => { if (!b && o.isBone && o.name === name) b = o; }); return b; }
+// GLTFLoader strips '.' from node names: 'handslot.r' is 'handslotr' in three.js
+function boneOf(root, name) { const n = name.replace(/[\[\]\.:\/]/g, ''); let b = null; root.traverse((o) => { if (!b && o.isBone && (o.name === name || o.name === n)) b = o; }); return b; }
 function makeChar(src, keep, wr, wl, height) {
   const o = SkeletonUtils.clone(src.scene);
   o.traverse((m) => { if (!m.isMesh) return; if (GEAR.test(m.name) && !keep.includes(m.name)) { m.visible = false; return; } m.material = toon(m.material, false).clone(); m.frustumCulled = false; });
   for (const [w, bone] of [[wr, 'handslot.r'], [wl, 'handslot.l']]) if (w) { const c = wpn3[w].clone(true); c.traverse((m) => { if (m.isMesh) m.material = toon(m.material, false); }); const b = boneOf(o, bone); if (b) b.add(c); }
   const box = new THREE.Box3().setFromObject(o), k = height / Math.max(0.01, box.max.y - box.min.y); o.scale.setScalar(k);
+  const wrap = new THREE.Group(); wrap.add(o);
   const mixer = new THREE.AnimationMixer(o), acts = {};
   for (const c of src.animations) acts[c.name] = mixer.clipAction(c);
   const mats = []; o.traverse((m) => { if (m.isMesh && m.visible && m.material && m.material.emissive) mats.push(m.material); });
-  return { o, mixer, acts, cur: null, mats, tint: -1 };
+  return { o: wrap, inner: o, src, h: height, mixer, acts, cur: null, mats, tint: -1 };
+}
+const strideCache = new Map();
+function strideSpeed(src, name) {
+  const key = src.scene.uuid + name; if (strideCache.has(key)) return strideCache.get(key);
+  const clip = src.animations.find((c) => c.name === name) || src.animations.find((c) => c.name.startsWith(name)); if (!clip) return { perHeight: 0.5 };
+  const o = SkeletonUtils.clone(src.scene), mx = new THREE.AnimationMixer(o); mx.clipAction(clip).play();
+  const foot = boneOf(o, 'foot.l'), hip = boneOf(o, 'hips'), p = new THREE.Vector3(), q = new THREE.Vector3(), zs = [];
+  for (let i = 0; i <= 60; i++) { mx.setTime(clip.duration * i / 60); o.updateMatrixWorld(true); foot.getWorldPosition(p); hip.getWorldPosition(q); zs.push(p.z - q.z); }
+  const box = new THREE.Box3().setFromObject(o), h = box.max.y - box.min.y;
+  const v = { perHeight: 2 * (Math.max(...zs) - Math.min(...zs)) / clip.duration / h }; strideCache.set(key, v); return v;
 }
 function play(c, name, once, speed = 1, fade = 0.15) {
   const a = c.acts[name] || c.acts[Object.keys(c.acts).find((k) => k.startsWith(name))]; if (!a) return;
@@ -151,6 +163,12 @@ function play(c, name, once, speed = 1, fade = 0.15) {
   a.reset(); a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity); a.clampWhenFinished = !!once; a.timeScale = speed;
   if (c.cur && c.cur !== a) c.cur.fadeOut(fade); a.fadeIn(fade).play(); c.cur = a; c.curName = name; c.once = once ? a.getClip().duration / speed : 0;
 }
+function legs(c, name, speedU) {
+  const a = c.acts[name] || c.acts[Object.keys(c.acts).find((k) => k.startsWith(name))]; if (!a || c.cur !== a) return;
+  const nat = strideSpeed(c.src, name).perHeight * c.h; a.timeScale = Math.max(0.9, Math.min(3.3, speedU / Math.max(0.2, nat)));
+  const lean = Math.min(0.22, speedU * 0.03); c.inner.rotation.x += (lean - c.inner.rotation.x) * 0.25;
+}
+function noLean(c) { c.inner.rotation.x *= 0.75; }
 function setTint(c, r, g2, b) { const key = r * 1e6 + g2 * 1e3 + b; if (c.tint === key) return; c.tint = key; for (const m of c.mats) m.emissive.setRGB(r / 255, g2 / 255, b / 255); }
 
 // ---------- the crypt ----------
@@ -183,20 +201,20 @@ function build3D() {
 }
 
 // ---------- characters ----------
-const hero3 = makeChar(gMage, ['2H_Staff', 'Mage_Hat', 'Mage_Cape'], null, null, 2.25); scene3.add(hero3.o); play(hero3, 'Idle');
+const hero3 = makeChar(gMage, ['2H_Staff', 'Mage_Cape'], null, null, 2.7); scene3.add(hero3.o); play(hero3, 'Idle');
 const ring3 = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.05, 40), new THREE.MeshBasicMaterial({ color: 0xffd890, transparent: true, opacity: 0.5, depthWrite: false })); ring3.rotation.x = -Math.PI / 2; scene3.add(ring3);
 const KIND3 = {
-  zombie: { src: gWar, keep: ['Skeleton_Warrior_Helmet', 'Skeleton_Warrior_Cloak'], wr: 'Skeleton_Axe', wl: 'Skeleton_Shield_Small_A', walk: 'Walking_D_Skeletons', atk: '1H_Melee_Attack_Chop', h: 2.15 },
-  ghoul: { src: gMin, keep: ['Skeleton_Minion_Cloak'], wr: 'Skeleton_Blade', walk: 'Running_A', atk: '1H_Melee_Attack_Slice_Diagonal', h: 1.85 },
-  archer: { src: gRog, keep: ['Skeleton_Rogue_Hood', 'Skeleton_Rogue_Cape'], wr: 'Skeleton_Crossbow', walk: 'Walking_A', atk: '1H_Ranged_Shoot', h: 1.95 },
-  bloat: { src: gSMage, keep: ['Skeleton_Mage_Hat'], wr: 'Skeleton_Staff', walk: 'Walking_D_Skeletons', atk: 'Spellcast_Shoot', h: 2.1 },
-  boss: { src: gWar, keep: ['Skeleton_Warrior_Helmet', 'Skeleton_Warrior_Cloak'], wr: 'Skeleton_Axe', wl: 'Skeleton_Shield_Small_A', walk: 'Walking_D_Skeletons', atk: '2H_Melee_Attack_Chop', h: 5.2 },
+  zombie: { src: gWar, keep: ['Skeleton_Warrior_Helmet', 'Skeleton_Warrior_Cloak'], wr: 'Skeleton_Axe', wl: 'Skeleton_Shield_Small_A', walk: 'Walking_D_Skeletons', atk: '1H_Melee_Attack_Chop', h: 2.8 },
+  ghoul: { src: gMin, keep: ['Skeleton_Minion_Cloak'], wr: 'Skeleton_Blade', walk: 'Running_A', atk: '1H_Melee_Attack_Slice_Diagonal', h: 2.45 },
+  archer: { src: gRog, keep: ['Skeleton_Rogue_Hood', 'Skeleton_Rogue_Cape'], wr: 'Skeleton_Crossbow', walk: 'Walking_A', atk: '1H_Ranged_Shoot', h: 2.6 },
+  bloat: { src: gSMage, keep: ['Skeleton_Mage_Hat'], wr: 'Skeleton_Staff', walk: 'Walking_D_Skeletons', atk: 'Spellcast_Shoot', h: 2.75 },
+  boss: { src: gWar, keep: ['Skeleton_Warrior_Helmet', 'Skeleton_Warrior_Cloak'], wr: 'Skeleton_Axe', wl: 'Skeleton_Shield_Small_A', walk: 'Walking_D_Skeletons', atk: '2H_Melee_Attack_Chop', h: 6.4 },
 };
 const pool3 = {}; let active3 = 0;
 function acquireMon(m) {
   const k = m.boss ? 'boss' : m.kind, d = KIND3[k]; const p = pool3[k] || (pool3[k] = []);
   const c = p.pop() || makeChar(d.src, d.keep, d.wr, d.wl, d.h); c.d = d;
-  const sc = m.boss ? 1 : m.r / m.d.r; c.o.scale.multiplyScalar(1 / (c.lastSc || 1) * sc); c.lastSc = sc;
+  const sc = m.boss ? 1 : m.r / m.d.r; c.o.scale.setScalar(sc);
   c.o.visible = true; scene3.add(c.o); m.c3 = c; c.cur = null; c.tint = -1; play(c, m.aggro ? d.walk : 'Idle'); c.mixer.setTime(Math.random()); active3++;
 }
 function releaseMon(m) { const c = m.c3; if (!c) return; scene3.remove(c.o); c.mixer.stopAllAction(); c.cur = null; (pool3[m.boss ? 'boss' : m.kind] || (pool3[m.boss ? 'boss' : m.kind] = [])).push(c); m.c3 = null; active3--; }
@@ -225,7 +243,8 @@ function render3d(dt) {
   // camera: a classic ARPG angle, higher on narrow screens
   const port = H > W, back = port ? 1.35 : 1;
   const tx = pl.x * S3, tz = pl.y * S3, sx = shake ? (rnd() - 0.5) * shake * 0.04 : 0, sz = shake ? (rnd() - 0.5) * shake * 0.04 : 0;
-  cam3.position.set(tx + sx, 21 * back, tz + 15 * back + sz); cam3.lookAt(tx + sx, 0, tz + 1 + sz);
+  const near2 = Math.min(W, H) < 500 ? 0.9 : 1; cam3.position.set(tx + sx, 11.5 * back * near2, tz + 12.5 * back * near2 + sz); cam3.lookAt(tx + sx, 1.1, tz + sz);
+  if (window.__camSide) { cam3.position.set(tx + 6, 3.2, tz + 6); cam3.lookAt(tx, 1.4, tz); }
   heroL.position.set(tx, 5, tz + 1.5);
   // torch lights follow the nearest torches
   const near = torchSpr.map((s) => [s, (s.position.x - tx) ** 2 + (s.position.z - tz) ** 2]).sort((a, b) => a[1] - b[1]);
@@ -237,6 +256,7 @@ function render3d(dt) {
   else if (pl.cast && pl.cast !== lastCast) { lastCast = pl.cast; const gm = pl.cast.gem, n = gm === 'cleave' ? '1H_Melee_Attack_Slice_Diagonal' : gm === 'nova' ? 'Spellcasting' : 'Spellcast_Shoot'; const a = h.acts[n] || h.acts.Idle; play(h, n, true, Math.max(1, a.getClip().duration / Math.max(0.15, pl.cast.dur * 1.6)), 0.08); }
   else if (pl.dashT > 0 && h.curName !== 'Dodge_Forward') play(h, 'Dodge_Forward', true, 1.8, 0.05);
   else if (!pl.cast && (h.once <= 0 || h.curName === 'Idle' || h.curName === 'Running_A')) play(h, Math.hypot(pl.vx, pl.vy) > 30 ? 'Running_A' : 'Idle');
+  const spU = Math.hypot(pl.vx, pl.vy) * S3; if (h.curName === 'Running_A') legs(h, 'Running_A', spU); else noLean(h);
   if (h.once > 0) h.once -= dt;
   setTint(h, pl.hurtT > 0 ? 120 : 0, 0, 0);
   h.mixer.update(dt);
@@ -257,6 +277,7 @@ function render3d(dt) {
       if (atkNow) play(c, m.boss && m.act ? (m.act.k === 'slam' ? '2H_Melee_Attack_Chop' : m.act.k === 'ring' ? 'Spellcasting' : 'Taunt') : d.atk, true, m.boss ? 0.9 : 1.5, 0.06);
       else if (c.once <= 0 || !c.cur) play(c, !m.aggro ? 'Idle' : Math.hypot(m.vx, m.vy) > 12 || m.boss ? d.walk : 'Idle_Combat', false, m.d.spd > 120 ? 1.4 : 1);
       m.pw = m.wind; m.pa = m.atk; m.pact = m.act;
+      if (c.curName === d.walk && !m.boss) legs(c, d.walk, Math.hypot(m.vx, m.vy) * S3); else if (m.boss && c.curName === d.walk) legs(c, d.walk, m.spd * S3); else noLean(c);
       if (c.once > 0) c.once -= dt;
       setTint(c, m.flash > 0 ? 255 : m.burn > 0 ? 90 : m.rar === 2 ? 70 : 0, m.flash > 0 ? 255 : m.chill > 0 ? 70 : m.rar === 2 ? 55 : m.burn > 0 ? 30 : 0, m.flash > 0 ? 255 : m.chill > 0 ? 120 : m.rar === 1 ? 90 : 0);
     }
@@ -684,7 +705,7 @@ function update(dt) {
     const [mx, my] = moveDir();
     if (pl.dashT > 0) { pl.dashT -= dt; }
     else {
-      const sp = 235 * (1 + S.move / 100) * (pl.cast ? 0.45 : 1) * (pl.chillT > 0 ? 0.7 : 1); const k = 1 - Math.exp(-dt * 14);
+      const sp = 165 * (1 + S.move / 100) * (pl.cast ? 0.45 : 1) * (pl.chillT > 0 ? 0.7 : 1); const k = 1 - Math.exp(-dt * 14);
       pl.vx += (mx * sp - pl.vx) * k; pl.vy += (my * sp - pl.vy) * k;
       if (!pl.cast) { if (!TOUCH && mouse.in) { const ap = aimPoint(); pl.face = Math.atan2(ap.y - pl.y, ap.x - pl.x); } else if (mx || my) pl.face = Math.atan2(my, mx); }
     }
@@ -832,7 +853,7 @@ function draw() {
   g.lineCap = 'round'; g.lineJoin = 'round';
   // overlay: monster bars and names, loot labels, floating numbers (projected from the 3D world)
   for (const m of mons) {
-    if (m.dead || !m.c3 || m.boss) continue; const [x, y, ok] = toScreen(m.x, m.y, m.c3.d.h * (m.r / m.d.r) + 0.5); if (!ok) continue;
+    if (m.dead || !m.c3 || m.boss) continue; const [x, y, ok] = toScreen(m.x, m.y, m.c3.d.h * (m.r / m.d.r) + 0.4); if (!ok) continue;
     if (m.hp < m.max || m.rar) { const w = m.rar === 2 ? 60 : 36; g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(x - w / 2 - 1, y - 5, w + 2, 6); g.fillStyle = '#c83030'; g.fillRect(x - w / 2, y - 4, w * Math.max(0, m.hp / m.max), 4); }
     if (m.rar === 2) { text(m.name, x, y - 14, 13, '#ffff77', 'center', 'Fredoka', 3); text(m.aff.map((a) => a.n).join(' · '), x, y - 28, 11, '#c8c8c8', 'center', 'Fredoka', 3); }
     else if (m.rar === 1) text(m.aff.map((a) => a.n).join(' '), x, y - 12, 11, '#8888ff', 'center', 'Fredoka', 3);
@@ -979,7 +1000,7 @@ $('#rez').onclick = () => { $('#dead').classList.add('hide'); const s = START();
 $('#next').onclick = () => { $('#done').classList.add('hide'); newMap(); state = 'play'; setPads(true); };
 P = load() || freshProgress(); pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#charBtn').classList.add('hide');
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
-window.__rb = { scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, dropItem, dropGem, openPanel, closePanel };
+window.__rb = { strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, dropItem, dropGem, openPanel, closePanel };
 let last = performance.now();
 function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; update(dt); draw(); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
