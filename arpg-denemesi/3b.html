@@ -849,7 +849,10 @@ function draw() {
   if (pl.cast) { const [x, y] = toScreen(pl.x, pl.y, 0.1); const k = pl.cast.t / pl.cast.dur; g.strokeStyle = SKILLS[pl.cast.gem].col; g.lineWidth = 3; g.beginPath(); g.arc(x, y, 30, -Math.PI / 2, -Math.PI / 2 + TAU * k); g.stroke(); }
   if (state === 'start') return;
   hud();
+  fpsN++; fpsT += dt; if (fpsT >= 1) { fpsV = Math.round(fpsN / fpsT); fpsN = 0; fpsT = 0; }
+  text(fpsV + ' FPS', W / 2, TOUCH ? 62 : 58, 12, fpsV >= 50 ? '#7be05a' : fpsV >= 30 ? '#ffd23a' : '#ff6a6a', 'center', 'Fredoka', 3);
 }
+let fpsN = 0, fpsT = 0, fpsV = 0;
 function orb(x, y, R, frac, col, dcol, label) {
   g.save(); g.beginPath(); g.arc(x, y, R, 0, TAU); g.fillStyle = '#0a0608'; g.fill(); g.clip();
   const top = y + R - frac * 2 * R; g.fillStyle = col; g.beginPath(); g.moveTo(x - R, y + R); for (let i = 0; i <= 20; i++) { const xx = x - R + i / 20 * 2 * R; g.lineTo(xx, top + Math.sin(T * 3 + i * 0.6) * 3); } g.lineTo(x + R, y + R); g.fill();
