@@ -245,7 +245,7 @@ function render3d(dt) {
   // camera: a classic ARPG angle, higher on narrow screens
   const port = H > W, back = port ? 1.35 : 1;
   const tx = pl.x * S3, tz = pl.y * S3, sx = shake ? (rnd() - 0.5) * shake * 0.04 : 0, sz = shake ? (rnd() - 0.5) * shake * 0.04 : 0;
-  const near2 = (Math.min(W, H) < 500 ? 0.92 : 1) * camZoom; cam3.position.set(tx + sx, 14 * back * near2, tz + 15.5 * back * near2 + sz); cam3.lookAt(tx + sx, 1.1, tz + sz);
+  const near2 = (Math.min(W, H) < 500 ? 0.92 : 1) * camZoom; cam3.position.set(tx + sx, 14 * back * near2, tz + 15.5 * back * near2 + sz); cam3.lookAt(tx + sx, 1.1, tz + sz); { const cd = cam3.position.distanceTo(_v3.set(tx, 0, tz)); scene3.fog.near = cd * 1.05; scene3.fog.far = cd * 2.1; }
   if (window.__camSide) { cam3.position.set(tx + 6, 3.2, tz + 6); cam3.lookAt(tx, 1.4, tz); }
   heroL.position.set(tx, 5, tz + 1.5);
   // torch lights follow the nearest torches
