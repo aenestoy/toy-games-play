@@ -12,6 +12,7 @@
 /* Riftborn trial: a Path of Exile-style map run. Canvas for the crypt and HUD, DOM for the character panel and buttons. */
 html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-family:Fredoka,system-ui,sans-serif;color:#e8e0d0}
 #c,#c3{display:block;position:fixed;inset:0;width:100%;height:100%}
+html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff6d0'/%3E%3Cstop offset='1' stop-color='%23e8a830'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M3 2 L26 15 L16 17 L12 28 Z' fill='url(%23g)' stroke='%23200c00' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M6 6 L20 14 L14 15.5' fill='none' stroke='%23fff' stroke-width='1.2' opacity='.8'/%3E%3C/svg%3E") 3 2,auto}
 .hide{display:none!important}
 .btn{font:inherit;font-weight:700;border:1px solid #8a6a3a;border-radius:10px;padding:10px 20px;font-size:18px;color:#f4e6c8;background:linear-gradient(#3a2a1a,#1e140c);box-shadow:0 3px 0 #000,inset 0 1px 0 rgba(255,220,160,.2);cursor:pointer;font-family:Cinzel,serif;letter-spacing:.04em}
 .btn:active{transform:translateY(2px)}
@@ -193,15 +194,17 @@ const glowTex = (() => { const c = document.createElement('canvas'); c.width = c
 
 // ---------- assets ----------
 const loader3 = new GLTFLoader(); const AS = '../3b-deneme/assets/';
-let loaded3 = 0; const TOTAL3 = 28;
+let loaded3 = 0; const TOTAL3 = 56;
 const ld = (u) => new Promise((res, rej) => loader3.load(AS + u, (g) => { loaded3++; const b = document.getElementById('go'); if (b && b.disabled) b.textContent = 'LOADING ' + Math.round(loaded3 / TOTAL3 * 100) + '%'; res(g); }, undefined, rej));
 const DN = ['floor_tile_large', 'floor_tile_large_rocks', 'floor_tile_small_decorated', 'wall', 'wall_cracked', 'wall_arched', 'torch_mounted', 'barrel_large', 'barrel_small', 'crates_stacked', 'candle_triple', 'rubble_large', 'box_small', 'pillar', 'chest_gold', 'banner_patternA_red'];
-const [gMage, gWar, gMin, gRog, gSMage, wpn3, dn3, gKnight, gBarb, gRogH] = await Promise.all([
+const [gMage, gWar, gMin, gRog, gSMage, wpn3, dn3, gKnight, gBarb, gRogH, gy3] = await Promise.all([
   ld('kk-mage.glb'), ld('kk-skeleton_warrior.glb'), ld('kk-skeleton_minion.glb'), ld('kk-skeleton_rogue.glb'), ld('kk-skeleton_mage.glb'),
   Promise.all(['Skeleton_Blade', 'Skeleton_Axe', 'Skeleton_Staff', 'Skeleton_Shield_Small_A', 'Skeleton_Crossbow'].map((n) => ld('silah/' + n + '.gltf').then((g) => [n, g.scene]))).then(Object.fromEntries),
   Promise.all(DN.map((n) => ld('dungeon/' + n + '.glb').then((g) => [n, g.scene]))).then(Object.fromEntries),
   ld('kk-knight.glb'), ld('kk-barbarian.glb'), ld('kk-rogue_hooded.glb'),
+  Promise.all(['floor_dirt', 'floor_dirt_grave', 'path_A', 'path_B', 'fence', 'fence_broken', 'fence_pillar', 'gravestone', 'gravemarker_A', 'gravemarker_B', 'grave_A', 'grave_B', 'grave_A_destroyed', 'crypt', 'shrine_candles', 'tree_dead_large', 'tree_dead_medium', 'tree_dead_small', 'tree_pine_orange_large', 'tree_pine_yellow_medium', 'lantern_standing', 'post_lantern', 'post_skull', 'pumpkin_orange_jackolantern', 'coffin', 'ribcage', 'skull_candle', 'bench_decorated'].map((n) => ld('graveyard/' + n + '.gltf').then((g) => ['gy_' + n, g.scene]))).then(Object.fromEntries),
 ]);
+Object.assign(dn3, gy3);
 const GEAR = /Sword|Shield|Staff|Wand|Spellbook|Axe|Mug|Knife|Crossbow|Throwable|Helmet|Hat|Cape|Cloak|Hood/;
 // GLTFLoader strips '.' from node names: 'handslot.r' is 'handslotr' in three.js
 function boneOf(root, name) { const n = name.replace(/[\[\]\.:\/]/g, ''); let b = null; root.traverse((o) => { if (!b && o.isBone && (o.name === name || o.name === n)) b = o; }); return b; }
@@ -249,6 +252,18 @@ function instanced(name, list, tint) {
   im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); return im;
 }
 const torchSpr = [];
+function buildGraveyard(L, r) {
+  const T2 = (n) => (L[n] || (L[n] = []));
+  for (let ty = 0; ty < GH; ty++) for (let tx = 0; tx < GW; tx++) {
+    const cx = tx * 4 + 2, cz = ty * 4 + 2;
+    if (!solidT(tx, ty)) { T2(r() < 0.12 ? 'gy_floor_dirt_grave' : 'gy_floor_dirt').push({ x: cx, z: cz, ry: Math.floor(r() * 4) * Math.PI / 2 }); continue; }
+    if (gyCrypts.some((c) => tx >= c.x && tx <= c.x + 1 && ty >= c.y && ty <= c.y + 1)) continue;
+    const edge = !solidT(tx + 1, ty) || !solidT(tx - 1, ty) || !solidT(tx, ty + 1) || !solidT(tx, ty - 1);
+    const n = edge ? 2 : 1; for (let k = 0; k < n; k++) { const v = r(); T2(v < 0.12 ? 'gy_tree_pine_orange_large' : v < 0.3 ? 'gy_tree_pine_yellow_medium' : v < 0.7 ? 'gy_tree_dead_large' : 'gy_tree_dead_medium').push({ x: cx + (r() - 0.5) * 2.6, z: cz + (r() - 0.5) * 2.6, ry: r() * 6, sx: 1.0 + r() * 0.4, sy: 1.0 + r() * 0.4, sz: 1.0 + r() * 0.4 }); }
+  }
+  for (const c of gyCrypts) T2('gy_crypt').push({ x: c.x * 4 + 4, z: c.y * 4 + 4, ry: c.ry, sx: 1.25, sy: 1.25, sz: 1.25 });
+  for (const g2 of gyDecor) T2('gy_' + g2.k).push({ x: g2.x, z: g2.z, ry: g2.ry, sx: g2.s || 1, sy: g2.s || 1, sz: g2.s || 1 });
+}
 function build3D() {
   if (world3) { scene3.remove(world3); world3.traverse((o) => { if (o.isInstancedMesh) o.dispose(); }); }
   for (const s of torchSpr) scene3.remove(s); torchSpr.length = 0;
@@ -256,7 +271,8 @@ function build3D() {
   world3 = new THREE.Group(); scene3.add(world3);
   const r = rng(seedMap * 3 + 1), L = { floor_tile_large: [], floor_tile_large_rocks: [], floor_tile_small_decorated: [], wall: [], wall_cracked: [], wall_arched: [], low: [], torch_mounted: [], barrel_large: [], barrel_small: [], crates_stacked: [], candle_triple: [], rubble_large: [], box_small: [] };
   const pillarSet = new Set(); L.pillar = [];
-  for (let ty = 0; ty < GH; ty++) for (let tx = 0; tx < GW; tx++) {
+  if (ZONE().layout === 'graveyard') buildGraveyard(L, r);
+  else for (let ty = 0; ty < GH; ty++) for (let tx = 0; tx < GW; tx++) {
     if (solidT(tx, ty)) continue; const cx = tx * 4 + 2, cz = ty * 4 + 2, v = r();
     (v < 0.14 ? L.floor_tile_large_rocks : L.floor_tile_large).push({ x: cx, z: cz, ry: Math.floor(r() * 4) * Math.PI / 2 });
     const iso = (x2, y2) => solidT(x2, y2) && x2 > 0 && y2 > 0 && x2 < GW - 1 && y2 < GH - 1 && !solidT(x2 + 1, y2) && !solidT(x2 - 1, y2) && !solidT(x2, y2 + 1) && !solidT(x2, y2 - 1);
@@ -268,10 +284,10 @@ function build3D() {
     const nearWall = solidT(tx, ty - 1) || solidT(tx - 1, ty) || solidT(tx + 1, ty);
     if (nearWall && r() < 0.16) { const pk = ['barrel_large', 'barrel_small', 'crates_stacked', 'candle_triple', 'box_small', 'rubble_large'][Math.floor(r() * 6)]; L[pk].push({ x: cx + (r() - 0.5) * 2.2, z: cz - (solidT(tx, ty - 1) ? 1.1 : 0) + (r() - 0.5) * 1.2, ry: r() * 6, sx: pk === 'rubble_large' ? 0.5 : 1, sy: pk === 'rubble_large' ? 0.5 : 1, sz: pk === 'rubble_large' ? 0.5 : 1 }); }
   }
-  for (const t of torches) { const tx = Math.floor(t.x / TS), ty = Math.floor(t.y / TS); L.torch_mounted.push({ x: tx * 4 + 2, y: 1.9, z: ty * 4 - 1.5 }); const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xff9a3a, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); s.position.set(tx * 4 + 2, 2.75, ty * 4 - 1.05); s.scale.setScalar(1.3); s.userData.f = t.f; scene3.add(s); torchSpr.push(s); }
+  for (const t of torches) { const tx = Math.floor(t.x / TS), ty = Math.floor(t.y / TS); const gyd = ZONE().layout === 'graveyard'; if (gyd) (L.gy_post_lantern || (L.gy_post_lantern = [])).push({ x: tx * 4 + 2, z: ty * 4 - 0.6 }); else L.torch_mounted.push({ x: tx * 4 + 2, y: 1.9, z: ty * 4 - 1.5 }); const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xff9a3a, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); s.position.set(tx * 4 + 2, ZONE().layout === 'graveyard' ? 2.9 : 2.75, ty * 4 - (ZONE().layout === 'graveyard' ? 0.6 : 1.05)); s.scale.setScalar(1.3); s.userData.f = t.f; scene3.add(s); torchSpr.push(s); }
   const z = ZONE(); scene3.fog.color.setHex(z.fog); scene3.background.setHex(z.fog); hemi3.color.setHex(z.hemi[0]); hemi3.groundColor.setHex(z.hemi[1]); for (const l of TORCH_L) l.color.setHex(z.torch); for (const s2 of torchSpr) s2.material.color.setHex(z.glow);
   dressZone(world3, r);
-  for (const [k, list] of Object.entries(L)) { const im = instanced(k === 'low' ? 'wall' : k, list, k.startsWith('floor') ? z.floor : k.startsWith('wall') || k === 'low' ? z.wall : [0.9, 0.85, 0.85]); if (im) world3.add(im); }
+  for (const [k, list] of Object.entries(L)) { const im = instanced(k === 'low' ? 'wall' : k, list, k.startsWith('floor') || k.startsWith('gy_floor') ? z.floor : k.startsWith('wall') || k === 'low' ? z.wall : k.startsWith('gy_tree') ? z.tree || [0.9, 0.85, 0.85] : [0.9, 0.85, 0.85]); if (im) world3.add(im); }
 }
 
 // ---------- moving floors: lava, ice and void drawn with their own animated textures ----------
@@ -292,12 +308,18 @@ const voidTex = canvasTex(256, (t, n) => {
   const g2 = t.createRadialGradient(c, c, 4, c, c, c); g2.addColorStop(0, 'rgba(200,140,255,.8)'); g2.addColorStop(0.3, 'rgba(80,0,160,.2)'); g2.addColorStop(1, 'rgba(0,0,0,0)'); t.fillStyle = g2; t.fillRect(0, 0, n, n);
 });
 voidTex.wrapS = voidTex.wrapT = THREE.ClampToEdgeWrapping;
+const poisonTex = canvasTex(256, (t, n) => {
+  const c = n / 2, g0 = t.createRadialGradient(c, c, 4, c, c, c); g0.addColorStop(0, '#b8ff7a'); g0.addColorStop(0.45, '#3a8a22'); g0.addColorStop(0.85, 'rgba(20,60,10,.7)'); g0.addColorStop(1, 'rgba(10,30,5,0)'); t.fillStyle = g0; t.fillRect(0, 0, n, n); const r = rng(5);
+  for (let i = 0; i < 40; i++) { const x = c + (r() - 0.5) * n * 0.8, y = c + (r() - 0.5) * n * 0.8, rr = 3 + r() * 9; if (Math.hypot(x - c, y - c) > c * 0.8) continue; t.strokeStyle = 'rgba(220,255,160,.75)'; t.lineWidth = 2; t.beginPath(); t.arc(x, y, rr, 0, (Math.PI * 2)); t.stroke(); }
+});
+poisonTex.wrapS = poisonTex.wrapT = THREE.ClampToEdgeWrapping;
 // soft round mask so pools have uneven, glowing edges
 function blobGeo(seed) { const g2 = new THREE.CircleGeometry(1, 36), p = g2.attributes.position, r = rng(seed); const ph = [r() * 9, r() * 9]; for (let i = 1; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), a = Math.atan2(y, x), k = 1 + 0.16 * Math.sin(a * 3 + ph[0]) + 0.09 * Math.sin(a * 5 + ph[1]); p.setXY(i, x * k, y * k); } return g2; }
 const HAZMAT = {
   lava: new THREE.MeshBasicMaterial({ map: lavaTex, transparent: true, opacity: 0.97, depthWrite: false }),
   ice: new THREE.MeshBasicMaterial({ map: iceTex, transparent: true, opacity: 0.5, depthWrite: false }),
   void: new THREE.MeshBasicMaterial({ map: voidTex, transparent: true, opacity: 0.95, depthWrite: false }),
+  poison: new THREE.MeshBasicMaterial({ map: poisonTex, transparent: true, opacity: 0.85, depthWrite: false }),
 };
 const hazMeshes = new Map();
 function syncHazards(dt) {
@@ -308,7 +330,8 @@ function syncHazards(dt) {
     let m = hazMeshes.get(h);
     if (!m) { m = new THREE.Mesh(blobGeo(Math.floor(h.ph * 1000)), HAZMAT[h.type]); m.rotation.x = -Math.PI / 2; m.renderOrder = 1; scene3.add(m); hazMeshes.set(h, m); if (h.type === 'lava' || h.type === 'ice') { const s2 = h.r * S3 / 2.5; m.geometry.attributes.uv.array.forEach((v, i, a) => { a[i] = v * s2; }); m.geometry.attributes.uv.needsUpdate = true; } }
     m.position.set(h.x * S3, 0.08, h.y * S3); m.scale.setScalar(h.r * S3 * (h.life !== undefined ? Math.min(1, (9 - h.life) * 4, h.life * 2) : 1));
-    if (h.type === 'void') m.rotation.z += dt * 0.6;
+    if (h.type === 'void' || h.type === 'poison') m.rotation.z += dt * (h.type === 'poison' ? 0.3 : 0.6);
+    if (h.type === 'poison' && rnd() < dt * 2.5) fx.push({ k: 'p', x: h.x + (rnd() - 0.5) * h.r, y: h.y + (rnd() - 0.5) * h.r, vx: 0, vy: -25, t: 0, life: 1.2, col: '#9aff6a', s: 4 });
     if (h.type === 'lava' && rnd() < dt * 1.5) fx.push({ k: 'p', x: h.x + (rnd() - 0.5) * h.r, y: h.y + (rnd() - 0.5) * h.r, vx: 0, vy: -40, t: 0, life: 0.8, col: '#ffb040', s: 3 });
     if (h.type === 'void' && rnd() < dt * 2) fx.push({ k: 'p', x: h.x + (rnd() - 0.5) * h.r, y: h.y + (rnd() - 0.5) * h.r, vx: 0, vy: -30, t: 0, life: 1, col: '#b07aff', s: 3 });
   }
@@ -356,6 +379,7 @@ const KIND3 = {
   boss_barb: { src: gBarb, keep: ['2H_Axe', 'Barbarian_Hat', 'Barbarian_Cape'], walk: 'Walking_A', atk: '2H_Melee_Attack_Chop', h: 6.6 },
   boss_mage: { src: gMage, keep: ['2H_Staff', 'Mage_Hat', 'Mage_Cape'], walk: 'Walking_A', atk: 'Spellcast_Shoot', h: 6.4 },
   boss_smage: { src: gSMage, keep: ['Skeleton_Mage_Hat'], wr: 'Skeleton_Staff', walk: 'Walking_D_Skeletons', atk: 'Spellcasting', h: 6.6 },
+  boss_knight: { src: gKnight, keep: ['2H_Sword', 'Knight_Helmet', 'Knight_Cape'], walk: 'Walking_A', atk: '2H_Melee_Attack_Chop', h: 6.6 },
   boss_war: { src: gWar, keep: ['Skeleton_Warrior_Helmet', 'Skeleton_Warrior_Cloak'], wr: 'Skeleton_Axe', wl: 'Skeleton_Shield_Small_A', walk: 'Walking_D_Skeletons', atk: '2H_Melee_Attack_Chop', h: 6.4 },
 };
 const pool3 = {}; let active3 = 0;
@@ -853,7 +877,23 @@ function layoutTemple(r) {
     for (const yy of [y, GH - 1 - y - h]) { dig(x, yy, x + w, yy + h); const doorX = x + (w >> 1); dig(doorX, Math.min(yy + h, mid), doorX, Math.max(yy, mid)); }
   }
 }
-function genLayout(r) { const st = ZONE().layout; altarAt = null; if (st === 'catacombs') layoutCatacombs(r); else if (st === 'halls') layoutHalls(r); else if (st === 'temple') layoutTemple(r); else layoutCave(r); return st || 'cave'; }
+let gyCrypts = [], gyDecor = [];
+function layoutGraveyard(r) {
+  grid.fill(1); dig(3, 3, GW - 4, GH - 4);
+  // ragged forest edge
+  for (let x = 3; x < GW - 3; x++) for (const y of [3, GH - 4]) if (r() < 0.45) grid[y * GW + x] = 1;
+  for (let y = 3; y < GH - 3; y++) for (const x of [3, GW - 4]) if (r() < 0.45) grid[y * GW + x] = 1;
+  // groves of trees
+  for (let i = 0; i < 16; i++) { const cx = 6 + Math.floor(r() * (GW - 14)), cy = 5 + Math.floor(r() * (GH - 10)); for (let k = 0; k < 2 + r() * 4; k++) { const x = cx + Math.floor((r() - 0.5) * 3), y = cy + Math.floor((r() - 0.5) * 3); if (Math.abs(y - (GH >> 1)) > 1) grid[y * GW + x] = 1; } }
+  // crypts (2x2, solid)
+  gyCrypts = []; for (let i = 0; i < 4; i++) { const x = 8 + Math.floor(r() * (GW - 20)), y = r() < 0.5 ? 5 + Math.floor(r() * 5) : GH - 11 + Math.floor(r() * 4); gyCrypts.push({ x, y, ry: y < GH / 2 ? 0 : Math.PI }); for (let dy = 0; dy < 2; dy++) for (let dx = 0; dx < 2; dx++) grid[(y + dy) * GW + x + dx] = 1; }
+  // decor: rows of graves, fences, lanterns, pumpkins (no collision)
+  gyDecor = []; const free = (x, y) => !solidT(Math.floor(x / 4), Math.floor(y / 4)) && Math.abs(y / 4 - (GH >> 1) - 0.5) > 1.6;
+  for (let i = 0; i < 10; i++) { const x0 = 16 + r() * (GW * 4 - 40), y0 = 16 + r() * (GH * 4 - 32), ry = r() < 0.5 ? 0 : Math.PI; for (let k = 0; k < 4 + r() * 5; k++) { const x = x0 + k * 2.6, y = y0; if (!free(x, y)) continue; const v = r(); gyDecor.push({ k: v < 0.35 ? 'gravestone' : v < 0.55 ? 'gravemarker_A' : v < 0.7 ? 'gravemarker_B' : v < 0.85 ? 'grave_A' : 'grave_A_destroyed', x, z: y, ry: ry + (r() - 0.5) * 0.3 }); } }
+  for (let i = 0; i < 8; i++) { const x0 = 16 + r() * (GW * 4 - 40), y0 = 16 + r() * (GH * 4 - 32), horiz = r() < 0.5; for (let k = 0; k < 3 + r() * 4; k++) { const x = x0 + (horiz ? k * 4 : 0), y = y0 + (horiz ? 0 : k * 4); if (!free(x, y)) continue; gyDecor.push({ k: r() < 0.25 ? 'fence_broken' : 'fence', x, z: y, ry: horiz ? 0 : Math.PI / 2 }); } }
+  for (let i = 0; i < 26; i++) { const x = 12 + r() * (GW * 4 - 24), y = 12 + r() * (GH * 4 - 24); if (!free(x, y)) continue; const v = r(); gyDecor.push({ k: v < 0.3 ? 'pumpkin_orange_jackolantern' : v < 0.5 ? 'skull_candle' : v < 0.65 ? 'ribcage' : v < 0.8 ? 'coffin' : v < 0.9 ? 'bench_decorated' : 'lantern_standing', x, z: y, ry: r() * 6 }); }
+}
+function genLayout(r) { const st = ZONE().layout; altarAt = null; if (st === 'catacombs') layoutCatacombs(r); else if (st === 'halls') layoutHalls(r); else if (st === 'temple') layoutTemple(r); else if (st === 'graveyard') layoutGraveyard(r); else layoutCave(r); return st || 'cave'; }
 function genMap(seed) {
   const r = rng(seed); grid = new Uint8Array(GW * GH); const style = genLayout(r);
   const carve = (cx, cy, rad) => { for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) { if (dx * dx + dy * dy > rad * rad + 1) continue; const x = cx + dx, y = cy + dy; if (x > 0 && y > 0 && x < GW - 1 && y < GH - 1) grid[y * GW + x] = 0; } };
@@ -863,7 +903,8 @@ function genMap(seed) {
   while (q.length) { const i = q.pop(), px = i % GW, py = (i / GW) | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const j = (py + dy) * GW + px + dx; if (!seen[j] && !grid[j]) { seen[j] = 1; q.push(j); } } }
   for (let i = 0; i < grid.length; i++) if (!grid[i] && !seen[i]) grid[i] = 1;
   explored = new Uint8Array(GW * GH); chunks.clear(); torches = [];
-  for (let ty = 1; ty < GH - 1; ty++) for (let tx = 1; tx < GW - 1; tx++) if (!grid[ty * GW + tx] && grid[(ty - 1) * GW + tx] && r() < 0.07) torches.push({ x: tx * TS + TS / 2, y: ty * TS + 6, f: r() * 9 });
+  if (style === 'graveyard') for (let tx = 6; tx < GW - 8; tx += 5) torches.push({ x: tx * TS + TS / 2, y: ((GH >> 1) - 1) * TS + 6, f: r() * 9 });
+  else for (let ty = 1; ty < GH - 1; ty++) for (let tx = 1; tx < GW - 1; tx++) if (!grid[ty * GW + tx] && grid[(ty - 1) * GW + tx] && r() < 0.07) torches.push({ x: tx * TS + TS / 2, y: ty * TS + 6, f: r() * 9 });
 }
 function chunk(cx, cy) {
   const key = cx + ',' + cy; let c = chunks.get(key); if (c) return c;
@@ -902,6 +943,9 @@ const ZONES = [
   { n: 'THE FORGOTTEN TEMPLE', short: 'Forgotten Temple', floor: [1.05, 0.85, 1.35], wall: [0.9, 0.75, 1.2], fog: 0x0c0414, hemi: [0x9a7ae0, 0x1a0e28], torch: 0xb07aff, glow: 0xc08aff, monTint: [32, 0, 55],
     packs: { cultist: 4, ghoul: 2, zombie: 2, assassin: 1 }, hazard: 'void', hazTxt: 'Void pools drain mana and slow you',
     layout: 'temple', boss: { n: 'The Rift Hierophant', model: 'smage', tint: [70, 0, 100], acts: ['barrage', 'summon', 'slam'], summon: 'cultist', col: '#c08aff' } },
+  { n: 'THE HOLLOW GRAVEYARD', short: 'Hollow Graveyard', floor: [0.75, 0.85, 0.7], wall: [1, 1, 1], tree: [0.7, 0.72, 0.75], fog: 0x0a1418, hemi: [0x6a90b0, 0x101a14], torch: 0xffb050, glow: 0xffc070, monTint: [10, 35, 10],
+    packs: { zombie: 4, ghoul: 3, archer: 2, bloat: 1, assassin: 1 }, hazard: 'poison', hazTxt: 'Poison bogs: they hurt slowly',
+    layout: 'graveyard', boss: { n: 'The Gravekeeper', model: 'knight', tint: [20, 70, 30], acts: ['slam', 'summon', 'ring'], summon: 'zombie', col: '#9aff8a' } },
 ];
 const MAPMODS = [
   { k: 'fast', t: 'Monsters are 30% faster', q: 15 }, { k: 'tough', t: 'Monsters have 50% more life', q: 20 }, { k: 'hard', t: 'Monsters deal 30% more damage', q: 20 },
@@ -913,9 +957,9 @@ const lootBonus = () => (P.map ? P.map.mods.reduce((s, k) => s + MAPMODS.find((m
 let hazards = [];
 function makeHazards(floor, r) {
   hazards = []; const z = ZONE(); if (!z.hazard) return;
-  const n = { lava: 22, ice: 16, void: 14 }[z.hazard] * (hasMod('hazard') ? 2 : 1), st = START();
+  const n = { lava: 22, ice: 16, void: 14, poison: 16 }[z.hazard] * (hasMod('hazard') ? 2 : 1), st = START();
   if (z.hazard === 'lava') for (let k = 0; k < 4 * (hasMod('hazard') ? 2 : 1); k++) { let c = floor[Math.floor(r() * floor.length)]; if (Math.hypot(c.x - st.x, c.y - st.y) < 600) continue; let x = c.x, y = c.y, a = r() * TAU; for (let s2 = 0; s2 < 9; s2++) { if (solidAt(x, y)) break; hazards.push({ x, y, r: 34 + r() * 14, type: 'lava', ph: r() * 9 }); a += (r() - 0.5) * 0.9; x += Math.cos(a) * 38; y += Math.sin(a) * 38; } }
-  for (let i = 0; i < n; i++) { const c = floor[Math.floor(r() * floor.length)]; if (Math.hypot(c.x - st.x, c.y - st.y) < 500) continue; hazards.push({ x: c.x + (r() - 0.5) * 60, y: c.y + (r() - 0.5) * 60, r: { lava: 45 + r() * 40, ice: 90 + r() * 70, void: 55 + r() * 35 }[z.hazard], type: z.hazard, ph: r() * 9 }); }
+  for (let i = 0; i < n; i++) { const c = floor[Math.floor(r() * floor.length)]; if (Math.hypot(c.x - st.x, c.y - st.y) < 500) continue; hazards.push({ x: c.x + (r() - 0.5) * 60, y: c.y + (r() - 0.5) * 60, r: { lava: 45 + r() * 40, ice: 90 + r() * 70, void: 55 + r() * 35, poison: 70 + r() * 50 }[z.hazard], type: z.hazard, ph: r() * 9 }); }
 }
 function hazardAt(x, y) { for (const h of hazards) if (Math.abs(h.x - x) < h.r && Math.abs(h.y - y) < h.r && Math.hypot(h.x - x, h.y - y) < h.r) return h; return null; }
 function hazardsTick(dt) {
@@ -923,10 +967,11 @@ function hazardsTick(dt) {
   const h = pl.leap ? null : hazardAt(pl.x, pl.y); pl.onIce = h && h.type === 'ice'; pl.inVoid = h && h.type === 'void';
   if (h && h.type === 'lava') { pl.life -= pl.maxLife * 0.14 * dt; pl.hurtT = 0.1; if (rnd() < dt * 6) fx.push({ k: 'p', x: pl.x + (rnd() - 0.5) * 20, y: pl.y, vx: 0, vy: -60, t: 0, life: 0.4, col: '#ff7a2a', s: 3 }); if (pl.life <= 0) { pl.life = 0; die(); } }
   if (pl.inVoid) pl.mana = Math.max(0, pl.mana - 14 * dt);
+  if (h && h.type === 'poison') { pl.life -= pl.maxLife * 0.06 * dt; pl.hurtT = 0.1; if (pl.life <= 0) { pl.life = 0; die(); } }
 }
 // the rift offers three ways on: one safe, two with modifiers and more loot
 function riftChoices() {
-  const zs = [0, 1, 2, 3].sort(() => rnd() - 0.5), out = [];
+  const zs = [0, 1, 2, 3, 4].sort(() => rnd() - 0.5), out = [];
   for (let i = 0; i < 3; i++) { const pool = [...MAPMODS].sort(() => rnd() - 0.5); out.push({ zone: zs[i], mods: pool.slice(0, i).map((m) => m.k) }); }
   return out;
 }
