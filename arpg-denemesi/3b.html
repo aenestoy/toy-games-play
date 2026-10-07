@@ -234,7 +234,9 @@ const C3 = (h) => new THREE.Color(h);
 function spr(x, y, h, size, col, op) { const s = sprites.get(); s.position.set(x * S3, h, y * S3); s.scale.setScalar(size); s.material.color.set(col); s.material.opacity = op; return s; }
 
 // ---------- per frame ----------
-let lastCast = null, mixTick = 0;
+let lastCast = null, mixTick = 0, camZoom = 1;
+// mouse wheel zooms the camera between close and far
+addEventListener('wheel', (e) => { camZoom = Math.max(0.7, Math.min(1.45, camZoom * (e.deltaY > 0 ? 1.08 : 0.93))); }, { passive: true });
 const _v3 = new THREE.Vector3();
 function toScreen(x, y, h) { _v3.set(x * S3, h, y * S3).project(cam3); return [(_v3.x * 0.5 + 0.5) * W, (-_v3.y * 0.5 + 0.5) * H, _v3.z < 1]; }
 const rayc = new THREE.Raycaster(), plane3 = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.9), hit3 = new THREE.Vector3();
@@ -243,7 +245,7 @@ function render3d(dt) {
   // camera: a classic ARPG angle, higher on narrow screens
   const port = H > W, back = port ? 1.35 : 1;
   const tx = pl.x * S3, tz = pl.y * S3, sx = shake ? (rnd() - 0.5) * shake * 0.04 : 0, sz = shake ? (rnd() - 0.5) * shake * 0.04 : 0;
-  const near2 = Math.min(W, H) < 500 ? 0.9 : 1; cam3.position.set(tx + sx, 11.5 * back * near2, tz + 12.5 * back * near2 + sz); cam3.lookAt(tx + sx, 1.1, tz + sz);
+  const near2 = (Math.min(W, H) < 500 ? 0.92 : 1) * camZoom; cam3.position.set(tx + sx, 14 * back * near2, tz + 15.5 * back * near2 + sz); cam3.lookAt(tx + sx, 1.1, tz + sz);
   if (window.__camSide) { cam3.position.set(tx + 6, 3.2, tz + 6); cam3.lookAt(tx, 1.4, tz); }
   heroL.position.set(tx, 5, tz + 1.5);
   // torch lights follow the nearest torches
