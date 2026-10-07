@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Wobble Duel</title>
+<style>
+html,body{margin:0;height:100%;background:#1a1426;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block;margin:0 auto}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Competitive prototype 2 — WOBBLE DUEL: a real-time online-style ragdoll archery duel against a bot.
+// Not turn-based: both shoot whenever they like. Drag back and release to shoot (the first dots of the arc show),
+// tap JUMP to hop over an arrow. Bodies are verlet ragdolls held up by springs: hits knock them about, a kill drops them.
+// First to win 3 rounds. The platforms move a little every round, so no two rounds play the same.
+'use strict';
+const W = 1280, H = 720, GR = 900;
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let scale = 1;
+function fit() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
+  cv.width = W * s * dpr; cv.height = H * s * dpr; scale = s * dpr;
+  cv.style.marginTop = Math.max(0, (innerHeight - H * s) / 2) + 'px';
+}
+addEventListener('resize', fit); fit();
+
+// the body: 0 head, 1 neck, 2 pelvis, 3 hand (bow), 4 hand (string), 5/6 knees, 7/8 feet
+const REST = [[0, -78], [0, -58], [0, -18], [24, -52], [10, -50], [-8, 4], [8, 4], [-10, 26], [10, 26]];
+const BONES = [[0, 1], [1, 2], [1, 3], [1, 4], [2, 5], [2, 6], [5, 7], [6, 8], [3, 4]];
+function fighter(p, x, y, col) {
+  const f = { p, col, hp: 100, x, y, vy: 0, ground: y, onGround: true, cd: 0, dead: false, flash: 0, wins: 0, pts: [] };
+  for (const [dx, dy] of REST) f.pts.push({ x: x + dx * (p ? 1 : -1), y: y + dy, px: x + dx * (p ? 1 : -1), py: y + dy });
+  return f;
+}
+let S;
+function newRound(keepWins) {
+  const wins = keepWins ? [S.me.wins, S.bot.wins] : [0, 0];
+  const ly = 470 + (Math.random() - 0.5) * 140, ry = 470 + (Math.random() - 0.5) * 140;
+  const lx = 180 + Math.random() * 80, rx = W - 180 - Math.random() * 80;
+  S = {
+    mode: keepWins ? 'play' : (S ? S.mode : 'title'), arrows: [], fx: [], texts: [], aim: null, shake: 0, roundT: 0, endT: 0,
+    me: fighter(true, lx, ly, '#7dc3ff'), bot: fighter(false, rx, ry, '#ff8a8a'),
+    plats: [{ x: lx, y: ly + 30, w: 150 }, { x: rx, y: ry + 30, w: 150 }],
+    wind: (Math.random() - 0.5) * 120, botAim: 0.35 + Math.random() * 0.2,
+  };
+  S.me.wins = wins[0]; S.bot.wins = wins[1];
+  if (keepWins) text('ROUND ' + (S.me.wins + S.bot.wins + 1), W / 2, 200, '#fff', 54, 1.2);
+}
+newRound(false); S.mode = 'title';
+
+function text(s, x, y, col, size, t) { S.texts.push({ s, x, y, col, size, t, max: t }); }
+
+function shoot(f, vx, vy) {
+  if (f.cd > 0 || f.dead) return;
+  f.cd = 0.9;
+  const h = f.pts[3];
+  S.arrows.push({ x: h.x, y: h.y, vx, vy, p: f.p, stuck: null, life: 6 });
+}
+
+// ---------- physics
+function bodyStep(f, dt) {
+  const dir = f.p ? 1 : -1;
+  if (!f.dead) {
+    f.vy += GR * dt; f.y += f.vy * dt;
+    if (f.y >= f.ground) { f.y = f.ground; f.vy = 0; f.onGround = true; }
+  }
+  for (let i = 0; i < f.pts.length; i++) {
+    const q = f.pts[i];
+    const vx = (q.x - q.px) * 0.98, vy = (q.y - q.py) * 0.98;
+    q.px = q.x; q.py = q.y;
+    q.x += vx; q.y += vy + GR * dt * dt;
+    if (!f.dead) {
+      // pose spring: pull each point towards where the standing pose wants it (strong at the feet, softer above)
+      const tx = f.x + REST[i][0] * dir, ty = f.y + REST[i][1];
+      const k = i >= 7 ? 0.5 : i === 2 ? 0.35 : 0.18;
+      q.x += (tx - q.x) * k; q.y += (ty - q.y) * k;
+    }
+    if (q.y > H - 20) { q.y = H - 20; q.px = q.x; }
+    for (const pl of S.plats) if (f.dead && q.x > pl.x - pl.w / 2 && q.x < pl.x + pl.w / 2 && q.y > pl.y - 4 && q.py <= pl.y + 6) { q.y = pl.y - 4; }
+  }
+  for (let it = 0; it < 4; it++) for (const [a, b] of BONES) {
+    const A = f.pts[a], B = f.pts[b];
+    const rx = (REST[b][0] - REST[a][0]), ry = (REST[b][1] - REST[a][1]), L = Math.hypot(rx, ry);
+    const dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy) || 1, k = (d - L) / d / 2;
+    A.x += dx * k; A.y += dy * k; B.x -= dx * k; B.y -= dy * k;
+  }
+}
+function segDist(px, py, a, b) {
+  const vx = b.x - a.x, vy = b.y - a.y, l = vx * vx + vy * vy;
+  let t = l ? ((px - a.x) * vx + (py - a.y) * vy) / l : 0; t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - a.x - vx * t, py - a.y - vy * t);
+}
+function hitTest(f, x, y) {
+  if (Math.hypot(x - f.pts[0].x, y - f.pts[0].y) < 13) return 'head';
+  for (const [a, b] of BONES) if (segDist(x, y, f.pts[a], f.pts[b]) < 7) return 'body';
+  return null;
+}
+
+function step(dt) {
+  if (S.mode !== 'play') return;
+  S.roundT += dt;
+  for (const f of [S.me, S.bot]) { f.cd = Math.max(0, f.cd - dt); f.flash = Math.max(0, f.flash - dt); bodyStep(f, dt); }
+  for (const a of S.arrows) {
+    a.life -= dt;
+    if (a.stuck) { const q = a.stuck.f.pts[a.stuck.i]; a.x = q.x + a.stuck.dx; a.y = q.y + a.stuck.dy; continue; }
+    a.vx += S.wind * dt; a.vy += GR * 0.55 * dt;
+    const nx = a.x + a.vx * dt, ny = a.y + a.vy * dt;
+    const foe = a.p ? S.bot : S.me;
+    // test along the move (fast arrows)
+    for (let s = 1; s <= 4 && !a.stuck; s++) {
+      const x = a.x + (nx - a.x) * s / 4, y = a.y + (ny - a.y) * s / 4;
+      const hit = !foe.dead && hitTest(foe, x, y);
+      if (hit) {
+        const dmg = hit === 'head' ? 55 : 22 + Math.round(Math.hypot(a.vx, a.vy) / 90);
+        foe.hp -= dmg; foe.flash = 0.15; S.shake = hit === 'head' ? 14 : 7;
+        text(hit === 'head' ? 'HEADSHOT -' + dmg : '-' + dmg, foe.pts[0].x, foe.pts[0].y - 40, hit === 'head' ? '#ffd36a' : '#fff', hit === 'head' ? 34 : 26, 0.9);
+        // knock: push the body along the arrow
+        let near = 0, nd = 1e9;
+        foe.pts.forEach((q, i) => { const d = Math.hypot(q.x - x, q.y - y); if (d < nd) { nd = d; near = i; } q.px -= a.vx * 0.012 * (d < 40 ? 1.6 : 0.5); q.py -= a.vy * 0.012 * (d < 40 ? 1.6 : 0.5); });
+        a.stuck = { f: foe, i: near, dx: x - foe.pts[near].x, dy: y - foe.pts[near].y };
+        if (foe.hp <= 0) killed(foe);
+      }
+      if (!a.stuck) { a.x = x; a.y = y; }
+    }
+    if (!a.stuck) for (const pl of S.plats) if (a.x > pl.x - pl.w / 2 && a.x < pl.x + pl.w / 2 && Math.abs(a.y - pl.y) < 8) { a.vx = a.vy = 0; a.stuck = { f: { pts: [{ x: a.x, y: a.y }] }, i: 0, dx: 0, dy: 0 }; }
+  }
+  S.arrows = S.arrows.filter((a) => a.life > 0 && a.y < H + 100 && a.x > -200 && a.x < W + 200);
+  for (const t of S.texts) { t.t -= dt; t.y -= 30 * dt; } S.texts = S.texts.filter((t) => t.t > 0);
+  S.shake = Math.max(0, S.shake - dt * 30);
+  bot(dt);
+  if (S.endT > 0) {
+    S.endT -= dt;
+    if (S.endT <= 0) {
+      if (S.me.wins >= 3 || S.bot.wins >= 3) { S.mode = 'over'; }
+      else newRound(true);
+    }
+  }
+}
+function killed(f) {
+  f.dead = true; f.hp = 0;
+  const w = f.p ? S.bot : S.me; w.wins++;
+  text(f.p ? 'BOT WINS THE ROUND' : 'YOU WIN THE ROUND!', W / 2, 260, f.p ? '#ff8a8a' : '#7dff9a', 46, 2);
+  S.endT = 2.4;
+}
+
+// the bot: estimates the shot with a little error that shrinks as the round goes, hops when an arrow comes close
+function bot(dt) {
+  const B = S.bot, P = S.me;
+  if (B.dead || P.dead) return;
+  for (const a of S.arrows) if (a.p && !a.stuck && B.onGround && Math.abs(a.x - B.x) < 160 && Math.abs(a.y - (B.y - 40)) < 90 && Math.random() < 0.08) { B.vy = -430; B.onGround = false; }
+  if (B.cd > 0 || Math.random() > 0.03) return;
+  const h = B.pts[3], tx = P.pts[1].x, ty = P.pts[1].y;
+  const T = Math.abs(tx - h.x) / 700;
+  const err = Math.max(0.05, S.botAim - S.roundT * 0.02);
+  const vx = (tx - h.x) / T * (1 + (Math.random() - 0.5) * err);
+  const vy = (ty - h.y - 0.5 * GR * 0.55 * T * T) / T * (1 + (Math.random() - 0.5) * err) - S.wind * T * 0.5;
+  shoot(B, vx, vy);
+}
+
+// ---------- input: drag back from anywhere, release to shoot; the JUMP button (or W / space) hops
+const JUMP = { x: W - 120, y: H - 110, r: 60 };
+function toL(e) { const r = cv.getBoundingClientRect(); return [((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H]; }
+function jump() { const f = S.me; if (f.onGround && !f.dead) { f.vy = -430; f.onGround = false; } }
+cv.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  const [x, y] = toL(e);
+  if (S.mode !== 'play') { S.mode = 'play'; newRound(true); S.me.wins = S.bot.wins = 0; return; }
+  if (Math.hypot(x - JUMP.x, y - JUMP.y) < JUMP.r) return jump();
+  S.aim = { x0: x, y0: y, x, y, id: e.pointerId };
+});
+cv.addEventListener('pointermove', (e) => { if (S.aim && e.pointerId === S.aim.id) { const [x, y] = toL(e); S.aim.x = x; S.aim.y = y; } });
+cv.addEventListener('pointerup', (e) => {
+  if (!S.aim || e.pointerId !== S.aim.id) return;
+  const v = aimVel(); S.aim = null;
+  if (v) shoot(S.me, v[0], v[1]);
+});
+addEventListener('keydown', (e) => { if (e.code === 'KeyW' || e.code === 'Space' || e.code === 'ArrowUp') jump(); });
+function aimVel() {
+  const a = S.aim; if (!a) return null;
+  const dx = a.x0 - a.x, dy = a.y0 - a.y, d = Math.hypot(dx, dy);
+  if (d < 20) return null;
+  const pw = Math.min(1, d / 260) * 1250;
+  return [dx / d * pw, dy / d * pw];
+}
+
+// ---------- drawing
+function drawFighter(f) {
+  const P = f.pts, c = f.flash > 0 ? '#fff' : f.col;
+  g.strokeStyle = c; g.lineWidth = 6; g.lineCap = 'round';
+  for (const [a, b] of BONES) { if (a === 3 && b === 4) continue; g.beginPath(); g.moveTo(P[a].x, P[a].y); g.lineTo(P[b].x, P[b].y); g.stroke(); }
+  g.fillStyle = c; g.beginPath(); g.arc(P[0].x, P[0].y, 12, 0, 7); g.fill();
+  // the bow
+  const dir = f.p ? 1 : -1;
+  g.strokeStyle = '#d8b46a'; g.lineWidth = 4; g.beginPath(); g.arc(P[3].x, P[3].y, 22, -1.2 * dir + (dir < 0 ? Math.PI : 0), 1.2 * dir + (dir < 0 ? Math.PI : 0), dir < 0); g.stroke();
+}
+function draw() {
+  g.setTransform(scale, 0, 0, scale, 0, 0);
+  const sk = S.shake; g.translate((Math.random() - 0.5) * sk, (Math.random() - 0.5) * sk);
+  const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#2a1f4a'); sky.addColorStop(1, '#e07a5a');
+  g.fillStyle = sky; g.fillRect(-20, -20, W + 40, H + 40);
+  g.fillStyle = '#2b1d33'; g.fillRect(0, H - 20, W, 40);
+  for (const pl of S.plats) { g.fillStyle = '#4a3550'; g.fillRect(pl.x - pl.w / 2, pl.y, pl.w, H - pl.y); g.fillStyle = '#8a6a8a'; g.fillRect(pl.x - pl.w / 2, pl.y - 6, pl.w, 10); }
+  // wind
+  g.fillStyle = 'rgba(255,255,255,.75)'; g.font = '700 18px system-ui'; g.textAlign = 'center';
+  g.fillText('WIND ' + (S.wind > 0 ? '→' : '←') + ' ' + Math.abs(Math.round(S.wind / 12)), W / 2, 92);
+  drawFighter(S.me); drawFighter(S.bot);
+  for (const a of S.arrows) {
+    const ang = a.stuck ? a.ang ?? Math.atan2(a.vy, a.vx) : Math.atan2(a.vy, a.vx); a.ang = ang;
+    g.save(); g.translate(a.x, a.y); g.rotate(ang);
+    g.strokeStyle = a.p ? '#cfe8ff' : '#ffd0d0'; g.lineWidth = 3; g.beginPath(); g.moveTo(-34, 0); g.lineTo(0, 0); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.moveTo(4, 0); g.lineTo(-6, -4); g.lineTo(-6, 4); g.fill();
+    g.restore();
+  }
+  // aim preview: only the first part of the arc
+  const v = aimVel();
+  if (v) {
+    let x = S.me.pts[3].x, y = S.me.pts[3].y, vx = v[0], vy = v[1];
+    for (let i = 0; i < 9; i++) { for (let k = 0; k < 4; k++) { vx += S.wind / 60 / 4; vy += GR * 0.55 / 60 / 4; x += vx / 60 / 4; y += vy / 60 / 4; } g.fillStyle = 'rgba(255,255,255,' + (0.9 - i * 0.09) + ')'; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); }
+  }
+  g.setTransform(scale, 0, 0, scale, 0, 0);
+  // HUD
+  const hud = (f, x, al) => {
+    g.textAlign = al; g.fillStyle = f.col; g.font = '900 26px system-ui'; g.fillText(f.p ? 'YOU' : 'BOT', x, 40);
+    const bx = al === 'left' ? x : x - 300;
+    g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(bx, 50, 300, 16); g.fillStyle = f.col; g.fillRect(bx, 50, 300 * Math.max(0, f.hp) / 100, 16);
+    for (let i = 0; i < 3; i++) { g.fillStyle = i < f.wins ? '#ffd36a' : 'rgba(255,255,255,.2)'; g.beginPath(); g.arc(al === 'left' ? x + 12 + i * 26 : x - 12 - i * 26, 86, 9, 0, 7); g.fill(); }
+  };
+  hud(S.me, 30, 'left'); hud(S.bot, W - 30, 'right');
+  g.fillStyle = 'rgba(255,255,255,.18)'; g.beginPath(); g.arc(JUMP.x, JUMP.y, JUMP.r, 0, 7); g.fill();
+  g.fillStyle = '#fff'; g.font = '900 22px system-ui'; g.textAlign = 'center'; g.fillText('JUMP', JUMP.x, JUMP.y + 8);
+  g.fillStyle = 'rgba(255,255,255,.55)'; g.font = '600 16px system-ui'; g.textAlign = 'left';
+  g.fillText('Drag back anywhere and release to shoot  ·  JUMP (or W / Space) to dodge', 30, H - 36);
+  for (const t of S.texts) { g.globalAlpha = Math.min(1, t.t / t.max * 2); g.textAlign = 'center'; g.fillStyle = t.col; g.font = '900 ' + t.size + 'px system-ui'; g.fillText(t.s, t.x, t.y); g.globalAlpha = 1; }
+  if (S.mode !== 'play') {
+    g.fillStyle = 'rgba(8,5,16,.8)'; g.fillRect(0, 0, W, H); g.textAlign = 'center';
+    g.fillStyle = '#ffd36a'; g.font = '900 64px system-ui';
+    g.fillText(S.mode === 'title' ? 'WOBBLE DUEL' : S.me.wins >= 3 ? 'YOU WIN THE DUEL!' : 'THE BOT WINS', W / 2, 250);
+    g.fillStyle = '#fff'; g.font = '600 24px system-ui';
+    (S.mode === 'title' ? ['A live archery duel: no turns, shoot whenever you want.', 'Drag back and release. Headshots hurt double.', 'Jump over incoming arrows. Wind and platforms change every round.', 'First to 3 rounds.'] : ['Rounds  ' + S.me.wins + ' - ' + S.bot.wins]).forEach((l, i) => g.fillText(l, W / 2, 320 + i * 36));
+    g.fillStyle = '#7dff9a'; g.font = '800 30px system-ui'; g.fillText('TAP TO ' + (S.mode === 'title' ? 'PLAY' : 'PLAY AGAIN'), W / 2, 540);
+  }
+}
+let last = performance.now();
+function loop(now) { const dt = Math.min(1 / 30, (now - last) / 1000); last = now; step(dt); draw(); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

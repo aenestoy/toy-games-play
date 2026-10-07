@@ -1,0 +1,79 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rekabet Denemeleri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* Layout: arcade cabinet — one big screen, three cartridge buttons under it. Single dark look by choice. */
+:root {
+  --bg: #14121c;
+  --panel: #1f1b2b;
+  --line: #3a3350;
+  --fg: #f2eefb;
+  --muted: #a79fbd;
+  --accent: #ffcf3f;
+  --display: "Bungee", "Arial Black", Impact, sans-serif;
+  --body: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 28px; display: grid; gap: 14px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(22px, 4vw, 34px); margin: 0; letter-spacing: .02em; text-wrap: balance; }
+h1 span { color: var(--accent); }
+header p { margin: 0; color: var(--muted); }
+.screen { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; background: #000; border: 3px solid var(--line); border-radius: 10px; overflow: hidden; }
+.screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.carts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .carts { grid-template-columns: 1fr; } }
+.cart { text-align: left; background: var(--panel); color: var(--fg); border: 2px solid var(--line); border-radius: 10px; padding: 14px 16px; cursor: pointer; display: grid; gap: 6px; font: inherit; min-width: 0; }
+.cart:hover { border-color: var(--muted); }
+.cart:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.cart[aria-pressed="true"] { border-color: var(--c); box-shadow: 0 0 0 1px var(--c) inset; }
+.cart b { font-family: var(--display); font-weight: 400; font-size: 18px; color: var(--c); letter-spacing: .03em; }
+.cart .how { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.cart .what { color: var(--fg); line-height: 1.45; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Rekabet <span>Denemeleri</span></h1>
+    <p>Üç farklı rekabet fikri, botlara karşı birer dakikalık. Oyna, hangisi "bir daha" dedirtiyor?</p>
+  </header>
+
+  <div class="screen"><iframe id="game" title="Oyun" src="kart.html"></iframe></div>
+
+  <div class="carts" role="group" aria-label="Oyun seç">
+    <button class="cart" data-src="kart.html" aria-pressed="true" style="--c:#c04bff">
+      <b>Fog Lanes</b>
+      <span class="how">Kart seç · şeride bırak</span>
+      <span class="what">2 dakikalık kartlı düello: kuleleri yık. Rakibin yarısı sisli, askerleri nehri geçince görünür.</span>
+    </button>
+    <button class="cart" data-src="okcu.html" aria-pressed="false" style="--c:#7dc3ff">
+      <b>Wobble Duel</b>
+      <span class="how">Geri çek · bırak · zıpla</span>
+      <span class="what">Sıra yok, canlı okçu düellosu. Sallanan bedenler, kafadan vuruş, rüzgâr. 3 tur alan kazanır.</span>
+    </button>
+    <button class="cart" data-src="baskin.html" aria-pressed="false" style="--c:#ffcf4a">
+      <b>Raid Rush</b>
+      <span class="how">Üsse dokun · kule kur</span>
+      <span class="what">4 üs, 3 dakika. Rakiplerin altınını çal, eve canlı taşı. Vurulan akıncı ganimetini düşürür.</span>
+    </button>
+  </div>
+  <p class="note">Hepsi botlara karşı; gerçek oyuncu eşleşmesi seçilen fikre sonra eklenir. Telefonda yan çevirerek oynanır.</p>
+</div>
+
+<script>
+const frame = document.getElementById('game');
+const carts = [...document.querySelectorAll('.cart')];
+function pick(btn) {
+  carts.forEach(c => c.setAttribute('aria-pressed', c === btn ? 'true' : 'false'));
+  frame.src = btn.dataset.src;
+  frame.focus();
+}
+carts.forEach(c => c.addEventListener('click', () => pick(c)));
+frame.addEventListener('load', () => { try { frame.contentWindow.focus(); } catch (e) {} });
+</script>
