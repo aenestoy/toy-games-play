@@ -267,20 +267,12 @@ function build3D() {
 }
 
 // ---------- characters ----------
-const hero3 = makeChar(gMage, ['2H_Staff', '1H_Wand', 'Mage_Cape'], null, null, 2.7); scene3.add(hero3.o); play(hero3, 'Idle');
-// the end of the staff that is farther from the hand is the tip: shots leave from there
-let staffTip = null;
-const staff3 = (() => { let m = null; hero3.inner.traverse((o) => { if (o.isMesh && o.name === '2H_Staff') m = o; }); if (!m) return null;
-  const pos = m.geometry.attributes.position; m.geometry.computeBoundingBox(); const sz = m.geometry.boundingBox.getSize(new THREE.Vector3());
-  const ax = sz.x >= sz.y && sz.x >= sz.z ? 'getX' : sz.y >= sz.z ? 'getY' : 'getZ'; let mn = 1e9, mx = -1e9, a = 0, b = 0;
-  for (let i = 0; i < pos.count; i++) { const v = pos[ax](i); if (v < mn) { mn = v; a = i; } if (v > mx) { mx = v; b = i; } }
-  return { m, ends: [a, b], hand: boneOf(hero3.inner, 'hand.r') }; })();
-const _ta = new THREE.Vector3(), _tb = new THREE.Vector3(), _th = new THREE.Vector3();
+const hero3 = makeChar(gMage, ['Mage_Cape'], null, null, 2.7); scene3.add(hero3.o); play(hero3, 'Idle');
+// shots leave from the far end of the worn weapon
+let staffTip = null; const _ta = new THREE.Vector3();
 function updateStaffTip() {
-  if (!staff3) return; const { m, ends, hand } = staff3; hero3.o.updateMatrixWorld(true); if (m.skeleton) m.skeleton.update();
-  const at = (i, out) => { if (m.isSkinnedMesh) m.getVertexPosition(i, out); else out.fromBufferAttribute(m.geometry.attributes.position, i); return m.localToWorld(out); };
-  at(ends[0], _ta); at(ends[1], _tb); if (hand) hand.getWorldPosition(_th); else _th.copy(hero3.o.position);
-  const t = _ta.distanceToSquared(_th) > _tb.distanceToSquared(_th) ? _ta : _tb; staffTip = { x: t.x / S3, y: t.z / S3, h: t.y };
+  const w = hero3.gear && hero3.gear.weapon, tl = hero3.gear && hero3.gear.tipLocal; if (!w || !tl) { staffTip = null; return; }
+  w.updateWorldMatrix(true, false); _ta.copy(tl).applyMatrix4(w.parent.matrixWorld); staffTip = { x: _ta.x / S3, y: _ta.z / S3, h: _ta.y };
 }
 const ring3 = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.05, 40), new THREE.MeshBasicMaterial({ color: 0xffd890, transparent: true, opacity: 0.5, depthWrite: false })); ring3.rotation.x = -Math.PI / 2; scene3.add(ring3);
 const KIND3 = {
@@ -354,14 +346,14 @@ const PROTO = {
   boots: (col) => { const g = new THREE.Group(); const m = new THREE.MeshToonMaterial({ color: col, gradientMap: RAMP }); for (const x of [-0.16, 0.16]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.34, 0.2), m); leg.position.set(x, 0.17, 0); const toe = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.13, 0.32), m); toe.position.set(x, 0.065, 0.12); const sole = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.42), gold); sole.position.set(x, 0, 0.07); g.add(leg, toe, sole); } return g; },
   crystal: (col) => { const g = new THREE.Group(); const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.26), gemMat(col, 0.9)); m.scale.y = 1.7; g.add(m); return g; },
 };
-const BASE3 = { 'Ashwood Staff': ['staff'], 'Rusted Greatsword': ['sword'], 'Bone Wand': ['wand'], 'Tattered Robe': ['hat'], 'Scale Vest': ['helmet'], 'Wizard Hat': ['hat'], 'Iron Helm': ['helmet'], 'Ruby Ring': ['ring', '#ff3a4a'], 'Sapphire Ring': ['ring', '#3a8aff'], 'Topaz Ring': ['ring', '#ffd23a'], 'Iron Ring': ['ring', '#c8c8d8'], 'Jade Amulet': ['amulet', '#3ad88a'], 'Lapis Amulet': ['amulet', '#3a5aff'], 'Wool Shoes': ['boots', '#b8a890'], 'Leather Boots': ['boots', '#7a4a2a'] };
+const BASE3 = { 'Ashwood Staff': ['staff'], 'Rusted Greatsword': ['sword'], 'Bone Wand': ['wand'], 'Tattered Robe': ['hat'], 'Scale Vest': ['helmet'], 'Wizard Hat': ['hat'], 'Iron Helm': ['helmet'], 'Ruby Ring': ['ring', '#ff3a4a'], 'Sapphire Ring': ['ring', '#3a8aff'], 'Topaz Ring': ['ring', '#ffd23a'], 'Iron Ring': ['ring', '#c8c8d8'], 'Jade Amulet': ['amulet', '#3ad88a'], 'Lapis Amulet': ['amulet', '#3a5aff'], 'Wool Shoes': ['boots', '#b8a890'], 'Leather Boots': ['boots', '#7a4a2a'], 'Iron Greaves': ['boots', '#9aa0aa'], "Runner's Boots": ['boots', '#3a7a5a'], 'Onyx Ring': ['ring', '#2a2a3a'], 'Coral Ring': ['ring', '#ff7a6a'], 'Amber Amulet': ['amulet', '#ffaa3a'], 'Onyx Amulet': ['amulet', '#5a3a8a'] };
 const lootObjs = new Map(); let lootFrame = 0;
 function makeLoot(l) {
   const isGem = !!l.gem, rar = isGem ? 2 : l.it.rar, col = isGem ? (l.gem.g ? SKILLS[l.gem.g].col : '#e8e8f0') : RCOL[rar];
   const root = new THREE.Group(), spin = new THREE.Group(); root.add(spin);
   let item = null;
   if (isGem) item = PROTO.crystal(col);
-  else { const [k, c2] = BASE3[l.it.base] || ['crystal']; const f = PROTO[k]; item = !f ? PROTO.crystal(col) : f.length ? f(c2 || col) : f(); }
+  else item = itemModel(l.it, col);
   if (!isGem && l.it.rar === 3) item.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); m.material.emissive = new THREE.Color('#6a3000'); } });
   spin.add(item);
   const glow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: glowTex, color: col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
@@ -390,34 +382,37 @@ function syncLoot(dt) {
   for (const [l, o] of lootObjs) if (o.frame !== lootFrame) { scene3.remove(o.root); for (const m of [o.glow, ...o.beams]) { m.geometry.dispose(); m.material.dispose(); } lootObjs.delete(l); }
 }
 
-// ---------- worn gear shows on the hero: weapon in the hand, hat or helm on the head, boots coloured ----------
-// (the head piece is a plain model that follows the head bone every frame; weapons are the kit's own hand-slot models)
-const HEADGEAR = { 'Wizard Hat': ['hat', 1.3, 0.78, 0, 0], 'Tattered Robe': ['hat', 1.3, 0.78, 0, 0], 'Iron Helm': ['helmet', 1.62, 0.55, 0, -Math.PI / 2], 'Scale Vest': ['helmet', 1.62, 0.55, 0, -Math.PI / 2] };
+// ---------- worn gear shows on the hero: the kit's own weapon, shield and helmet models on the same bones they were made for ----------
+const GEAR3D = {
+  'Ashwood Staff': ['mage', '2H_Staff', 'handslot.r'], 'Bone Wand': ['mage', '1H_Wand', 'handslot.r'], 'Rusted Greatsword': ['knight', '2H_Sword', 'handslot.r'],
+  'Knight Sword': ['knight', '1H_Sword', 'handslot.r'], 'Great Axe': ['barb', '2H_Axe', 'handslot.r'], 'Hatchet': ['barb', '1H_Axe', 'handslot.r'], 'Rogue Dagger': ['rogue', 'Knife', 'handslot.r'],
+  'Round Shield': ['knight', 'Round_Shield', 'handslot.l'], 'Spiked Shield': ['knight', 'Spike_Shield', 'handslot.l'], 'Kite Shield': ['knight', 'Rectangle_Shield', 'handslot.l'],
+  'Crest Shield': ['knight', 'Badge_Shield', 'handslot.l'], 'Spellbook': ['mage', 'Spellbook', 'handslot.l'], 'Parrying Blade': ['knight', '1H_Sword_Offhand', 'handslot.l'],
+  'Throwing Axe': ['barb', '1H_Axe_Offhand', 'handslot.l'], 'Off-hand Dagger': ['rogue', 'Knife_Offhand', 'handslot.l'],
+  'Wizard Hat': ['mage', 'Mage_Hat', 'head'], 'Iron Helm': ['knight', 'Knight_Helmet', 'head'], 'Bear Hood': ['barb', 'Barbarian_Hat', 'head'],
+  'Tattered Robe': ['mage', 'Mage_Hat', 'head'], 'Scale Vest': ['knight', 'Knight_Helmet', 'head'],
+};
+const KITSRC = () => ({ mage: gMage, knight: gKnight, barb: gBarb, rogue: gRogH });
+function kitNode(base) { const g = GEAR3D[base]; if (!g) return null; const src = KITSRC()[g[0]]; const n = src.scene.getObjectByName(g[1]); if (!n) return null; const c = n.clone(true); c.traverse((m) => { if (m.isMesh) { m.material = toon(m.material, false); m.frustumCulled = false; } }); return c; }
+// a loose copy for loot and icons: centred, sized
+function kitProto(base, size) { const c = kitNode(base); if (!c) return null; c.position.set(0, 0, 0); c.quaternion.identity(); c.scale.setScalar(1); const g2 = new THREE.Group(); g2.add(c); const box = new THREE.Box3().setFromObject(g2), ctr = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()); c.position.sub(ctr); const k = size / Math.max(sz.x, sz.y, sz.z); g2.scale.setScalar(k); const out = new THREE.Group(); out.add(g2); return out; }
 function wearGear(c) {
   c.gear = c.gear || {}; const eq = P.eq;
-  const wb = eq.weapon ? eq.weapon.base : 'Ashwood Staff';
-  c.inner.traverse((m) => { if (!m.isMesh) return; if (m.name === '2H_Staff') m.visible = wb === 'Ashwood Staff'; if (m.name === '1H_Wand') { m.visible = wb === 'Bone Wand'; if (m.visible && !c.wandMat) { m.material = toon(m.material, false).clone(); c.wandMat = 1; } } });
-  // greatsword: the skeleton kit's blade in the right hand slot
-  if (c.gear.sword) { c.gear.sword.parent && c.gear.sword.parent.remove(c.gear.sword); c.gear.sword = null; }
-  if (wb === 'Rusted Greatsword') { const s = wpn3.Skeleton_Blade.clone(true); s.scale.setScalar(1.0); s.traverse((m) => { if (m.isMesh) m.material = toon(m.material, false); }); const b = boneOf(c.inner, 'handslot.r'); if (b) { b.add(s); c.gear.sword = s; } }
-  // head piece
-  const hb = eq.armor ? eq.armor.base : null, want = hb && HEADGEAR[hb] ? hb : null;
-  if (c.gear.headKey !== want) {
-    if (c.gear.head) { c.gear.head.parent && c.gear.head.parent.remove(c.gear.head); c.gear.head = null; }
-    if (want) { const [k, size, up, rx, ry] = HEADGEAR[want]; const h = PROTO[k](); h.scale.setScalar(size); h.rotation.set(rx, ry, 0); const g2 = new THREE.Group(); g2.add(h); g2.userData.up = up; c.gear.head = g2; (c.o.parent || scene3).add(g2); }
-    c.gear.headKey = want;
+  for (const [slot, def] of [['weapon', 'Ashwood Staff'], ['offhand', null], ['armor', null]]) {
+    const base = eq[slot] ? eq[slot].base : def;
+    if (c.gear[slot + 'Base'] === base) continue;
+    if (c.gear[slot]) { c.gear[slot].parent && c.gear[slot].parent.remove(c.gear[slot]); c.gear[slot] = null; }
+    c.gear[slot + 'Base'] = base; if (!base || !GEAR3D[base]) continue;
+    const node = kitNode(base), bone = boneOf(c.inner, GEAR3D[base][2]); if (!node || !bone) continue;
+    bone.add(node); c.gear[slot] = node;
+    if (slot === 'weapon') { // the weapon's far end (from the hand) is where shots leave
+      let far = new THREE.Vector3(), best = -1; node.updateMatrixWorld(true);
+      node.traverse((m) => { if (!m.isMesh) return; const p = m.geometry.attributes.position, v = new THREE.Vector3(); for (let i = 0; i < p.count; i += 3) { v.fromBufferAttribute(p, i).applyMatrix4(m.matrix); const d = v.lengthSq(); if (d > best) { best = d; far.copy(v); } } });
+      c.gear.tipLocal = far;
+    }
   }
-  // boots: tint the feet a little by rarity
-  const br = eq.boots ? eq.boots.rar : -1; c.bootTint = br;
-  c.headBone = c.headBone || boneOf(c.inner, 'head');
 }
-const _hp = new THREE.Vector3(), _hq = new THREE.Quaternion();
-function followHead(c) {
-  const g2 = c.gear && c.gear.head; if (!g2 || !c.headBone) return;
-  if (g2.parent !== c.o.parent && c.o.parent) c.o.parent.add(g2);
-  c.headBone.getWorldPosition(_hp); c.o.getWorldQuaternion(_hq);
-  g2.position.copy(_hp); g2.position.y += g2.userData.up * c.h / 2.7; g2.quaternion.copy(_hq); g2.visible = c.o.visible;
-}
+function followHead() {}
 
 // ---------- icons: items, gems and the hero rendered once from their 3D models (for the Gear page) ----------
 const iconR = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -427,6 +422,7 @@ const iconCam = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
 const iconCache = new Map();
 function itemModel(it, col) {
   if (!it) return PROTO.crystal(col);
+  const kp = kitProto(it.base, it.slot === 'armor' ? 0.85 : it.slot === 'offhand' ? 0.9 : 1.5); if (kp) { if (it.rar === 3) kp.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color('#6a3000'); } }); return kp; }
   const [k, c2] = BASE3[it.base] || ['crystal']; const f = PROTO[k]; const m = !f ? PROTO.crystal(col) : f.length ? f(c2 || col) : f();
   if (it.rar === 3) m.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color('#6a3000'); } });
   return m;
@@ -449,7 +445,7 @@ function gemIcon(gm) {
 let portraitUrl = null;
 function heroPortrait() {
   if (portraitUrl) return portraitUrl;
-  const c = makeChar(gMage, ['2H_Staff', '1H_Wand', 'Mage_Cape'], null, null, 2.7); iconScene.add(c.o); wearGear(c); const a = c.acts.Idle_Combat || c.acts.Idle; if (a) { a.play(); c.mixer.setTime(0.4); }
+  const c = makeChar(gMage, ['Mage_Cape'], null, null, 2.7); iconScene.add(c.o); wearGear(c); const a = c.acts.Idle_Combat || c.acts.Idle; if (a) { a.play(); c.mixer.setTime(0.4); }
   iconR.setSize(220, 300, false); const g2 = c.o; g2.rotation.y = 0.35; g2.updateMatrixWorld(true); g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); }); followHead(c); if (c.gear && c.gear.head) c.gear.head.position.y += 0.14;
   g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); }); const bx = new THREE.Box3(); g2.traverse((o) => { if (o.isMesh && o.visible) bx.expandByObject(o, true); }); const bc = bx.getCenter(new THREE.Vector3()), bh = bx.max.y - bx.min.y; const cam = new THREE.PerspectiveCamera(26, 220 / 300, 0.1, 80); cam.position.set(bc.x, bc.y + bh * 0.05, bc.z + bh * 0.62 / Math.tan(13 * Math.PI / 180)); cam.lookAt(bc);
   iconR.setClearColor(0x000000, 0); iconR.render(iconScene, cam); portraitUrl = iconR.domElement.toDataURL('image/png'); iconScene.remove(g2); if (c.gear && c.gear.head) iconScene.remove(c.gear.head); return portraitUrl;
@@ -462,7 +458,7 @@ const dollCam = new THREE.PerspectiveCamera(28, 0.75, 0.1, 60);
 let doll = null, dollYaw = 0.35, dollGk = '', dollOn = false;
 const dollFloor = new THREE.Mesh(new THREE.CircleGeometry(1.1, 40), new THREE.MeshBasicMaterial({ map: glowTex, color: 0xe8b860, transparent: true, opacity: 0.55, depthWrite: false })); dollFloor.rotation.x = -Math.PI / 2; dollScene.add(dollFloor);
 function dollMount(host) {
-  if (!doll) { doll = makeChar(gMage, ['2H_Staff', '1H_Wand', 'Mage_Cape'], null, null, 2.7); dollScene.add(doll.o); play(doll, 'Idle'); }
+  if (!doll) { doll = makeChar(gMage, ['Mage_Cape'], null, null, 2.7); dollScene.add(doll.o); play(doll, 'Idle'); }
   const cv3 = dollR.domElement; cv3.className = 'dollC'; host.prepend(cv3); dollOn = true;
   let drag = null;
   cv3.onpointerdown = (e) => { drag = { x: e.clientX, yaw: dollYaw }; cv3.setPointerCapture(e.pointerId); };
@@ -609,15 +605,29 @@ const SUPPORTS = {
   pierce: { n: 'Pierce', need: ['projectile'], d: 'Projectiles pass through 2 more enemies', mana: 1.2 },
   leech: { n: 'Life Leech', need: [], d: 'Hits heal you for 3% of the damage dealt', mana: 1.15 },
   minion: { n: 'Minion Power', need: ['minion'], d: '+1 skeleton, minions deal 40% more damage', mana: 1.3 },
+  crit: { n: 'Increased Critical', need: [], d: '+25% critical strike chance for this skill', mana: 1.15 },
+  conc: { n: 'Concentrated Effect', need: ['area'], d: '35% more damage, 30% less area', mana: 1.3 },
+  focus: { n: 'Elemental Focus', need: ['fire', 'cold', 'lightning'], d: '30% more elemental damage', mana: 1.25 },
+  brutal: { n: 'Brutality', need: ['attack'], d: 'Attacks deal 35% more physical damage', mana: 1.25 },
+  swift: { n: 'Faster Attacks', need: ['attack'], d: 'Attacks are 30% faster', mana: 1.15 },
 };
-const SUPCOL = { mp: '#ffb060', chain: '#9fc8ff', area: '#c8a0ff', faster: '#a0f0a0', addfire: '#ff6a3a', echo: '#e0e0ff', pierce: '#ffe08a', leech: '#ff5a6a', minion: '#9ae07a' };
-const SLOTS = ['weapon', 'armor', 'ring', 'amulet', 'boots'];
+const SUPCOL = { crit: '#ffe066', conc: '#ff8a5a', focus: '#7fd8ff', brutal: '#c84a3a', swift: '#b8f0a0', mp: '#ffb060', chain: '#9fc8ff', area: '#c8a0ff', faster: '#a0f0a0', addfire: '#ff6a3a', echo: '#e0e0ff', pierce: '#ffe08a', leech: '#ff5a6a', minion: '#9ae07a' };
+const SLOTS = ['weapon', 'offhand', 'armor', 'ring', 'amulet', 'boots'];
+const baseOf = (it) => it && (BASES[it.slot] || []).find((b) => b.n === it.base);
+const twoHanded = () => { const b = baseOf(P.eq.weapon); return !!(b && b.hand === 2); };
+// hand: 2 = two-handed (no off-hand); kind: what the weapon fights with (spells or melee attacks)
 const BASES = {
-  weapon: [{ n: 'Ashwood Staff', imp: { inc_spell: 15 } }, { n: 'Rusted Greatsword', imp: { inc_phys: 30 } }, { n: 'Bone Wand', imp: { cast: 8 } }],
-  armor: [{ n: 'Wizard Hat', imp: { mana: 15 } }, { n: 'Iron Helm', imp: { life: 30 } }],
-  ring: [{ n: 'Ruby Ring', imp: { inc_fire: 12 } }, { n: 'Sapphire Ring', imp: { inc_cold: 12 } }, { n: 'Topaz Ring', imp: { inc_light: 12 } }, { n: 'Iron Ring', imp: { inc_phys: 10 } }],
-  amulet: [{ n: 'Jade Amulet', imp: { life: 15 } }, { n: 'Lapis Amulet', imp: { mana: 20 } }],
-  boots: [{ n: 'Wool Shoes', imp: { move: 6 } }, { n: 'Leather Boots', imp: { life: 12, move: 3 } }],
+  weapon: [{ n: 'Ashwood Staff', imp: { inc_spell: 20 }, hand: 2, kind: 'spell' }, { n: 'Bone Wand', imp: { cast: 8, inc_spell: 8 }, hand: 1, kind: 'spell' },
+    { n: 'Rusted Greatsword', imp: { inc_phys: 35 }, hand: 2, kind: 'attack' }, { n: 'Knight Sword', imp: { inc_phys: 18, crit: 2 }, hand: 1, kind: 'attack' },
+    { n: 'Great Axe', imp: { inc_phys: 30, area: 10 }, hand: 2, kind: 'attack' }, { n: 'Hatchet', imp: { inc_phys: 15, lok: 2 }, hand: 1, kind: 'attack' },
+    { n: 'Rogue Dagger', imp: { crit: 4, move: 4 }, hand: 1, kind: 'attack' }],
+  offhand: [{ n: 'Round Shield', imp: { life: 25, block: 8 } }, { n: 'Spiked Shield', imp: { life: 15, block: 6, inc_phys: 10 } }, { n: 'Kite Shield', imp: { life: 40, block: 10 } },
+    { n: 'Crest Shield', imp: { life: 20, block: 8, mana: 10 } }, { n: 'Spellbook', imp: { inc_spell: 14, mana: 15 } }, { n: 'Parrying Blade', imp: { crit: 3, inc_phys: 8 } },
+    { n: 'Throwing Axe', imp: { inc_phys: 12, lok: 2 } }, { n: 'Off-hand Dagger', imp: { crit: 4 } }],
+  armor: [{ n: 'Wizard Hat', imp: { mana: 20, inc_spell: 5 } }, { n: 'Iron Helm', imp: { life: 35 } }, { n: 'Bear Hood', imp: { life: 20, inc_phys: 10 } }],
+  ring: [{ n: 'Ruby Ring', imp: { inc_fire: 12 } }, { n: 'Sapphire Ring', imp: { inc_cold: 12 } }, { n: 'Topaz Ring', imp: { inc_light: 12 } }, { n: 'Iron Ring', imp: { inc_phys: 10 } }, { n: 'Onyx Ring', imp: { crit: 2 } }, { n: 'Coral Ring', imp: { life: 15 } }],
+  amulet: [{ n: 'Jade Amulet', imp: { life: 15 } }, { n: 'Lapis Amulet', imp: { mana: 20 } }, { n: 'Amber Amulet', imp: { inc_phys: 12 } }, { n: 'Onyx Amulet', imp: { inc_spell: 10 } }],
+  boots: [{ n: 'Wool Shoes', imp: { move: 6 } }, { n: 'Leather Boots', imp: { life: 12, move: 3 } }, { n: 'Iron Greaves', imp: { life: 25 } }, { n: 'Runner\'s Boots', imp: { move: 10 } }],
 };
 const AFFIX = [
   { k: 'life', t: '+# to maximum Life', r: [10, 28] }, { k: 'mana', t: '+# to maximum Mana', r: [8, 22] },
@@ -626,34 +636,51 @@ const AFFIX = [
   { k: 'inc_phys', t: '#% increased Physical Damage', r: [10, 30] }, { k: 'cast', t: '#% increased Cast Speed', r: [5, 14], no: ['boots', 'armor'] },
   { k: 'move', t: '#% increased Movement Speed', r: [5, 14], only: ['boots'] }, { k: 'crit', t: '+#% Critical Strike Chance', r: [2, 6], no: ['boots'] },
   { k: 'lok', t: '+# Life gained on Kill', r: [2, 6] }, { k: 'mregen', t: '#% increased Mana Regeneration', r: [15, 40] },
-  { k: 'area', t: '#% increased Area of Effect', r: [6, 16], no: ['boots'] }, { k: 'proj', t: '+# Projectile', r: [1, 1], only: ['weapon', 'amulet'], rare: 1 },
+  { k: 'area', t: '#% increased Area of Effect', r: [6, 16], no: ['boots'] },
+  { k: 'lifep', t: '#% increased maximum Life', r: [5, 12], no: ['weapon'] }, { k: 'mcost', t: '#% reduced Mana Cost of Skills', r: [5, 12], only: ['ring', 'amulet', 'armor'] },
+  { k: 'cdr', t: '#% faster Dash recovery', r: [10, 25], only: ['boots', 'amulet'] }, { k: 'boss', t: '#% more Damage to Rare and Boss monsters', r: [8, 20], only: ['weapon', 'ring', 'amulet', 'offhand'] },
+  { k: 'block', t: '+#% chance to Block hits', r: [3, 8], only: ['offhand', 'armor', 'amulet'] }, { k: 'leechp', t: '#% of damage Leeched as Life', r: [1, 3], only: ['weapon', 'ring', 'amulet'], rare: 1 }, { k: 'proj', t: '+# Projectile', r: [1, 1], only: ['weapon', 'amulet'], rare: 1 },
 ];
 const UNIQUES = [
   { n: 'Emberheart', slot: 'amulet', base: 'Lapis Amulet', mods: { inc_fire: 30, life: 20 }, sp: 'twin', st: 'Fireball explodes twice' },
   { n: 'Stormweave', slot: 'boots', base: 'Wool Shoes', mods: { move: 22, inc_light: 20 }, sp: 'storm', st: 'Arc chains 3 more times' },
   { n: 'The Echoing Band', slot: 'ring', base: 'Iron Ring', mods: { mana: 25 }, sp: 'echo', st: 'All spells echo (cast twice), 20% less damage' },
   { n: 'Gravecleaver', slot: 'weapon', base: 'Rusted Greatsword', mods: { inc_phys: 60, lok: 8 }, sp: 'quake', st: 'Cleave sends a shockwave forward' },
+  { n: 'Kingsguard', slot: 'armor', base: 'Iron Helm', mods: { life: 50, lifep: 10, block: 6 }, sp: 'none', st: 'A crown for the last of the guard' },
+  { n: 'Wraithstep', slot: 'boots', base: 'Wool Shoes', mods: { move: 18, cdr: 40 }, sp: 'ghost', st: 'Dashing leaves you untouchable for longer' },
+  { n: 'Bloodthirst', slot: 'weapon', base: 'Great Axe', mods: { inc_phys: 50, leechp: 4 }, sp: 'none', st: 'Every swing drinks' },
+  { n: 'Starfall Codex', slot: 'offhand', base: 'Spellbook', mods: { inc_spell: 25, mana: 30 }, sp: 'proj2', st: '+2 Projectiles for spells' },
+  { n: 'Frostfang', slot: 'weapon', base: 'Rogue Dagger', mods: { crit: 6, inc_cold: 40 }, sp: 'chillall', st: 'Your hits always Chill' },
+  { n: 'Crown of Embers', slot: 'armor', base: 'Wizard Hat', mods: { inc_fire: 35, mana: 25 }, sp: 'igniteall', st: 'Your hits can always Ignite' },
+  { n: 'The Bulwark', slot: 'offhand', base: 'Kite Shield', mods: { life: 60, block: 15 }, sp: 'none', st: 'Nothing gets past' },
 ];
 const STAT_TEXT = Object.fromEntries(AFFIX.map((a) => [a.k, a.t]));
 const RARE_A = ['Doom', 'Grim', 'Storm', 'Blood', 'Soul', 'Dusk', 'Hollow', 'Ember', 'Rift', 'Bone'], RARE_B = ['Whisper', 'Bane', 'Song', 'Grip', 'Gaze', 'Thirst', 'Veil', 'Mark', 'Coil', 'Spire'];
 const RN = ['Normal', 'Magic', 'Rare', 'Unique'];
 // passive tree: a small wheel; notables on the outer ring
 const TREE = (() => {
-  const n = [{ id: 0, x: 0.5, y: 0.5, st: {}, nm: 'Exile', start: 1 }];
-  const r1 = [{ life: 12 }, { inc_spell: 10 }, { inc_fire: 12 }, { cast: 6 }, { inc_cold: 12 }, { inc_light: 12 }];
-  r1.forEach((st, i) => { const a = -Math.PI / 2 + i * TAU / 6; n.push({ id: 1 + i, x: 0.5 + Math.cos(a) * 0.17, y: 0.5 + Math.sin(a) * 0.17, st }); });
-  const r2 = [{ life: 15 }, { nm: 'Bloodbound', st: { life: 40, lok: 4 } }, { inc_spell: 12 }, { area: 10 }, { nm: 'Pyromancer', st: { inc_fire: 35, area: 8 } }, { inc_fire: 14 }, { cast: 8 }, { mana: 20 }, { nm: 'Frostborn', st: { inc_cold: 35, crit: 3 } }, { inc_cold: 14 }, { inc_light: 14 }, { nm: 'Stormcaller', st: { inc_light: 30, chain1: 1 } }];
-  r2.forEach((o, i) => { const a = -Math.PI / 2 + (i - 0.5) * TAU / 12; n.push({ id: 7 + i, x: 0.5 + Math.cos(a) * 0.36, y: 0.5 + Math.sin(a) * 0.36, st: o.st || o, nm: o.nm, notable: !!o.nm }); });
-  const e = []; for (let i = 0; i < 6; i++) { e.push([0, 1 + i], [1 + i, 7 + 2 * i], [1 + i, 7 + ((2 * i + 1) % 12)]); } for (let i = 0; i < 12; i++) e.push([7 + i, 7 + (i + 1) % 12]);
+  // three rings around the start: small nodes lead out to eight notables on the outer ring
+  const n = [{ id: 0, x: 0.5, y: 0.5, st: {}, nm: 'Exile', start: 1 }], e = [];
+  const R1 = [{ life: 12 }, { inc_spell: 10 }, { inc_phys: 10 }, { inc_fire: 10 }, { mana: 15 }, { inc_cold: 10 }, { crit: 2 }, { inc_light: 10 }];
+  const R2 = [{ life: 15 }, { lifep: 5 }, { inc_spell: 12 }, { cast: 6 }, { inc_phys: 12 }, { area: 8 }, { inc_fire: 12 }, { lok: 3 }, { mana: 20 }, { mregen: 20 }, { inc_cold: 12 }, { block: 4 }, { crit: 3 }, { move: 5 }, { inc_light: 12 }, { cdr: 10 }];
+  const NOT = [{ nm: 'Juggernaut', st: { lifep: 15, block: 8 } }, { nm: 'Arcanist', st: { inc_spell: 30, cast: 10 } }, { nm: 'Warlord', st: { inc_phys: 35, area: 10 } }, { nm: 'Pyromancer', st: { inc_fire: 35, area: 8 } },
+    { nm: 'Bloodbound', st: { life: 40, leechp: 2 } }, { nm: 'Frostborn', st: { inc_cold: 35, crit: 3 } }, { nm: 'Assassin', st: { crit: 6, move: 8, boss: 15 } }, { nm: 'Stormcaller', st: { inc_light: 30, chain1: 1 } }];
+  const ring = (list, rad, off, extra) => list.map((st, i) => { const a = -Math.PI / 2 + (i + off) * TAU / list.length, o = { id: n.length, x: 0.5 + Math.cos(a) * rad, y: 0.5 + Math.sin(a) * rad, st: st.st || st, ...extra(st) }; n.push(o); return o; });
+  const r1 = ring(R1, 0.13, 0, () => ({})), r2 = ring(R2, 0.25, -0.5, () => ({})), r3 = ring(NOT, 0.37, 0, (o) => ({ nm: o.nm, notable: true }));
+  r1.forEach((a) => e.push([0, a.id]));
+  r1.forEach((a, i) => { e.push([a.id, r2[(2 * i) % 16].id], [a.id, r2[(2 * i + 1) % 16].id]); e.push([a.id, r1[(i + 1) % 8].id]); });
+  r2.forEach((a, i) => { if (i % 2 === 0) e.push([a.id, r2[i + 1].id]); });
+  r3.forEach((a, i) => { e.push([a.id, r2[(2 * i) % 16].id], [a.id, r2[(2 * i + 1) % 16].id]); });
   return { n, e };
 })();
 const nodeText = (st) => Object.entries(st).map(([k, v]) => k === 'chain1' ? 'Arc and projectiles chain +1 time' : (STAT_TEXT[k] || k).replace('#', v)).join(' · ');
+// old saves: passives from the small tree are refunded
 
 // ---------- player progress (saved) ----------
 const SAVE = 'riftborn-trial-1';
 let P = null;
 function freshProgress() {
-  return { lv: 1, xp: 0, tier: 1, eq: { weapon: mkItem('weapon', 0, 1, BASES.weapon[0]), armor: null, ring: null, amulet: null, boots: null }, bag: [],
+  return { lv: 1, xp: 0, tier: 1, eq: { weapon: mkItem('weapon', 0, 1, BASES.weapon[0]), offhand: null, armor: null, ring: null, amulet: null, boots: null }, bag: [],
     slots: [{ g: 'fireball', s: [null, null] }, { g: 'cleave', s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }],
     gemBag: [{ sup: 'mp' }], tree: [0], tip: 0, kills: 0 };
 }
@@ -670,17 +697,17 @@ function mkItem(slot, rar, tier, base) {
     if (!pool.length) break; const a = pick(pool); used.add(a.k);
     const m = 1 + 0.25 * (tier - 1); it.mods[a.k] = a.r[0] === a.r[1] ? a.r[0] : Math.round((a.r[0] + rnd() * (a.r[1] - a.r[0])) * m);
   }
-  if (rar === 1) { const k = Object.keys(it.mods)[0]; it.name = (k ? ({ life: 'Hale', mana: 'Azure', inc_spell: 'Mystic', inc_fire: 'Searing', inc_cold: 'Frigid', inc_light: 'Charged', inc_phys: 'Brutal', cast: 'Swift', move: 'Runner\'s', crit: 'Keen', lok: 'Vampiric', mregen: 'Calm', area: 'Wide', proj: 'Splitting' }[k] + ' ') : '') + base.n; }
+  if (rar === 1) { const k = Object.keys(it.mods)[0]; it.name = (k ? ({ life: 'Hale', mana: 'Azure', inc_spell: 'Mystic', inc_fire: 'Searing', inc_cold: 'Frigid', inc_light: 'Charged', inc_phys: 'Brutal', lifep: 'Stalwart', mcost: 'Thrifty', cdr: 'Fleet', boss: 'Slayer\'s', block: 'Guarding', leechp: 'Thirsting', cast: 'Swift', move: 'Runner\'s', crit: 'Keen', lok: 'Vampiric', mregen: 'Calm', area: 'Wide', proj: 'Splitting' }[k] + ' ') : '') + base.n; }
   if (rar === 2) it.name = pick(RARE_A) + ' ' + pick(RARE_B);
   return it;
 }
-function mkUnique() { const u = pick(UNIQUES); return { slot: u.slot, rar: 3, base: u.base, imp: { ...BASES[u.slot].find((b) => b.n === u.base).imp }, mods: { ...u.mods }, name: u.n, sp: u.sp, st: u.st }; }
+function mkUnique() { const u = pick(UNIQUES.filter((x) => BASES[x.slot].some((b) => b.n === x.base))); return { slot: u.slot, rar: 3, base: u.base, imp: { ...BASES[u.slot].find((b) => b.n === u.base).imp }, mods: { ...u.mods }, name: u.n, sp: u.sp, st: u.st }; }
 function itemLines(it) { const L = []; for (const [k, v] of Object.entries(it.imp)) L.push(['imp', STAT_TEXT[k].replace('#', v)]); for (const [k, v] of Object.entries(it.mods)) L.push(['mod', STAT_TEXT[k].replace('#', v)]); if (it.st) L.push(['uni', it.st]); return L; }
 
 // ---------- stats ----------
 let S = null;
 // the weapon decides the kind of skill: staff and wand cast spells, a sword uses melee attacks
-const weaponKind = () => { const b = P.eq.weapon ? P.eq.weapon.base : 'Ashwood Staff'; return b === 'Rusted Greatsword' ? 'attack' : 'spell'; };
+const weaponKind = () => { const b = baseOf(P.eq.weapon); return b ? b.kind : 'spell'; };
 const skillOk = (gem) => SKILLS[gem].tags.includes(weaponKind());
 let lastKind = null;
 function fitSkillsToWeapon(announce) {
@@ -694,13 +721,14 @@ function fitSkillsToWeapon(announce) {
   if (kind === 'spell' && !P.slots.some((s) => s.g)) P.slots[0].g = 'fireball';
   // the main button gets the main skill
   if (!P.slots[0].g) { const j = P.slots.findIndex((s) => s.g); if (j > 0) { const t = P.slots[0]; P.slots[0] = P.slots[j]; P.slots[j] = t; } }
-  if (!first && announce) { banner = { t: 0, a: kind === 'attack' ? 'SWORD IN HAND' : 'STAFF IN HAND', b: kind === 'attack' ? 'Melee skills: ' + P.slots.filter((s) => s.g).map((s) => SKILLS[s.g].n).join(', ') : 'Spells: ' + P.slots.filter((s) => s.g).map((s) => SKILLS[s.g].n).join(', ') }; sfx('lvl'); }
+  if (!first && announce) { banner = { t: 0, a: kind === 'attack' ? 'MELEE WEAPON IN HAND' : 'CASTER WEAPON IN HAND', b: kind === 'attack' ? 'Melee skills: ' + P.slots.filter((s) => s.g).map((s) => SKILLS[s.g].n).join(', ') : 'Spells: ' + P.slots.filter((s) => s.g).map((s) => SKILLS[s.g].n).join(', ') }; sfx('lvl'); }
 }
 function calcStats() {
-  const s = { life: 130 + P.lv * 10, mana: 60 + P.lv * 4, inc_spell: 0, inc_fire: 0, inc_cold: 0, inc_light: 0, inc_phys: 0, cast: 0, move: 0, crit: 5, lok: 0, mregen: 0, area: 0, proj: 0, chain1: 0, sp: new Set() };
+  const s = { lifep: 0, mcost: 0, cdr: 0, boss: 0, block: 0, leechp: 0, life: 130 + P.lv * 10, mana: 60 + P.lv * 4, inc_spell: 0, inc_fire: 0, inc_cold: 0, inc_light: 0, inc_phys: 0, cast: 0, move: 0, crit: 5, lok: 0, mregen: 0, area: 0, proj: 0, chain1: 0, sp: new Set() };
   const add = (o) => { for (const [k, v] of Object.entries(o)) s[k] = (s[k] || 0) + v; };
   for (const k of SLOTS) { const it = P.eq[k]; if (!it) continue; add(it.imp); add(it.mods); if (it.sp) s.sp.add(it.sp); }
   for (const id of P.tree) add(TREE.n[id].st);
+  s.life = Math.round(s.life * (1 + s.lifep / 100)); s.block = Math.min(50, s.block);
   S = s;
   if (P && !previewing) fitSkillsToWeapon(true);
   if (pl) { pl.maxLife = s.life; pl.maxMana = s.mana; pl.life = Math.min(pl.life, s.life); pl.mana = Math.min(pl.mana, s.mana); }
@@ -857,7 +885,7 @@ function collide(o) {
 // ---------- combat ----------
 function supOf(slot) { return slot.s.filter(Boolean); }
 function supportFits(sup, gem) { const need = SUPPORTS[sup].need; return !need.length || need.some((t) => SKILLS[gem].tags.includes(t)); }
-function manaCost(slot) { let c = SKILLS[slot.g].mana; for (const s of supOf(slot)) c *= SUPPORTS[s].mana; return Math.round(c); }
+function manaCost(slot) { let c = SKILLS[slot.g].mana; for (const s of supOf(slot)) c *= SUPPORTS[s].mana; return Math.max(1, Math.round(c * (1 - (S ? S.mcost : 0) / 100))); }
 function dmgOf(gem, mul) {
   const sk = SKILLS[gem], el = sk.el; let inc = (sk.tags.includes('spell') ? S.inc_spell : 0) + ({ fire: S.inc_fire, cold: S.inc_cold, light: S.inc_light, phys: S.inc_phys }[el] || 0);
   return sk.base * (1 + 0.07 * (P.lv - 1)) * (1 + inc / 100) * mul;
@@ -865,19 +893,19 @@ function dmgOf(gem, mul) {
 function startCast(i, aim) {
   const slot = P.slots[i]; if (!slot.g || pl.cast || pl.dashT > 0 || pl.leap) return; if (!skillOk(slot.g)) return;
   const cost = manaCost(slot); if (pl.mana < cost) { if (!pl.oomT || T - pl.oomT > 1.2) { pl.oomT = T; floater(pl.x, pl.y - 60, 'Not enough mana', '#7fa8ff', 16); } return; }
-  pl.mana -= cost; const sup = supOf(slot); let ct = SKILLS[slot.g].cast / (1 + S.cast / 100); if (sup.includes('faster')) ct *= 0.65;
+  pl.mana -= cost; const sup = supOf(slot); let ct = SKILLS[slot.g].cast / (1 + S.cast / 100); if (sup.includes('faster')) ct *= 0.65; if (sup.includes('swift')) ct *= 0.7;
   pl.cast = { i, t: 0, dur: ct, aim, gem: slot.g, sup }; pl.face = Math.atan2(aim.y - pl.y, aim.x - pl.x);
 }
-let LEECH = false;
+let LEECH = false, CRITB = 0;
 function execCast(c, echo) {
   const gem = c.gem, sup = c.sup, has = (k) => sup.includes(k), sk = SKILLS[gem]; LEECH = has('leech');
-  const area = (1 + S.area / 100) * (has('area') ? 1.4 : 1);
-  let mul = echo ? 0.8 : 1; if (has('mp')) mul *= 0.75; if (S.sp.has('echo') && sk.tags.includes('spell')) mul *= 0.8;
+  const area = (1 + S.area / 100) * (has('area') ? 1.4 : 1) * (has('conc') ? 0.7 : 1); CRITB = has('crit') ? 25 : 0;
+  let mul = echo ? 0.8 : 1; if (has('mp')) mul *= 0.75; if (has('conc')) mul *= 1.35; if (has('focus') && sk.el !== 'phys') mul *= 1.3; if (has('brutal') && sk.el === 'phys') mul *= 1.35; if (S.sp.has('echo') && sk.tags.includes('spell')) mul *= 0.8;
   const dmg = dmgOf(gem, mul), addFire = has('addfire') ? 6 * (1 + 0.1 * P.lv) * mul : 0, ign = has('addfire');
   const ang = Math.atan2(c.aim.y - pl.y, c.aim.x - pl.x);
   const tp = staffTip, hx = tp ? tp.x : pl.x + Math.cos(ang) * 22, hy = tp ? tp.y : pl.y + Math.sin(ang) * 22, n0 = projs.length;
   if (gem === 'fireball') {
-    const n = 1 + (has('mp') ? 2 : 0) + S.proj; sfx('fire');
+    const n = 1 + (has('mp') ? 2 : 0) + S.proj + (S.sp.has('proj2') ? 2 : 0); sfx('fire');
     for (let k = 0; k < n; k++) { const a = ang + (k - (n - 1) / 2) * 0.2; projs.push({ x: hx, y: hy, vx: Math.cos(a) * 640, vy: Math.sin(a) * 640, r: 9, life: 1.1, el: 'fire', dmg, addFire, ign, chain: (has('chain') ? 2 : 0) + S.chain1, area: 52 * area, mine: true, hit: new Set(), kind: 'fireball', twin: S.sp.has('twin'), pierce: has('pierce') ? 2 : 0, leech: has('leech') }); }
   } else if (gem === 'nova') {
     const R = 165 * area; sfx('nova'); fx.push({ k: 'nova', x: pl.x, y: pl.y, r: 10, R, t: 0, life: 0.4 });
@@ -929,9 +957,10 @@ function execCast(c, echo) {
 function zig(a, b) { const pts = [a], n = 6; /* a.h: launch height */ for (let i = 1; i < n; i++) { const k = i / n; pts.push({ x: a.x + (b.x - a.x) * k + (rnd() - 0.5) * 26, y: a.y + (b.y - a.y) * k + (rnd() - 0.5) * 26 }); } pts.push(b); return pts; }
 function hitMon(m, dmg, el, addFire, ign, kb = 40) {
   if (m.dead) return;
-  let d = dmg + (addFire || 0), crit = rnd() < S.crit / 100; if (crit) d *= 1.6;
+  let d = dmg + (addFire || 0), crit = rnd() < (S.crit + (CRITB || 0)) / 100; if (crit) d *= 1.6; if (m.rar >= 2 || m.boss) d *= 1 + S.boss / 100;
+  if (S.sp.has('chillall')) m.chill = Math.max(m.chill, 1.5); if (S.sp.has('igniteall') && rnd() < 0.3) { m.burn = 3; m.burnD = Math.max(m.burnD, dmg * 0.3); }
   if (m.kind === 'knight' && Math.abs(angDiff(Math.atan2(pl.y - m.y, pl.x - m.x), m.face)) < 1.0) { d *= 0.5; m.block = 0.3; }
-  d = Math.max(1, Math.round(d)); m.hp -= d; m.flash = 0.1; m.aggro = true; if (LEECH) pl.life = Math.min(pl.maxLife, pl.life + d * 0.03);
+  d = Math.max(1, Math.round(d)); m.hp -= d; m.flash = 0.1; m.aggro = true; if (LEECH || S.leechp) pl.life = Math.min(pl.maxLife, pl.life + d * ((LEECH ? 0.03 : 0) + S.leechp / 100));
   if (m.kind === 'assassin' && !m.blinkCd && m.hp > 0 && rnd() < 0.3) { m.blinkCd = 3; const a = pl.face + Math.PI, bx = pl.x + Math.cos(a) * 70, by = pl.y + Math.sin(a) * 70; if (!solidAt(bx, by)) { fx.push({ k: 'boom', x: m.x, y: m.y, r: 4, R: 40, t: 0, life: 0.3, col: '#6a4aa8' }); m.x = bx; m.y = by; fx.push({ k: 'boom', x: bx, y: by, r: 4, R: 40, t: 0, life: 0.3, col: '#6a4aa8' }); } }
   if (ign && rnd() < 0.35) { m.burn = 3; m.burnD = Math.max(m.burnD, (dmg + addFire) * 0.35); }
   if (el === 'fire' && rnd() < 0.12) { m.burn = 2; m.burnD = Math.max(m.burnD, dmg * 0.25); }
@@ -948,13 +977,13 @@ function killMon(m) {
   for (let i = 0; i < 12; i++) { const a = rnd() * TAU, s = 60 + rnd() * 160; fx.push({ k: 'p', x: m.x, y: m.y - 14, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 60, t: 0, life: 0.5, col: m.d.col, s: 3 + rnd() * 3 }); }
   if (m.d.burst || m.aff.some((a) => a.k === 'volatile')) { const x = m.x, y = m.y; fx.push({ k: 'warn', x, y, R: 90, t: 0, life: 0.6 }); delayed.push({ t: 0.6, f: () => { fx.push({ k: 'boom', x, y, r: 10, R: 90, t: 0, life: 0.35, col: '#a87ac8' }); sfx('boom'); if (Math.hypot(pl.x - x, pl.y - y) < 90 + pl.r) hurtPl(m.dmg); } }); }
   // loot
-  const n = m.boss ? 4 : m.rar === 2 ? 2 : m.rar === 1 ? (rnd() < 0.6 ? 1 : 0) : (rnd() < 0.13 ? 1 : 0);
+  const n = m.boss ? 5 : m.rar === 2 ? ri(2, 3) : m.rar === 1 ? (rnd() < 0.8 ? 1 : 0) + (rnd() < 0.2 ? 1 : 0) : (rnd() < 0.2 ? 1 : 0);
   for (let i = 0; i < n; i++) dropItem(m.x + (rnd() - 0.5) * 60, m.y + (rnd() - 0.5) * 40, m.boss && i === 0 ? 2 : -1, m.boss);
-  if (rnd() < (m.boss ? 1 : m.rar ? 0.12 : 0.025)) dropGem(m.x + (rnd() - 0.5) * 50, m.y + (rnd() - 0.5) * 40);
+  if (rnd() < (m.boss ? 1 : m.rar === 2 ? 0.3 : m.rar ? 0.12 : 0.03)) dropGem(m.x + (rnd() - 0.5) * 50, m.y + (rnd() - 0.5) * 40);
   if (m.boss) { portal = { x: m.x, y: m.y + 40, t: 0 }; banner = { t: 0, a: 'THE HOLLOW KING FALLS', b: 'A rift opens: step into it' }; sfx('uni'); shake = 14; }
 }
 function dropItem(x, y, minRar, isBoss) {
-  const roll = rnd(), tb = 0.01 * (P.tier - 1); let rar = roll < 0.015 + tb + (isBoss ? 0.25 : 0) ? 3 : roll < 0.14 + tb * 2 ? 2 : roll < 0.5 ? 1 : 0; if (rar < minRar) rar = minRar;
+  const roll = rnd(), tb = 0.01 * (P.tier - 1); let rar = roll < 0.02 + tb + (isBoss ? 0.3 : 0) ? 3 : roll < 0.2 + tb * 2 ? 2 : roll < 0.62 ? 1 : 0; if (rar < minRar) rar = minRar;
   if (rar === 0 && rnd() < 0.5) return;
   const it = rar === 3 ? mkUnique() : mkItem(pick(SLOTS), rar, P.tier);
   loot.push({ x, y, it, t: 0 }); if (rar >= 2) sfx(rar === 3 ? 'uni' : 'rare');
@@ -965,8 +994,8 @@ function dropGem(x, y) {
   loot.push({ x, y, gem: it, t: 0 }); sfx('rare');
 }
 function gainXp(n) { P.xp += n; while (P.xp >= xpNeed(P.lv)) { P.xp -= xpNeed(P.lv); P.lv++; calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; banner = { t: 0, a: 'LEVEL ' + P.lv, b: 'Passive point gained (P)' }; sfx('lvl'); fx.push({ k: 'nova', x: pl.x, y: pl.y, r: 10, R: 120, t: 0, life: 0.5, col: '#ffd890' }); markNew(); } }
-function hurtPl(d) { if (pl.ifr > 0 || state !== 'play') return; pl.life -= d; pl.hurtT = 0.25; shake = Math.max(shake, 5); sfx('hurt'); floater(pl.x, pl.y - 50, '-' + Math.round(d), '#ff6a6a', 16); if (pl.life <= 0) { pl.life = 0; die(); } }
-function dash() { if (pl.dashCd > 0 || state !== 'play') return; tipDone.dash = 1; const [x, y] = moveDir(); const a = x || y ? Math.atan2(y, x) : pl.face; pl.vx = Math.cos(a) * 780; pl.vy = Math.sin(a) * 780; pl.dashT = 0.16; pl.ifr = 0.25; pl.dashCd = 1.2; pl.cast = null; sfx('dash'); }
+function hurtPl(d) { if (pl.ifr > 0 || state !== 'play') return; if (rnd() < S.block / 100) { floater(pl.x, pl.y - 50, 'BLOCK', '#c8d8ff', 16); sfx('hit'); return; } pl.life -= d; pl.hurtT = 0.25; shake = Math.max(shake, 5); sfx('hurt'); floater(pl.x, pl.y - 50, '-' + Math.round(d), '#ff6a6a', 16); if (pl.life <= 0) { pl.life = 0; die(); } }
+function dash() { if (pl.dashCd > 0 || state !== 'play') return; tipDone.dash = 1; const [x, y] = moveDir(); const a = x || y ? Math.atan2(y, x) : pl.face; pl.vx = Math.cos(a) * 780; pl.vy = Math.sin(a) * 780; pl.dashT = 0.16; pl.ifr = 0.25; pl.dashCd = 1.2 * (1 - S.cdr / 100); if (S.sp.has('ghost')) pl.ifr = 0.45; pl.cast = null; sfx('dash'); }
 function drink() { if (pl.flask <= 0 || pl.life >= pl.maxLife || state !== 'play') return; pl.flask--; pl.flaskT = 1.5; sfx('flask'); }
 function die() { state = 'dead'; setPads(false); setTimeout(() => $('#dead').classList.remove('hide'), 700); }
 function floater(x, y, s, col, size) { floats.push({ x, y, s, col, size, t: 0 }); }
@@ -1101,7 +1130,7 @@ function pickUp(l, i) {
   if (P.bag.length >= 30) { if (!l.full) { l.full = 1; floater(pl.x, pl.y - 60, 'Bag full', '#ff8a8a', 16); } return; }
   if (l.it.rar >= 2) quest('loot');
   P.bag.push(l.it); loot.splice(i, 1); sfx('drop'); toast.push({ t: 0, s: RN[l.it.rar] + ': ' + l.it.name, c: ['#d8d8d8', '#8888ff', '#ffff77', '#ff9a3a'][l.it.rar] });
-  if (!P.eq[l.it.slot]) { P.eq[l.it.slot] = l.it; P.bag.pop(); calcStats(); tipDone.equip = 1; showCard(l.it, true); } else showCard(l.it, false);
+  if (!P.eq[l.it.slot] && !(l.it.slot === 'offhand' && twoHanded())) { P.eq[l.it.slot] = l.it; P.bag.pop(); calcStats(); tipDone.equip = 1; showCard(l.it, true); } else showCard(l.it, false);
   markNew(); save();
 }
 
@@ -1116,13 +1145,13 @@ function showCard(it, equipped) {
   let rows = '';
   if (!equipped) { const a = statsWith(it.slot, cur), b2 = statsWith(it.slot, it); for (const [k, n] of DELTA) { const d = Math.round((b2[k] || 0) - (a[k] || 0)); if (d) rows += `<div class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲ +' : '▼ '}${d}${n}</div>`; } if (!rows) rows = '<div class="sub">No change to your stats</div>'; }
   else rows = itemLines(it).map(([k, t]) => `<div class="${k === 'uni' ? 'up' : ''}" style="color:${k === 'uni' ? '#ff9a3a' : '#8fb8ff'}">${t}</div>`).join('');
-  el.innerHTML = `<h4 style="color:${col}">${it.name}</h4><div class="sub">${RN[it.rar]} ${it.slot === 'armor' ? 'head' : it.slot}${equipped ? ' · <b style="color:#7be05a">now worn (the slot was empty)</b>' : cur ? ' · instead of <span style="color:' + ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][cur.rar] + '">' + cur.name + '</span>' : ''}</div>${rows}` +
+  el.innerHTML = `<h4 style="color:${col}">${it.name}</h4><div class="sub">${RN[it.rar]} ${it.slot === 'armor' ? 'head' : it.slot === 'offhand' ? 'off-hand' : it.slot}${baseOf(it) && baseOf(it).hand ? (baseOf(it).hand === 2 ? ' · two-handed' : ' · one-handed') + (baseOf(it).kind === 'spell' ? ' · spells' : ' · melee') : ''}${equipped ? ' · <b style="color:#7be05a">now worn (the slot was empty)</b>' : cur ? ' · instead of <span style="color:' + ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][cur.rar] + '">' + cur.name + '</span>' : ''}</div>${rows}` +
     (equipped ? '' : `<div class="row2"><button class="btn small" id="niEq">${TOUCH ? 'EQUIP' : 'EQUIP (F)'}</button><button class="btn small" id="niNo">KEEP IN BAG</button></div>`);
   el.classList.remove('hide'); cardItem = equipped ? null : it; cardT = equipped ? 3.5 : 8;
   if (!equipped) { $('#niEq').onclick = equipCard; $('#niNo').onclick = hideCard; }
 }
 function hideCard() { $('#newItem').classList.add('hide'); cardItem = null; }
-function equipCard() { const it = cardItem; if (!it || !P.bag.includes(it)) { hideCard(); return; } const old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; sfx('rare'); floater(pl.x, pl.y - 60, 'Equipped', '#7be05a', 18); save(); hideCard(); }
+function equipCard() { const it = cardItem; if (equipItem(it)) floater(pl.x, pl.y - 60, 'Equipped', '#7be05a', 18); hideCard(); }
 addEventListener('keydown', (e) => { if (e.code === 'KeyF' && cardItem && state === 'play') equipCard(); });
 setInterval(() => { if (cardT > 0 && state === 'play') { cardT -= 0.25; if (cardT <= 0) hideCard(); } }, 250);
 
@@ -1344,7 +1373,7 @@ function hud() {
   if (banner) { const a = Math.min(1, banner.t * 4, (2.6 - banner.t) * 2); g.globalAlpha = a; text(banner.a, W / 2, H * 0.28, sm ? 26 : 40, '#e8b860', 'center', 'Cinzel', 6); text(banner.b, W / 2, H * 0.28 + (sm ? 28 : 38), sm ? 14 : 18, '#e8e0d0', 'center', 'Fredoka', 4); g.globalAlpha = 1; }
   if (joy.id != null) { g.fillStyle = 'rgba(255,220,160,.12)'; circ(joy.ox, joy.oy, 55); const dx = joy.x - joy.ox, dy = joy.y - joy.oy, l = Math.min(55, Math.hypot(dx, dy)), a = Math.atan2(dy, dx); g.fillStyle = 'rgba(255,220,160,.5)'; circ(joy.ox + Math.cos(a) * l, joy.oy + Math.sin(a) * l, 22); }
 }
-const SUPSYM = { mp: '⁂', chain: '⛓', area: '◎', faster: '⏩', addfire: '🔥', echo: '≋', pierce: '➶', leech: '🩸', minion: '☠' };
+const SUPSYM = { crit: '✷', conc: '◉', focus: '✧', brutal: '⚒', swift: '»', mp: '⁂', chain: '⛓', area: '◎', faster: '⏩', addfire: '🔥', echo: '≋', pierce: '➶', leech: '🩸', minion: '☠' };
 const supUrl = {};
 function supIconUrl(sup) {
   if (supUrl[sup]) return supUrl[sup]; const c = document.createElement('canvas'); c.width = c.height = 96; const t = c.getContext('2d'), col = SUPCOL[sup];
@@ -1439,12 +1468,19 @@ document.querySelectorAll('.tab').forEach((b) => b.onclick = () => { tab = b.dat
 $('#panel').addEventListener('pointerdown', (e) => { if (e.target.id === 'panel') closePanel(); });
 
 let gearDragged = false;
+function equipItem(it) {
+  if (!it || !P.bag.includes(it)) return false;
+  if (it.slot === 'offhand' && twoHanded()) { toast.push({ t: 0, s: 'Two-handed weapon: no off-hand', c: '#ff9a7a' }); sfx('hit'); return false; }
+  const old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it;
+  if (it.slot === 'weapon' && twoHanded() && P.eq.offhand) { P.bag.push(P.eq.offhand); P.eq.offhand = null; toast.push({ t: 0, s: 'Two-handed: your off-hand went to the bag', c: '#c8b898' }); }
+  calcStats(); tipDone.equip = 1; sfx('rare'); save(); return true;
+}
 function better(it) { if (!it || !P.bag.includes(it)) return false; const a = statsWith(it.slot, P.eq[it.slot]), b2 = statsWith(it.slot, it); let sc = 0; for (const [k] of DELTA) sc += ((b2[k] || 0) - (a[k] || 0)) * (k === 'life' || k === 'mana' ? 0.5 : 1); return sc > 0; }
 function itemCardHTML(it) {
   const col = ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][it.rar], inBag = P.bag.includes(it), cur = P.eq[it.slot];
   let cmp = '';
   if (inBag) { const a = statsWith(it.slot, cur), b2 = statsWith(it.slot, it); for (const [k, n] of DELTA) { const d = Math.round((b2[k] || 0) - (a[k] || 0)); if (d) cmp += `<span class="ln" style="color:${d > 0 ? '#7be05a' : '#ff7a6a'}">${d > 0 ? '▲ +' : '▼ '}${d}${n}</span> `; } }
-  return `<div class="tipcard"><div class="top"><img src="${itemIcon(it)}" alt=""><div style="flex:1;min-width:0"><h4 style="color:${col}">${it.name}</h4><div class="ln" style="color:#7a6a52">${RN[it.rar]} ${it.slot === 'armor' ? 'head' : it.slot}${inBag ? (cur ? ' · you wear ' + cur.name : ' · slot empty') : ' · worn'}</div></div><button class="btn small" id="tcX">✕</button></div>
+  return `<div class="tipcard"><div class="top"><img src="${itemIcon(it)}" alt=""><div style="flex:1;min-width:0"><h4 style="color:${col}">${it.name}</h4><div class="ln" style="color:#7a6a52">${RN[it.rar]} ${it.slot === 'armor' ? 'head' : it.slot === 'offhand' ? 'off-hand' : it.slot}${baseOf(it) && baseOf(it).hand ? (baseOf(it).hand === 2 ? ' · two-handed' : ' · one-handed') + (baseOf(it).kind === 'spell' ? ' · spells' : ' · melee') : ''}${inBag ? (cur ? ' · you wear ' + cur.name : ' · slot empty') : ' · worn'}</div></div><button class="btn small" id="tcX">✕</button></div>
     <div style="margin-top:6px">${itemLines(it).map(([k, t]) => `<div class="ln" style="color:${k === 'uni' ? '#ff9a3a' : k === 'imp' ? '#a8a8ff' : '#8fb8ff'}">${t}</div>`).join('')}</div>
     ${cmp ? `<div style="margin-top:6px">${cmp}</div>` : ''}
     <div class="row2">${inBag ? '<button class="btn small" id="eqB">EQUIP</button><button class="btn small" id="drB">DISCARD</button>' : ''}${it.rar >= 1 && it.rar <= 2 ? `<button class="btn small" id="rfB" ${P.shards < 5 ? 'disabled' : ''}>REFORGE · 5◆</button>` : ''}${it.rar <= 1 ? `<button class="btn small" id="ugB" ${P.shards < 15 ? 'disabled' : ''}>UPGRADE · 15◆</button>` : ''}</div></div>`;
@@ -1453,7 +1489,7 @@ function itemHTML(it, cmp) {
   if (!it) return '<div class="detail"><span class="hint">Tap an item to see it.</span></div>';
   const L = itemLines(it).map(([k, s]) => `<div class="${k}">${s}</div>`).join('');
   const other = cmp && P.eq[it.slot] && P.eq[it.slot] !== it ? `<div class="cmp">Now equipped: <span class="r${P.eq[it.slot].rar}">${P.eq[it.slot].name}</span> — ${itemLines(P.eq[it.slot]).map((l) => l[1]).join(' · ')}</div>` : '';
-  return `<div class="detail"><h4 class="r${it.rar}">${it.name}</h4><div style="color:#7a6a52;font-size:12px">${RN[it.rar]} ${it.slot === 'armor' ? 'head' : it.slot}${it.rar ? ' · ' + it.base : ''}</div>${L}${other}</div>`;
+  return `<div class="detail"><h4 class="r${it.rar}">${it.name}</h4><div style="color:#7a6a52;font-size:12px">${RN[it.rar]} ${it.slot === 'armor' ? 'head' : it.slot === 'offhand' ? 'off-hand' : it.slot}${baseOf(it) && baseOf(it).hand ? (baseOf(it).hand === 2 ? ' · two-handed' : ' · one-handed') + (baseOf(it).kind === 'spell' ? ' · spells' : ' · melee') : ''}${it.rar ? ' · ' + it.base : ''}</div>${L}${other}</div>`;
 }
 function renderPanel() {
   document.querySelectorAll('.tab').forEach((b) => { b.setAttribute('aria-selected', b.dataset.t === tab ? 'true' : 'false'); if (b.dataset.t === 'tree') b.innerHTML = 'Passives' + (availPoints() ? ` <b>+${availPoints()}</b>` : ''); });
@@ -1461,18 +1497,18 @@ function renderPanel() {
   if (tab === 'gear') {
     const RC = ['#9a9a9a', '#7f8cff', '#ffef6a', '#ff9a3a'];
     const cell = (it, attrs, cls = '') => it ? `<button class="cell ${cls}${it === selItem ? ' sel' : ''}" ${attrs} style="--rc:${RC[it.rar]}"><img src="${itemIcon(it)}" alt="${it.name}">${better(it) ? '<i class="upg">▲</i>' : ''}</button>` : `<button class="cell empty ${cls}" ${attrs}></button>`;
-    const SLOTPOS = { armor: 'top:6%;left:16%', amulet: 'top:30%;left:84%', weapon: 'top:48%;left:14%', ring: 'top:56%;left:84%', boots: 'top:79%;left:50%' };
-    const SLOTICON = { weapon: '⚔', armor: '⛑', ring: '◯', amulet: '❖', boots: '👢' };
+    const SLOTPOS = { armor: 'top:5%;left:16%', amulet: 'top:5%;left:84%', weapon: 'top:40%;left:14%', offhand: 'top:40%;left:86%', ring: 'top:72%;left:14%', boots: 'top:72%;left:86%' };
+    const SLOTICON = { weapon: '⚔', offhand: '🛡', armor: '⛑', ring: '◯', amulet: '❖', boots: '👢' };
     const st = [['❤', S.life, '#ff6a6a'], ['💧', S.mana, '#7fa8ff'], ['✦', S.inc_spell + '%', '#d8b8ff'], ['🔥', S.inc_fire + '%', '#ff9a4a'], ['❄', S.inc_cold + '%', '#9fe0ff'], ['⚡', S.inc_light + '%', '#e8f0ff'], ['🗡', S.inc_phys + '%', '#f0e6d0'], ['⏩', S.cast + '%', '#c8e0a0'], ['👟', S.move + '%', '#c8c8c8'], ['🎯', S.crit + '%', '#ffd890']];
     pb.innerHTML = `<div class="gear">
-      <div class="doll" id="dollHost"><span class="turn">⟲ drag to turn</span>${SLOTS.map((k) => `<div class="slot" style="${SLOTPOS[k]}">${cell(P.eq[k], `data-eq="${k}"`, 'big')}<span>${P.eq[k] ? '' : SLOTICON[k]}</span></div>`).join('')}</div>
+      <div class="doll" id="dollHost"><span class="turn">⟲ drag to turn</span>${SLOTS.map((k) => `<div class="slot" style="${SLOTPOS[k]}${k === 'offhand' && twoHanded() ? ';opacity:.35' : ''}">${cell(P.eq[k], `data-eq="${k}"`, 'big')}<span>${P.eq[k] ? '' : k === 'offhand' && twoHanded() ? '2H' : SLOTICON[k]}</span></div>`).join('')}</div>
       <div class="side"><div class="shards">◆ <b>${P.shards || 0}</b><small>shards</small><span class="bagn">${P.bag.length}/30</span></div>
         <div class="grid">${Array.from({ length: 30 }, (_, i) => cell(P.bag[i], `data-b="${i}"`)).join('')}</div>
         <div class="stats">${st.map(([i, v, c]) => `<span style="color:${c}">${i} ${v}</span>`).join('')}</div></div>
       ${selItem ? itemCardHTML(selItem) : `<div class="tipcard hint">${TOUCH ? 'Tap an item to see it · double-tap or drag it onto your hero to wear it' : 'Click an item to see it · double-click, right-click or drag it onto your hero to wear it · double-click a worn item to take it off'} · ▲ = better than what you wear</div>`}
     </div>`;
     dollMount($('#dollHost'));
-    const equipIt = (it) => { if (!it || !P.bag.includes(it)) return; const old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; sfx('rare'); selItem = null; renderPanel(); };
+    const equipIt = (it) => { equipItem(it); selItem = null; renderPanel(); };
     const unequip = (k) => { const it = P.eq[k]; if (!it || P.bag.length >= 30) return; P.eq[k] = null; P.bag.push(it); calcStats(); sfx('drop'); selItem = null; renderPanel(); };
     pb.querySelectorAll('[data-b]').forEach((d) => {
       const it = P.bag[+d.dataset.b]; if (!it) return;
@@ -1486,7 +1522,7 @@ function renderPanel() {
     });
     pb.querySelectorAll('[data-eq]').forEach((d) => { d.ondblclick = () => unequip(d.dataset.eq); d.oncontextmenu = (e) => { e.preventDefault(); unequip(d.dataset.eq); }; });
     pb.querySelectorAll('[data-eq]').forEach((d) => d.onclick = () => { const it = P.eq[d.dataset.eq]; if (it) { selItem = it === selItem ? null : it; renderPanel(); } });
-    const eb = $('#eqB'); if (eb) eb.onclick = () => { const it = selItem, old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; sfx('rare'); selItem = null; renderPanel(); };
+    const eb = $('#eqB'); if (eb) eb.onclick = () => { equipItem(selItem); selItem = null; renderPanel(); };
     const db = $('#drB'); if (db) db.onclick = () => { P.bag.splice(P.bag.indexOf(selItem), 1); selItem = null; renderPanel(); };
     const rf = $('#rfB'); if (rf) rf.onclick = () => { reforge(selItem); renderPanel(); }; const ug = $('#ugB'); if (ug) ug.onclick = () => { upgrade(selItem); renderPanel(); };
     const cx = $('#tcX'); if (cx) cx.onclick = () => { selItem = null; renderPanel(); };
@@ -1504,7 +1540,7 @@ function renderPanel() {
     const card = selGem ? (selGem.g ? `<div class="tipcard"><div class="top"><img src="${skillIconUrl(selGem.g)}" alt=""><div style="flex:1"><h4 style="color:${SKILLS[selGem.g].col}">${SKILLS[selGem.g].n}</h4><div class="ln" style="color:#7a6a52">Skill gem · ${SKILLS[selGem.g].tags.join(' · ')}</div></div><button class="btn small" id="tcX">✕</button></div><div class="ln" style="margin-top:6px">${SKILLS[selGem.g].d}</div><div class="ln" style="color:#ffd890;margin-top:4px">Now tap a big glowing slot ↑</div></div>`
       : `<div class="tipcard"><div class="top">${gemImg(selGem)}<div style="flex:1"><h4 style="color:${SUPCOL[selGem.sup]}">${SUPPORTS[selGem.sup].n}</h4><div class="ln" style="color:#7a6a52">Support gem · works with ${SUPPORTS[selGem.sup].need.join(' or ') || 'any skill'}</div></div><button class="btn small" id="tcX">✕</button></div><div class="ln" style="margin-top:6px">${SUPPORTS[selGem.sup].d}</div><div class="ln" style="color:#ffd890;margin-top:4px">Now tap a small glowing socket ↑</div></div>`)
       : '<div class="tipcard hint">Tap or drag a gem into a socket. Big slot = skill, small sockets = supports that change it. Tap a socketed gem to take it out.</div>';
-    pb.innerHTML = `<div class="gemsP"><div class="wk">${weaponKind() === 'attack' ? '⚔ Sword in hand: melee skills only (Cleave, Whirlwind, Ground Slam, Leap Slam)' : '🪄 Staff or wand in hand: spells only (Fireball, Ice Nova, Arc, Spark, Firestorm, Raise Skeletons)'}</div><div class="links">${rows}</div><div class="bagT">💎 Gem bag</div><div class="gbag">${bag}</div>${card}</div>`;
+    pb.innerHTML = `<div class="gemsP"><div class="wk">${weaponKind() === 'attack' ? '⚔ Melee weapon in hand: melee skills only (Cleave, Whirlwind, Ground Slam, Leap Slam)' : '🪄 Staff or wand in hand: spells only (Fireball, Ice Nova, Arc, Spark, Firestorm, Raise Skeletons)'}</div><div class="links">${rows}</div><div class="bagT">💎 Gem bag</div><div class="gbag">${bag}</div>${card}</div>`;
     pb.querySelectorAll('[data-g]').forEach((d) => { d.onclick = () => { if (suppressClick) return; const b = P.gemBag[+d.dataset.g]; selGem = selGem === b ? null : b; renderPanel(); }; d.onpointerdown = (e) => gemDragStart(e, P.gemBag[+d.dataset.g], d); });
     pb.querySelectorAll('[data-s]').forEach((d) => d.onclick = () => gemClick(+d.dataset.s, +d.dataset.k));
     const cx = $('#tcX'); if (cx) cx.onclick = () => { selGem = null; renderPanel(); };
@@ -1523,8 +1559,8 @@ function renderPanel() {
 }
 function canAlloc(n) { if (P.tree.includes(n.id)) return false; return TREE.e.some(([a, b]) => (a === n.id && P.tree.includes(b)) || (b === n.id && P.tree.includes(a))); }
 let treeSel = null;
-const NODEIC = { life: '❤', mana: '💧', inc_spell: '✦', inc_fire: '🔥', inc_cold: '❄', inc_light: '⚡', cast: '⏩', area: '◎', crit: '🎯', lok: '🩸', chain1: '⛓' };
-const NODEN = { life: 'Life', mana: 'Mana', inc_spell: 'Spell', inc_fire: 'Fire', inc_cold: 'Cold', inc_light: 'Lightning', cast: 'Cast speed', area: 'Area', crit: 'Crit', lok: 'Life on kill', chain1: 'Chain' };
+const NODEIC = { lifep: '♥', block: '🛡', leechp: '🩸', move: '👟', mregen: '🌀', cdr: '💨', boss: '☠', inc_phys: '🗡', life: '❤', mana: '💧', inc_spell: '✦', inc_fire: '🔥', inc_cold: '❄', inc_light: '⚡', cast: '⏩', area: '◎', crit: '🎯', lok: '🩸', chain1: '⛓' };
+const NODEN = { lifep: 'Life %', block: 'Block', leechp: 'Leech', move: 'Speed', mregen: 'Mana regen', cdr: 'Dash', boss: 'Boss dmg', inc_phys: 'Physical', life: 'Life', mana: 'Mana', inc_spell: 'Spell', inc_fire: 'Fire', inc_cold: 'Cold', inc_light: 'Lightning', cast: 'Cast speed', area: 'Area', crit: 'Crit', lok: 'Life on kill', chain1: 'Chain' };
 const nodeIcon = (n) => NODEIC[Object.keys(n.st)[0]] || '✦';
 function drawTree(c, sel) {
   const prev = g; g = c.getContext('2d'); const w = c.width; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, w, w);
@@ -1537,7 +1573,7 @@ function drawTree(c, sel) {
     const fg = g.createRadialGradient(x - r * 0.3, y - r * 0.3, 2, x, y, r); fg.addColorStop(0, on ? '#ffe7a8' : can ? '#4a7a3a' : '#2a1e14'); fg.addColorStop(1, on ? '#b07a28' : can ? '#1e3a16' : '#0e0906'); g.fillStyle = fg; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
     g.strokeStyle = n === sel ? '#ffffff' : on ? '#ffd890' : can ? '#7be05a' : '#5a4a36'; g.lineWidth = n === sel ? 8 : n.notable ? 7 : 5; g.stroke();
     g.globalAlpha = on || can ? 1 : 0.45; g.font = `${Math.round(r * 1.05)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'; g.fillText(n.start ? '★' : nodeIcon(n), x, y + 2); g.globalAlpha = 1;
-    if (n.notable) { g.font = '700 30px Cinzel'; g.lineWidth = 6; g.strokeStyle = '#0c0806'; g.strokeText(n.nm, x, y + r + 34); g.fillStyle = on ? '#ffd890' : '#a89870'; g.fillText(n.nm, x, y + r + 34); }
+    if (n.notable) { g.font = '700 25px Cinzel'; g.lineWidth = 6; g.strokeStyle = '#0c0806'; g.strokeText(n.nm, x, y + r + 34); g.fillStyle = on ? '#ffd890' : '#a89870'; g.fillText(n.nm, x, y + r + 34); }
   }
   g = prev;
 }
@@ -1556,7 +1592,7 @@ let suppressClick = false;
 function gemClick(i, k) {
   const s = P.slots[i];
   if (selGem) {
-    if (k === -1 && selGem.g && !skillOk(selGem.g)) { toast.push({ t: 0, s: SKILLS[selGem.g].n + (weaponKind() === 'attack' ? ' is a spell: equip a staff or wand' : ' is a melee attack: equip a sword'), c: '#ff9a7a' }); floater(pl.x, pl.y - 60, weaponKind() === 'attack' ? 'Needs a staff or wand' : 'Needs a sword', '#ff9a7a', 16); selGem = null; renderPanel(); return; }
+    if (k === -1 && selGem.g && !skillOk(selGem.g)) { toast.push({ t: 0, s: SKILLS[selGem.g].n + (weaponKind() === 'attack' ? ' is a spell: equip a staff or wand' : ' is a melee attack: equip a sword, axe or dagger'), c: '#ff9a7a' }); floater(pl.x, pl.y - 60, weaponKind() === 'attack' ? 'Needs a staff or wand' : 'Needs a melee weapon', '#ff9a7a', 16); selGem = null; renderPanel(); return; }
     if (k === -1 && selGem.g) { P.gemBag.splice(P.gemBag.indexOf(selGem), 1); if (s.g) P.gemBag.push({ g: s.g }); s.g = selGem.g; s.s.forEach((sp, j) => { if (sp && !supportFits(sp, s.g)) { P.gemBag.push({ sup: sp }); s.s[j] = null; } }); }
     else if (k >= 0 && selGem.sup && s.g && supportFits(selGem.sup, s.g) && !s.s.includes(selGem.sup)) { P.gemBag.splice(P.gemBag.indexOf(selGem), 1); if (s.s[k]) P.gemBag.push({ sup: s.s[k] }); s.s[k] = selGem.sup; }
     else return;
@@ -1573,10 +1609,11 @@ $('#keys').innerHTML = TOUCH ? '<span>Left thumb: move</span><span>Skill buttons
 $('#go').onclick = () => { $('#start').classList.add('hide'); state = 'play'; setPads(true); sfx('lvl'); };
 $('#rez').onclick = () => { $('#dead').classList.add('hide'); const s = START(); pl.x = s.x; pl.y = s.y; pl.life = pl.maxLife; pl.mana = pl.maxMana; pl.flask = 3; projs = []; state = 'play'; setPads(true); };
 $('#next').onclick = () => { $('#done').classList.add('hide'); newMap(); state = 'play'; setPads(true); };
-P = load() || freshProgress(); lastKind = null; for (const it of [...Object.values(P.eq), ...P.bag]) if (it) { if (it.base === 'Tattered Robe') { it.name = it.name.replace('Tattered Robe', 'Wizard Hat'); it.base = 'Wizard Hat'; } if (it.base === 'Scale Vest') { it.name = it.name.replace('Scale Vest', 'Iron Helm'); it.base = 'Iron Helm'; } } if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
+P = load() || freshProgress(); lastKind = null; if (!P.treeV2) { P.tree = [0]; P.treeV2 = 1; } if (!('offhand' in P.eq)) P.eq.offhand = null; for (const it of [...Object.values(P.eq), ...P.bag]) if (it) { if (it.base === 'Tattered Robe') { it.name = it.name.replace('Tattered Robe', 'Wizard Hat'); it.base = 'Wizard Hat'; } if (it.base === 'Scale Vest') { it.name = it.name.replace('Scale Vest', 'Iron Helm'); it.base = 'Iron Helm'; } } if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
 metaInit();
 if (!TOUCH) { $('#charBtn').textContent = '🎒 GEAR (C)'; $('#gemBtn').textContent = '💎 GEMS (G)'; $('#treeBtn').textContent = '✦ PASSIVES (P)'; $('#questBtn').textContent = '📜 QUESTS'; }
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
+window.__kill = (m) => killMon(m); window.__newMap = () => newMap();
 window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, dropItem, dropGem, openPanel, closePanel };
 let last = performance.now();
 function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; update(dt); draw(); requestAnimationFrame(loop); }
