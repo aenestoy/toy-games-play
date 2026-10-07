@@ -63,6 +63,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
 #p3{right:max(40px,env(safe-area-inset-right));bottom:max(128px,calc(env(safe-area-inset-bottom) + 128px));width:64px;height:64px}
 #pDash{right:max(200px,calc(env(safe-area-inset-right) + 200px));bottom:max(18px,env(safe-area-inset-bottom));width:52px;height:52px}
 #pFlask{left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:52px;height:52px;background:radial-gradient(circle at 40% 35%,#c83a3a,#4a0a0a)}
+#newItem{position:fixed;right:max(14px,env(safe-area-inset-right));top:30%;width:min(270px,70vw);background:linear-gradient(#1c140e,#100a06);border:1px solid #6a4e2a;border-radius:12px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.7);font-size:13px;z-index:4}
+#newItem h4{margin:0 0 2px;font-family:Cinzel,serif;font-size:16px}
+#newItem .up{color:#7be05a}#newItem .down{color:#ff7a6a}#newItem .sub{color:#7a6a52;font-size:12px;margin-bottom:6px}
+#newItem .row2{display:flex;gap:6px;margin-top:8px}
 #charBtn{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);font-size:13px;padding:7px 14px}
 #charBtn.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890}
 </style>
@@ -85,6 +89,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
   <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="gems">Gems</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="btn small x" id="px">✕</button></div>
   <div id="pb"></div>
 </div></div>
+<div id="newItem" class="hide"></div>
 <button class="btn small" id="charBtn">CHARACTER</button>
 <button class="pad hide" id="pFlask">FLASK</button>
 <button class="pad hide" id="pDash">DASH</button>
@@ -203,6 +208,20 @@ function build3D() {
 
 // ---------- characters ----------
 const hero3 = makeChar(gMage, ['2H_Staff', 'Mage_Cape'], null, null, 2.7); scene3.add(hero3.o); play(hero3, 'Idle');
+// the end of the staff that is farther from the hand is the tip: shots leave from there
+let staffTip = null;
+const staff3 = (() => { let m = null; hero3.inner.traverse((o) => { if (o.isMesh && o.name === '2H_Staff') m = o; }); if (!m) return null;
+  const pos = m.geometry.attributes.position; m.geometry.computeBoundingBox(); const sz = m.geometry.boundingBox.getSize(new THREE.Vector3());
+  const ax = sz.x >= sz.y && sz.x >= sz.z ? 'getX' : sz.y >= sz.z ? 'getY' : 'getZ'; let mn = 1e9, mx = -1e9, a = 0, b = 0;
+  for (let i = 0; i < pos.count; i++) { const v = pos[ax](i); if (v < mn) { mn = v; a = i; } if (v > mx) { mx = v; b = i; } }
+  return { m, ends: [a, b], hand: boneOf(hero3.inner, 'hand.r') }; })();
+const _ta = new THREE.Vector3(), _tb = new THREE.Vector3(), _th = new THREE.Vector3();
+function updateStaffTip() {
+  if (!staff3) return; const { m, ends, hand } = staff3; hero3.o.updateMatrixWorld(true); if (m.skeleton) m.skeleton.update();
+  const at = (i, out) => { if (m.isSkinnedMesh) m.getVertexPosition(i, out); else out.fromBufferAttribute(m.geometry.attributes.position, i); return m.localToWorld(out); };
+  at(ends[0], _ta); at(ends[1], _tb); if (hand) hand.getWorldPosition(_th); else _th.copy(hero3.o.position);
+  const t = _ta.distanceToSquared(_th) > _tb.distanceToSquared(_th) ? _ta : _tb; staffTip = { x: t.x / S3, y: t.z / S3, h: t.y };
+}
 const ring3 = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.05, 40), new THREE.MeshBasicMaterial({ color: 0xffd890, transparent: true, opacity: 0.5, depthWrite: false })); ring3.rotation.x = -Math.PI / 2; scene3.add(ring3);
 const KIND3 = {
   zombie: { src: gWar, keep: ['Skeleton_Warrior_Helmet', 'Skeleton_Warrior_Cloak'], wr: 'Skeleton_Axe', wl: 'Skeleton_Shield_Small_A', walk: 'Walking_D_Skeletons', atk: '1H_Melee_Attack_Chop', h: 2.8 },
@@ -339,7 +358,7 @@ function render3d(dt) {
   const spU = Math.hypot(pl.vx, pl.vy) * S3; if (h.curName === 'Running_A') legs(h, 'Running_A', spU); else noLean(h);
   if (h.once > 0) h.once -= dt;
   setTint(h, pl.hurtT > 0 ? 70 : 0, 0, 0);
-  h.mixer.update(dt);
+  h.mixer.update(dt); updateStaffTip();
   ring3.position.set(tx, 0.06, tz);
   // monsters: only those near the hero get a model, the nearest first
   const cand = [];
@@ -372,9 +391,10 @@ function render3d(dt) {
   sprites.begin(); rings.begin(); discs.begin(); arcs.begin(); bolts.begin(); beams.begin(); bits.begin();
   let fl = 0;
   for (const p of projs) {
-    if (p.kind === 'spark') { spr(p.x, p.y, 1.2, 1.1, 0x8fb8ff, 0.95); spr(p.x, p.y, 1.2, 0.45, 0xffffff, 1); continue; }
+    const ph = p.h0 !== undefined ? p.h0 + (1.3 - p.h0) * Math.min(1, (p.life0 - p.life) / 0.25) : 1.3;
+    if (p.kind === 'spark') { spr(p.x, p.y, ph, 1.1, 0x8fb8ff, 0.95); spr(p.x, p.y, ph, 0.45, 0xffffff, 1); continue; }
     if (p.kind === 'orb') { spr(p.x, p.y, 1.4, 1.7, 0xa04aff, 0.9); spr(p.x, p.y, 1.4, 0.7, 0xf0d0ff, 1); if (fl < 3) { FX_L[fl].position.set(p.x * S3, 1.6, p.y * S3); FX_L[fl].color.set(0xa04aff); FX_L[fl].intensity = 14; fl++; } continue; }
-    if (p.mine) { spr(p.x, p.y, 1.3, 1.9, 0xff8a2a, 0.95); spr(p.x, p.y, 1.3, 0.8, 0xfff0c0, 1); if (fl < 3) { FX_L[fl].position.set(p.x * S3, 1.6, p.y * S3); FX_L[fl].color.set(0xff8a2a); FX_L[fl].intensity = 22; fl++; } }
+    if (p.mine) { spr(p.x, p.y, ph, 1.9, 0xff8a2a, 0.95); spr(p.x, p.y, ph, 0.8, 0xfff0c0, 1); if (fl < 3) { FX_L[fl].position.set(p.x * S3, ph + 0.3, p.y * S3); FX_L[fl].color.set(0xff8a2a); FX_L[fl].intensity = 22; fl++; } }
     else spr(p.x, p.y, 1.3, p.kind === 'bone' ? 0.9 : 0.55, p.kind === 'bone' ? 0xe8dcc8 : 0xd8c8a8, 0.9);
   }
   for (const f of fx) {
@@ -383,7 +403,7 @@ function render3d(dt) {
     else if (f.k === 'meteor') { spr(f.x, f.y, 9 * (1 - k) + 0.3, 1.5, '#ff7a2a', 1); spr(f.x, f.y, 9 * (1 - k) + 0.3, 0.6, '#fff0c0', 1); const r = rings.get(); r.position.set(f.x * S3, 0.08, f.y * S3); r.scale.setScalar(2.2 * (1 - k) + 0.4); r.material.color.set('#ff5a2a'); r.material.opacity = 0.8; }
     else if (f.k === 'boom') { const R = (f.r + (f.R - f.r) * Math.min(1, k * 2.5)) * S3; spr(f.x, f.y, 0.8, R * 2.4, f.col || '#ff8a2a', 1 - k); const r = rings.get(); r.position.set(f.x * S3, 0.08, f.y * S3); r.scale.setScalar(R); r.material.color.set(f.col || '#ff8a2a'); r.material.opacity = 1 - k; if (fl < 3 && k < 0.6) { FX_L[fl].position.set(f.x * S3, 1.6, f.y * S3); FX_L[fl].color.set(f.col || '#ff8a2a'); FX_L[fl].intensity = 30 * (1 - k); fl++; } }
     else if (f.k === 'nova') { const R = (f.r + (f.R - f.r) * Math.min(1, k * 1.6)) * S3; for (const [rr, op] of [[1, 1], [0.86, 0.6]]) { const r = rings.get(); r.position.set(f.x * S3, 0.1, f.y * S3); r.scale.setScalar(R * rr); r.material.color.set(f.col || '#9fe0ff'); r.material.opacity = op * (1 - k); } if (!f.col) for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; spr(f.x + Math.cos(a) * R / S3, f.y + Math.sin(a) * R / S3, 0.7, 0.7, '#dff6ff', 1 - k); } if (fl < 3 && k < 0.5) { FX_L[fl].position.set(f.x * S3, 1.5, f.y * S3); FX_L[fl].color.set('#8fd8ff'); FX_L[fl].intensity = 30 * (1 - k); fl++; } }
-    else if (f.k === 'bolt') { const ln = bolts.get(), a = ln.geometry.attributes.position; for (let i = 0; i < 8; i++) { const p = f.pts[Math.min(i, f.pts.length - 1)]; a.setXYZ(i, p.x * S3, 1.3 + (rnd() - 0.5) * 0.2, p.y * S3); } a.needsUpdate = true; ln.geometry.computeBoundingSphere(); ln.material.opacity = 1 - k; for (const p of f.pts) spr(p.x, p.y, 1.3, 0.9, '#9fb8ff', 0.6 * (1 - k)); const e = f.pts[f.pts.length - 1]; if (fl < 3) { FX_L[fl].position.set(e.x * S3, 1.6, e.y * S3); FX_L[fl].color.set('#a8c0ff'); FX_L[fl].intensity = 25 * (1 - k); fl++; } }
+    else if (f.k === 'bolt') { const ln = bolts.get(), a = ln.geometry.attributes.position; for (let i = 0; i < 8; i++) { const p = f.pts[Math.min(i, f.pts.length - 1)]; a.setXYZ(i, p.x * S3, (p.h !== undefined ? p.h : 1.3) + (i ? (rnd() - 0.5) * 0.2 : 0), p.y * S3); } a.needsUpdate = true; ln.geometry.computeBoundingSphere(); ln.material.opacity = 1 - k; for (const p of f.pts) spr(p.x, p.y, 1.3, 0.9, '#9fb8ff', 0.6 * (1 - k)); const e = f.pts[f.pts.length - 1]; if (fl < 3) { FX_L[fl].position.set(e.x * S3, 1.6, e.y * S3); FX_L[fl].color.set('#a8c0ff'); FX_L[fl].intensity = 25 * (1 - k); fl++; } }
     else if (f.k === 'slash') { const a = arcs.get(); a.position.set(f.x * S3, 0.9, f.y * S3); a.rotation.y = -f.a; a.scale.setScalar(f.R * S3 * (0.75 + k * 0.3)); a.userData.m.material.color.set(f.col || '#f0e6d0'); a.userData.m.material.opacity = 1 - k; }
     else if (f.k === 'warn') { const d = discs.get(); d.position.set(f.x * S3, 0.07, f.y * S3); d.scale.setScalar(f.R * S3); d.material.opacity = 0.15 + 0.25 * k; const r = rings.get(); r.position.set(f.x * S3, 0.09, f.y * S3); r.scale.setScalar(f.R * S3 * k); r.material.color.set('#ff4040'); r.material.opacity = 0.9; }
   }
@@ -684,7 +704,7 @@ function execCast(c, echo) {
   let mul = echo ? 0.8 : 1; if (has('mp')) mul *= 0.75; if (S.sp.has('echo') && sk.tags.includes('spell')) mul *= 0.8;
   const dmg = dmgOf(gem, mul), addFire = has('addfire') ? 6 * (1 + 0.1 * P.lv) * mul : 0, ign = has('addfire');
   const ang = Math.atan2(c.aim.y - pl.y, c.aim.x - pl.x);
-  const hx = pl.x + Math.cos(ang) * 22, hy = pl.y - 18 + Math.sin(ang) * 22;
+  const tp = staffTip, hx = tp ? tp.x : pl.x + Math.cos(ang) * 22, hy = tp ? tp.y : pl.y + Math.sin(ang) * 22, n0 = projs.length;
   if (gem === 'fireball') {
     const n = 1 + (has('mp') ? 2 : 0) + S.proj; sfx('fire');
     for (let k = 0; k < n; k++) { const a = ang + (k - (n - 1) / 2) * 0.2; projs.push({ x: hx, y: hy, vx: Math.cos(a) * 640, vy: Math.sin(a) * 640, r: 9, life: 1.1, el: 'fire', dmg, addFire, ign, chain: (has('chain') ? 2 : 0) + S.chain1, area: 52 * area, mine: true, hit: new Set(), kind: 'fireball', twin: S.sp.has('twin'), pierce: has('pierce') ? 2 : 0, leech: has('leech') }); }
@@ -692,7 +712,7 @@ function execCast(c, echo) {
     const R = 165 * area; sfx('nova'); fx.push({ k: 'nova', x: pl.x, y: pl.y, r: 10, R, t: 0, life: 0.4 });
     for (const m of mons) if (!m.dead && dist(m, pl) < R + m.r) { hitMon(m, dmg, 'cold', addFire, ign); m.chill = 2.2; }
   } else if (gem === 'arc') {
-    sfx('arc'); let from = { x: hx, y: hy }, chains = 3 + (has('chain') ? 2 : 0) + (S.sp.has('storm') ? 3 : 0) + S.chain1; const hitS = new Set(); let range = 400;
+    sfx('arc'); let from = { x: hx, y: hy, h: tp ? tp.h : 1.3 }, chains = 3 + (has('chain') ? 2 : 0) + (S.sp.has('storm') ? 3 : 0) + S.chain1; const hitS = new Set(); let range = 400;
     let first = null, fd = 1e9; for (const m of mons) { if (m.dead) continue; const d = dist(m, pl); if (d > range) continue; const ad = Math.abs(angDiff(Math.atan2(m.y - pl.y, m.x - pl.x), ang)); if (ad > 0.9) continue; const s = d + ad * 200; if (s < fd && los(pl, m)) { fd = s; first = m; } }
     let cur = first; if (!cur) { fx.push({ k: 'bolt', pts: zig(from, { x: pl.x + Math.cos(ang) * 260, y: pl.y + Math.sin(ang) * 260 }), t: 0, life: 0.18 }); }
     while (cur && chains >= 0) { hitS.add(cur); fx.push({ k: 'bolt', pts: zig(from, { x: cur.x, y: cur.y - 16 }), t: 0, life: 0.2 }); hitMon(cur, dmg, 'light', addFire, ign); from = { x: cur.x, y: cur.y - 16 }; chains--; let nx = null, nd = 230; for (const m of mons) { if (m.dead || hitS.has(m)) continue; const d = dist(m, cur); if (d < nd) { nd = d; nx = m; } } cur = nx; }
@@ -725,10 +745,11 @@ function execCast(c, echo) {
     for (let k = 0; k < 8 && solidAt(tx, ty); k++) { tx = (tx + pl.x) / 2; ty = (ty + pl.y) / 2; }
     pl.leap = { t: 0, dur: 0.42, x0: pl.x, y0: pl.y, x1: tx, y1: ty, dmg, R: 95 * Math.sqrt(area), addFire, ign, lee: has('leech') }; pl.ifr = 0.5; sfx('dash');
   }
+  for (let k = n0; k < projs.length; k++) { projs[k].h0 = tp ? tp.h : 1.3; projs[k].life0 = projs[k].life; }
   LEECH = false;
   if (!echo && (has('echo') || (S.sp.has('echo') && sk.tags.includes('spell')))) delayed.push({ t: 0.22, f: () => execCast({ ...c, aim: gem === 'nova' ? c.aim : aimPoint() }, true) });
 }
-function zig(a, b) { const pts = [a], n = 6; for (let i = 1; i < n; i++) { const k = i / n; pts.push({ x: a.x + (b.x - a.x) * k + (rnd() - 0.5) * 26, y: a.y + (b.y - a.y) * k + (rnd() - 0.5) * 26 }); } pts.push(b); return pts; }
+function zig(a, b) { const pts = [a], n = 6; /* a.h: launch height */ for (let i = 1; i < n; i++) { const k = i / n; pts.push({ x: a.x + (b.x - a.x) * k + (rnd() - 0.5) * 26, y: a.y + (b.y - a.y) * k + (rnd() - 0.5) * 26 }); } pts.push(b); return pts; }
 function hitMon(m, dmg, el, addFire, ign, kb = 40) {
   if (m.dead) return;
   let d = dmg + (addFire || 0), crit = rnd() < S.crit / 100; if (crit) d *= 1.6;
@@ -903,9 +924,30 @@ function pickUp(l, i) {
   if (P.bag.length >= 30) { if (!l.full) { l.full = 1; floater(pl.x, pl.y - 60, 'Bag full', '#ff8a8a', 16); } return; }
   if (l.it.rar >= 2) quest('loot');
   P.bag.push(l.it); loot.splice(i, 1); sfx('drop'); toast.push({ t: 0, s: RN[l.it.rar] + ': ' + l.it.name, c: ['#d8d8d8', '#8888ff', '#ffff77', '#ff9a3a'][l.it.rar] });
-  if (!P.eq[l.it.slot]) { P.eq[l.it.slot] = l.it; P.bag.pop(); calcStats(); toast.push({ t: 0, s: 'Equipped (empty slot)', c: '#9a8a6a' }); }
+  if (!P.eq[l.it.slot]) { P.eq[l.it.slot] = l.it; P.bag.pop(); calcStats(); tipDone.equip = 1; showCard(l.it, true); } else showCard(l.it, false);
   markNew(); save();
 }
+
+// ---------- item card: shows what was picked up, compares it with what you wear, equips in one tap ----------
+const DELTA = [['life', 'Life'], ['mana', 'Mana'], ['inc_spell', '% Spell damage'], ['inc_fire', '% Fire damage'], ['inc_cold', '% Cold damage'], ['inc_light', '% Lightning damage'], ['inc_phys', '% Physical damage'], ['cast', '% Cast speed'], ['move', '% Move speed'], ['crit', '% Crit chance'], ['lok', ' Life on kill'], ['mregen', '% Mana regen'], ['area', '% Area'], ['proj', ' Projectile']];
+let cardItem = null, cardT = 0;
+function statsWith(slot, it) { const old = P.eq[slot]; P.eq[slot] = it; calcStats(); const o = { ...S }; P.eq[slot] = old; calcStats(); return o; }
+function showCard(it, equipped) {
+  if (equipped && cardItem) { toast.push({ t: 0, s: 'Now worn: ' + it.name + ' (' + it.slot + ' slot was empty)', c: '#7be05a' }); return; }
+  const el = $('#newItem'), col = ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][it.rar], cur = P.eq[it.slot];
+  let rows = '';
+  if (!equipped) { const a = statsWith(it.slot, cur), b2 = statsWith(it.slot, it); for (const [k, n] of DELTA) { const d = Math.round((b2[k] || 0) - (a[k] || 0)); if (d) rows += `<div class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲ +' : '▼ '}${d}${n}</div>`; } if (!rows) rows = '<div class="sub">No change to your stats</div>'; }
+  else rows = itemLines(it).map(([k, t]) => `<div class="${k === 'uni' ? 'up' : ''}" style="color:${k === 'uni' ? '#ff9a3a' : '#8fb8ff'}">${t}</div>`).join('');
+  el.innerHTML = `<h4 style="color:${col}">${it.name}</h4><div class="sub">${RN[it.rar]} ${it.slot}${equipped ? ' · <b style="color:#7be05a">now worn (the slot was empty)</b>' : cur ? ' · instead of <span style="color:' + ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][cur.rar] + '">' + cur.name + '</span>' : ''}</div>${rows}` +
+    (equipped ? '' : `<div class="row2"><button class="btn small" id="niEq">${TOUCH ? 'EQUIP' : 'EQUIP (F)'}</button><button class="btn small" id="niNo">KEEP IN BAG</button></div>`);
+  el.classList.remove('hide'); cardItem = equipped ? null : it; cardT = equipped ? 3.5 : 8;
+  if (!equipped) { $('#niEq').onclick = equipCard; $('#niNo').onclick = hideCard; }
+}
+function hideCard() { $('#newItem').classList.add('hide'); cardItem = null; }
+function equipCard() { const it = cardItem; if (!it || !P.bag.includes(it)) { hideCard(); return; } const old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; sfx('rare'); floater(pl.x, pl.y - 60, 'Equipped', '#7be05a', 18); save(); hideCard(); }
+addEventListener('keydown', (e) => { if (e.code === 'KeyF' && cardItem && state === 'play') equipCard(); });
+setInterval(() => { if (cardT > 0 && state === 'play') { cardT -= 0.25; if (cardT <= 0) hideCard(); } }, 250);
+
 function mapDone() {
   if (state !== 'play') return; state = 'done'; setPads(false); P.tier++; quest('map'); save();
   $('#doneT').textContent = `Level ${P.lv} · ${P.kills} monsters slain. The rift leads to Tier ${P.tier}: stronger monsters, better loot.`;
@@ -918,7 +960,7 @@ const TIPS = [
   { k: ['[W][A][S][D]  to walk', 'Drag on the LEFT side of the screen to walk'], done: () => tut.moved > 260 },
   { k: ['[LEFT CLICK]  casts Fireball where the mouse points', 'Tap  FIREBALL  — it aims for you'], start: () => tutSpawn(), where: () => mons.find((m) => m.tut && !m.dead), done: () => tut.tutKills >= 3 },
   { k: ['Walk over the loot to pick it up', 'Walk over the loot to pick it up'], start: () => { if (!loot.length) dropItem(pl.x + 70, pl.y + 30, 1, false); }, where: () => loot.length ? loot.reduce((a, b) => (dist(a, pl) < dist(b, pl) ? a : b)) : null, done: () => tipDone.pick },
-  { k: ['[C]  Character → tap the new item → EQUIP', 'Tap  CHARACTER  → the new item → EQUIP'], ui: 1, done: () => tipDone.equip || P.bag.length === 0 },
+  { k: ['New item: its card (right) compares it with what you wear.  [F]  or EQUIP to wear it', 'New item: its card (right) compares it with what you wear. Tap  EQUIP'], done: () => tipDone.equip || P.bag.length === 0 },
   { k: ['[G]  Gems → Multiple Projectiles → a glowing socket next to Fireball', 'CHARACTER → Gems → Multiple Projectiles → a glowing socket'], ui: 1, done: () => P.slots.some((s) => s.s.includes('mp')) },
   { k: ['[SPACE]  dash: you are untouchable while dashing', 'Tap  DASH  to dodge: untouchable while dashing'], done: () => tipDone.dash },
   { k: ['Clear the crypt. Blue and yellow monsters drop better loot', 'Clear the crypt. Blue and yellow monsters drop better loot'], done: () => P.kills >= 25 },
