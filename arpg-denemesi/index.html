@@ -485,7 +485,7 @@ function update(dt) {
     else {
       const sp = 235 * (1 + S.move / 100) * (pl.cast ? 0.45 : 1) * (pl.chillT > 0 ? 0.7 : 1); const k = 1 - Math.exp(-dt * 14);
       pl.vx += (mx * sp - pl.vx) * k; pl.vy += (my * sp - pl.vy) * k;
-      if (!pl.cast) { if (!TOUCH && mouse.in) { const ap = aimPoint(); pl.face = Math.atan2(ap.y - pl.y, ap.x - pl.x); } else if (mx || my) pl.face = Math.atan2(my, mx); }
+      if (!pl.cast && (mx || my)) pl.face = Math.atan2(my, mx);
     }
     pl.x += pl.vx * dt; pl.y += pl.vy * dt; collide(pl); pl.walk += Math.hypot(pl.vx, pl.vy) * dt * 0.05;
     if (pl.cast) { pl.cast.t += dt; if (pl.cast.t >= pl.cast.dur) { const c = pl.cast; pl.cast = null; execCast(c, false); } }

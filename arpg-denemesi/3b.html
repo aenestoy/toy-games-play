@@ -251,7 +251,7 @@ function render3d(dt) {
   TORCH_L.forEach((l, i) => { const t = near[i]; if (!t) { l.intensity = 0; return; } l.position.copy(t[0].position).add(_v3.set(0, 0, 0.8)); l.intensity = 34 * (0.85 + 0.15 * Math.sin(T * 11 + t[0].userData.f)); });
   for (const s of torchSpr) s.scale.setScalar(1.2 + Math.sin(T * 13 + s.userData.f) * 0.12);
   // hero
-  const h = hero3; h.o.position.set(tx, 0, tz); h.o.rotation.y = Math.atan2(Math.cos(pl.face), Math.sin(pl.face));
+  const h = hero3; h.o.position.set(tx, 0, tz); { const want = Math.atan2(Math.cos(pl.face), Math.sin(pl.face)); let d = want - h.o.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); h.o.rotation.y += d * Math.min(1, dt * (pl.cast ? 30 : 14)); }
   if (state === 'dead') { if (h.curName !== 'Death_A') play(h, 'Death_A', true); }
   else if (pl.cast && pl.cast !== lastCast) { lastCast = pl.cast; const gm = pl.cast.gem, n = gm === 'cleave' ? '1H_Melee_Attack_Slice_Diagonal' : gm === 'nova' ? 'Spellcasting' : 'Spellcast_Shoot'; const a = h.acts[n] || h.acts.Idle; play(h, n, true, Math.max(1, a.getClip().duration / Math.max(0.15, pl.cast.dur * 1.6)), 0.08); }
   else if (pl.dashT > 0 && h.curName !== 'Dodge_Forward') play(h, 'Dodge_Forward', true, 1.8, 0.05);
@@ -707,7 +707,7 @@ function update(dt) {
     else {
       const sp = 165 * (1 + S.move / 100) * (pl.cast ? 0.45 : 1) * (pl.chillT > 0 ? 0.7 : 1); const k = 1 - Math.exp(-dt * 14);
       pl.vx += (mx * sp - pl.vx) * k; pl.vy += (my * sp - pl.vy) * k;
-      if (!pl.cast) { if (!TOUCH && mouse.in) { const ap = aimPoint(); pl.face = Math.atan2(ap.y - pl.y, ap.x - pl.x); } else if (mx || my) pl.face = Math.atan2(my, mx); }
+      if (!pl.cast && (mx || my)) pl.face = Math.atan2(my, mx);
     }
     pl.x += pl.vx * dt; pl.y += pl.vy * dt; collide(pl); pl.walk += Math.hypot(pl.vx, pl.vy) * dt * 0.05;
     if (pl.cast) { pl.cast.t += dt; if (pl.cast.t >= pl.cast.dur) { const c = pl.cast; pl.cast = null; execCast(c, false); } }
