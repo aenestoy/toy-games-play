@@ -38,7 +38,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .slotrow em{font-style:normal;color:#7a6a52;font-size:12px;width:58px;flex:0 0 58px;text-transform:uppercase}
 .slotrow span{font-size:14px}
 .gear{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:12px;position:relative;height:100%}
-@media (max-width:620px){.gear{grid-template-columns:1fr}}
+.gear>.tipcard:not(.hint){grid-column:2;grid-row:1}
+@media (max-width:620px){.gear{grid-template-columns:1fr;height:auto}.gear>.tipcard:not(.hint){position:static;grid-column:1;grid-row:auto}}
 @media (max-height:500px){.doll{min-height:0;height:calc(100% - 4px)}.cell.big{width:44px;height:44px}.grid{grid-template-columns:repeat(8,1fr);gap:3px}.gear{grid-template-columns:minmax(170px,230px) 1fr}}
 .doll{position:relative;border:1px solid #3a2c1e;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,rgba(120,80,40,.25),rgba(0,0,0,.35));min-height:300px}
 .dollC{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;border-radius:12px}
@@ -88,8 +89,10 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .sk.no,.sock2.no{opacity:.3}
 .link .mana{margin-left:auto;color:#7fa8ff;font-size:13px;font-weight:700}
 .bagT{color:#9a8a6a;font-size:13px}
-.gbag{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:6px}
-.bgem{aspect-ratio:1;border-radius:10px;border:2px solid var(--gc);background:radial-gradient(circle,color-mix(in srgb,var(--gc) 25%,#120c08),#0c0806);cursor:grab;padding:4px;touch-action:none}
+.gbag{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;margin-bottom:4px}
+.bgem{display:flex;flex-direction:column;align-items:center;gap:2px;height:80px;border-radius:10px;border:2px solid var(--gc);background:radial-gradient(circle,color-mix(in srgb,var(--gc) 25%,#120c08),#0c0806);cursor:grab;padding:4px;touch-action:none}
+.bgem img{width:50px;height:50px;flex:none}.bgem .gn{font-size:10px;line-height:1.1;color:#e8e0d0;text-align:center;overflow:hidden;max-height:22px;font-weight:600}
+.bgem.isSup{border-radius:40px;border-style:dashed}.bgem.isSup .gn{font-size:9px}.bagT b{font-family:Cinzel,serif;margin-right:6px;font-size:13px}.bagT .tSk{color:#ffd890}.bagT .tSup{color:#9fd8c8}
 .bgem.empty{border:1px solid #2a2016;background:rgba(0,0,0,.25);cursor:default}
 .bgem.sel{outline:3px solid #ffd890}
 .bgem.off{opacity:.35;filter:grayscale(.7)}
@@ -1894,7 +1897,7 @@ function renderPanel() {
         <button class="stats statsBtn" id="allSt">${st.map(([i, v, c]) => `<span style="color:${c}">${i} ${v}</span>`).join('')}<b>📊 ALL STATS ›</b></button></div>
       ${selItem ? itemCardHTML(selItem) : `<div class="tipcard hint">${TOUCH ? 'Tap an item to see it · double-tap or drag it onto your hero to wear it' : 'Click an item to see it · double-click, right-click or drag it onto your hero to wear it · double-click a worn item to take it off'} · ▲ = better than what you wear</div>`}
     </div>`;
-    dollMount($('#dollHost')); $('#allSt').onclick = () => { tab = 'stats'; selItem = null; renderPanel(); };
+    dollMount($('#dollHost')); $('#allSt').onclick = () => { tab = 'stats'; selItem = null; renderPanel(); }; const tcd = pb.querySelector('.gear>.tipcard:not(.hint)'); if (tcd && innerWidth <= 620) tcd.scrollIntoView({ block: 'nearest' });
     const equipIt = (it) => { equipItem(it); selItem = null; renderPanel(); };
     const unequip = (k) => { const it = P.eq[k]; if (!it || P.bag.length >= 30) return; P.eq[k] = null; P.bag.push(it); calcStats(); sfx('drop'); selItem = null; renderPanel(); };
     pb.querySelectorAll('[data-b]').forEach((d) => {
@@ -1923,11 +1926,14 @@ function renderPanel() {
         ${s.s.map((sp, j) => `<i class="chainl ${sp ? 'on' : ''}"></i><button class="sock2 ${slotCls(i, j)} ${sp ? 'full' : ''}" data-s="${i}" data-k="${j}" style="--gc:${sp ? SUPCOL[sp] : '#3a2c1e'}">${sp ? gemImg({ sup: sp }) : ''}</button>`).join('')}
         ${s.g ? `<span class="mana">💧${manaCost(s)}</span>` : ''}</div>`;
     }).join('');
-    const bag = P.gemBag.map((b, i) => `<button class="bgem${b === selGem ? ' sel' : ''}${b.g && !skillOk(b.g) ? ' off' : ''}" data-g="${i}" style="--gc:${b.g ? SKILLS[b.g].col : SUPCOL[b.sup]}">${b.g ? `<img src="${skillIconUrl(b.g)}" alt="" draggable="false">` : gemImg(b)}</button>`).join('') + Array.from({ length: Math.max(0, 12 - P.gemBag.length) }, () => '<span class="bgem empty"></span>').join('');
+    const gcell = (b, i) => `<button class="bgem ${b.g ? 'isSk' : 'isSup'}${b === selGem ? ' sel' : ''}${b.g && !skillOk(b.g) ? ' off' : ''}" data-g="${i}" style="--gc:${b.g ? SKILLS[b.g].col : SUPCOL[b.sup]}">${b.g ? `<img src="${skillIconUrl(b.g)}" alt="" draggable="false">` : gemImg(b)}<span class="gn">${b.g ? SKILLS[b.g].n : SUPPORTS[b.sup].n}</span></button>`;
+    const sks = P.gemBag.map((b, i) => [b, i]).filter(([b]) => b.g), sps = P.gemBag.map((b, i) => [b, i]).filter(([b]) => !b.g);
+    const bag = `<div class="bagT"><b class="tSk">⚔ SKILL GEMS</b> your attacks and spells · they go in the big slots</div><div class="gbag">${sks.map(([b, i]) => gcell(b, i)).join('') || '<span class="hint">none in the bag</span>'}</div>
+      <div class="bagT"><b class="tSup">◆ SUPPORT GEMS</b> not a skill on their own · they go in the small round sockets and change the skill next to them</div><div class="gbag">${sps.map(([b, i]) => gcell(b, i)).join('') || '<span class="hint">none in the bag</span>'}</div>`;
     const card = selGem ? (selGem.g ? `<div class="tipcard"><div class="top"><img src="${skillIconUrl(selGem.g)}" alt=""><div style="flex:1"><h4 style="color:${SKILLS[selGem.g].col}">${SKILLS[selGem.g].n}</h4><div class="ln" style="color:#7a6a52">Skill gem · ${SKILLS[selGem.g].tags.join(' · ')}</div></div><button class="btn small" id="tcX">✕</button></div><div class="ln" style="margin-top:6px">${SKILLS[selGem.g].d}</div><div class="ln" style="color:#ffd890;margin-top:4px">Now tap a big glowing slot ↑</div></div>`
       : `<div class="tipcard"><div class="top">${gemImg(selGem)}<div style="flex:1"><h4 style="color:${SUPCOL[selGem.sup]}">${SUPPORTS[selGem.sup].n}</h4><div class="ln" style="color:#7a6a52">Support gem · works with ${SUPPORTS[selGem.sup].need.join(' or ') || 'any skill'}</div></div><button class="btn small" id="tcX">✕</button></div><div class="ln" style="margin-top:6px">${SUPPORTS[selGem.sup].d}</div><div class="ln" style="color:#ffd890;margin-top:4px">Now tap a small glowing socket ↑</div></div>`)
       : '<div class="tipcard hint">Tap or drag a gem into a socket. Big slot = skill, small sockets = supports that change it. Tap a socketed gem to take it out.</div>';
-    pb.innerHTML = `<div class="gemsP"><div class="wk">${weaponKind() === 'attack' ? '⚔ Melee weapon in hand: melee skills only (Cleave, Whirlwind, Ground Slam, Leap Slam)' : '🪄 Staff or wand in hand: spells only (Fireball, Ice Nova, Arc, Spark, Firestorm, Raise Skeletons)'}</div><div class="links">${rows}</div><div class="bagT">💎 Gem bag</div><div class="gbag">${bag}</div>${card}</div>`;
+    pb.innerHTML = `<div class="gemsP"><div class="wk">${weaponKind() === 'attack' ? '⚔ Melee weapon in hand: melee skills only (Cleave, Whirlwind, Ground Slam, Leap Slam)' : '🪄 Staff or wand in hand: spells only (Fireball, Ice Nova, Arc, Spark, Firestorm, Raise Skeletons)'}</div><div class="links">${rows}</div>${bag}${card}</div>`;
     pb.querySelectorAll('[data-g]').forEach((d) => { d.onclick = () => { if (suppressClick) return; const b = P.gemBag[+d.dataset.g]; selGem = selGem === b ? null : b; renderPanel(); }; d.onpointerdown = (e) => gemDragStart(e, P.gemBag[+d.dataset.g], d); });
     pb.querySelectorAll('[data-s]').forEach((d) => d.onclick = () => gemClick(+d.dataset.s, +d.dataset.k));
     const cx = $('#tcX'); if (cx) cx.onclick = () => { selGem = null; renderPanel(); };
