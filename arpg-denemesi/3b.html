@@ -23,8 +23,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
 .box p{color:#cbb894;line-height:1.5;margin:8px 0}
 .keys{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0 18px;font-size:13px}
 .keys span{border:1px solid #4a3a28;border-radius:8px;padding:4px 8px;background:rgba(0,0,0,.35)}
-#panel{position:fixed;inset:0;display:grid;place-items:safe center;background:rgba(3,2,6,.78);padding:10px;overflow:auto;touch-action:pan-y}
-.pc{width:min(760px,100%);background:linear-gradient(#1c140e,#120c08);border:1px solid #6a4e2a;border-radius:14px;box-shadow:0 0 40px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,200,120,.08);padding:12px}
+#pb{flex:1;overflow:auto;min-height:0}
+#panel{position:fixed;inset:0;display:grid;place-items:center;background:rgba(3,2,6,.78);padding:10px;overflow:auto;touch-action:pan-y}
+.pc{width:min(820px,100%);height:min(640px,94vh);display:flex;flex-direction:column;box-sizing:border-box;position:relative;background:linear-gradient(#1c140e,#120c08);border:1px solid #6a4e2a;border-radius:14px;box-shadow:0 0 40px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,200,120,.08);padding:12px}
 .tabs{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
 .tab{font-family:Cinzel,serif;font-weight:800;border:1px solid #4a3a28;background:#160f0a;color:#b8a07a;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:14px}
 .tab[aria-selected="true"]{color:#ffd890;border-color:#c89a50;background:#2a1c10}
@@ -35,6 +36,28 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
 .slotrow{display:flex;align-items:center;gap:8px;border:1px solid #3a2c1e;border-radius:8px;padding:6px 8px;margin-bottom:6px;background:rgba(0,0,0,.25);cursor:pointer;min-height:24px}
 .slotrow em{font-style:normal;color:#7a6a52;font-size:12px;width:58px;flex:0 0 58px;text-transform:uppercase}
 .slotrow span{font-size:14px}
+.gear{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:12px;position:relative;height:100%}
+@media (max-width:620px){.gear{grid-template-columns:1fr}}
+@media (max-height:500px){.doll{min-height:0;height:calc(100% - 4px)}.cell.big{width:44px;height:44px}.grid{grid-template-columns:repeat(8,1fr);gap:3px}.gear{grid-template-columns:minmax(170px,230px) 1fr}}
+.doll{position:relative;border:1px solid #3a2c1e;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,rgba(120,80,40,.25),rgba(0,0,0,.35));min-height:300px}
+.doll .hero{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:88%;opacity:.95;pointer-events:none}
+.slot{position:absolute;transform:translate(-50%,0);display:grid;place-items:center}
+.slot span{position:absolute;font-size:22px;opacity:.35;pointer-events:none}
+.cell{position:relative;width:100%;aspect-ratio:1;border:2px solid color-mix(in srgb,var(--rc,#3a2c1e) 70%,transparent);border-radius:8px;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--rc,#222) 22%,#120c08),#0c0806);padding:2px;cursor:pointer;display:grid;place-items:center}
+.cell img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.cell.empty{border-color:#2a2016;background:rgba(0,0,0,.3);cursor:default}
+.cell.big{width:64px;height:64px}
+.cell.sel{outline:3px solid #ffd890;outline-offset:1px}
+.cell .upg{position:absolute;right:2px;top:0;color:#7be05a;font-style:normal;font-size:13px;text-shadow:0 0 4px #000}
+.side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.shards{display:flex;align-items:baseline;gap:6px;color:#7fe0ff;font-size:18px}.shards small{color:#5a8a9a;font-size:12px}.shards .bagn{margin-left:auto;color:#9a8a6a;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.stats{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px;font-weight:700}
+.tipcard{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#20160e,#0e0805);border:1px solid #8a6a3a;border-radius:10px;padding:10px 12px;box-shadow:0 -6px 24px rgba(0,0,0,.6);z-index:2}
+.tipcard.hint{position:static;border:0;background:none;box-shadow:none;padding:0;color:#7a6a52;grid-column:1/-1}
+.tipcard .top{display:flex;gap:10px;align-items:center}.tipcard img{width:58px;height:58px}
+.tipcard h4{margin:0;font-family:Cinzel,serif;font-size:17px}.tipcard .ln{font-size:13px}
+.tipcard .row2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .bag{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:5px}
 .it{border:1px solid #3a2c1e;border-radius:6px;padding:5px;font-size:12px;cursor:pointer;background:rgba(0,0,0,.35);line-height:1.2;min-height:30px}
 .it.sel{outline:2px solid #ffd890}
@@ -67,8 +90,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
 #newItem h4{margin:0 0 2px;font-family:Cinzel,serif;font-size:16px}
 #newItem .up{color:#7be05a}#newItem .down{color:#ff7a6a}#newItem .sub{color:#7a6a52;font-size:12px;margin-bottom:6px}
 #newItem .row2{display:flex;gap:6px;margin-top:8px}
-#charBtn{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);font-size:13px;padding:7px 14px}
-#charBtn.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890}
+#menuBar{position:fixed;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
+#menuBar .btn{font-size:13px;padding:7px 11px;white-space:nowrap}
+#menuBar .btn.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890;color:#ffd890;animation:pulseB 0.8s ease-in-out infinite alternate}
+@keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
+@media (max-width:560px){#menuBar .btn{font-size:11px;padding:6px 7px}}
 </style>
 </head>
 <body>
@@ -90,7 +116,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
   <div id="pb"></div>
 </div></div>
 <div id="newItem" class="hide"></div>
-<button class="btn small" id="charBtn">CHARACTER</button>
+<div id="menuBar"><button class="btn small" id="charBtn" data-t="gear">🎒 GEAR</button><button class="btn small" id="gemBtn" data-t="gems">💎 GEMS</button><button class="btn small" id="treeBtn" data-t="tree">✦ PASSIVES</button><button class="btn small" id="questBtn" data-t="quests">📜 QUESTS</button></div>
 <button class="pad hide" id="pFlask">FLASK</button>
 <button class="pad hide" id="pDash">DASH</button>
 <button class="pad hide" id="p3">E</button>
@@ -328,6 +354,42 @@ function syncLoot(dt) {
     if (o.rar >= 2 && t > 0.5) for (let i = 0; i < 2; i++) { const ph = (T * 0.45 + o.seed + i * 0.5) % 1, a = o.seed * 7 + i * 3 + T * 0.3; spr(l.x + Math.cos(a) * 14, l.y + Math.sin(a) * 14, 0.4 + ph * 4, 0.35 * (1 - ph), o.col, 1 - ph); }
   }
   for (const [l, o] of lootObjs) if (o.frame !== lootFrame) { scene3.remove(o.root); for (const m of [o.glow, ...o.beams]) { m.geometry.dispose(); m.material.dispose(); } lootObjs.delete(l); }
+}
+
+// ---------- icons: items, gems and the hero rendered once from their 3D models (for the Gear page) ----------
+const iconR = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+iconR.setPixelRatio(1); iconR.outputColorSpace = THREE.SRGBColorSpace; iconR.toneMapping = THREE.ACESFilmicToneMapping; iconR.toneMappingExposure = 1.25;
+const iconScene = new THREE.Scene(); iconScene.add(new THREE.HemisphereLight(0xfff4e0, 0x302030, 1.6)); const iconSun = new THREE.DirectionalLight(0xffffff, 2.2); iconSun.position.set(2, 3, 4); iconScene.add(iconSun);
+const iconCam = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
+const iconCache = new Map();
+function itemModel(it, col) {
+  if (!it) return PROTO.crystal(col);
+  const [k, c2] = BASE3[it.base] || ['crystal']; const f = PROTO[k]; const m = !f ? PROTO.crystal(col) : f.length ? f(c2 || col) : f();
+  if (it.rar === 3) m.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.emissive = new THREE.Color('#6a3000'); } });
+  return m;
+}
+function snap(obj, size, rotY = -0.6, tilt = 0.35) {
+  iconR.setSize(size, size, false);
+  const g2 = new THREE.Group(); g2.add(obj); g2.rotation.set(tilt, rotY, obj.userData.z || 0.5); iconScene.add(g2); g2.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(g2), c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
+  iconCam.position.set(c.x, c.y, c.z + r / Math.tan(14 * Math.PI / 180) * 1.05); iconCam.lookAt(c); iconCam.updateProjectionMatrix();
+  iconR.setClearColor(0x000000, 0); iconR.render(iconScene, iconCam); const url = iconR.domElement.toDataURL('image/png'); iconScene.remove(g2); return url;
+}
+function itemIcon(it) {
+  const key = it.base + '|' + it.rar; if (iconCache.has(key)) return iconCache.get(key);
+  const url = snap(itemModel(it, RCOL[it.rar]), 96); iconCache.set(key, url); return url;
+}
+function gemIcon(gm) {
+  const key = 'gem|' + (gm.g || gm.sup); if (iconCache.has(key)) return iconCache.get(key);
+  const url = snap(PROTO.crystal(gm.g ? SKILLS[gm.g].col : '#d8d8e8'), 72, 0.4, 0.15); iconCache.set(key, url); return url;
+}
+let portraitUrl = null;
+function heroPortrait() {
+  if (portraitUrl) return portraitUrl;
+  const c = makeChar(gMage, ['2H_Staff', 'Mage_Cape'], null, null, 2.7); const a = c.acts.Idle_Combat || c.acts.Idle; if (a) { a.play(); c.mixer.setTime(0.4); }
+  iconR.setSize(220, 300, false); const g2 = c.o; g2.rotation.y = 0.35; iconScene.add(g2); g2.updateMatrixWorld(true);
+  g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); }); const bx = new THREE.Box3(); g2.traverse((o) => { if (o.isMesh && o.visible) bx.expandByObject(o, true); }); const bc = bx.getCenter(new THREE.Vector3()), bh = bx.max.y - bx.min.y; const cam = new THREE.PerspectiveCamera(26, 220 / 300, 0.1, 80); cam.position.set(bc.x, bc.y + bh * 0.05, bc.z + bh * 0.62 / Math.tan(13 * Math.PI / 180)); cam.lookAt(bc);
+  iconR.setClearColor(0x000000, 0); iconR.render(iconScene, cam); portraitUrl = iconR.domElement.toDataURL('image/png'); iconScene.remove(g2); return portraitUrl;
 }
 
 // ---------- per frame ----------
@@ -920,7 +982,7 @@ function explode(p) {
 }
 function pickUp(l, i) {
   tipDone.pick = 1;
-  if (l.gem) { P.gemBag.push(l.gem); toast.push({ t: 0, s: (l.gem.g ? 'Skill gem: ' + SKILLS[l.gem.g].n : 'Support gem: ' + SUPPORTS[l.gem.sup].n), c: '#5fe0c0' }); loot.splice(i, 1); markNew(); sfx('drop'); save(); return; }
+  if (l.gem) { markGem(); P.gemBag.push(l.gem); toast.push({ t: 0, s: (l.gem.g ? 'Skill gem: ' + SKILLS[l.gem.g].n : 'Support gem: ' + SUPPORTS[l.gem.sup].n), c: '#5fe0c0' }); loot.splice(i, 1); markNew(); sfx('drop'); save(); return; }
   if (P.bag.length >= 30) { if (!l.full) { l.full = 1; floater(pl.x, pl.y - 60, 'Bag full', '#ff8a8a', 16); } return; }
   if (l.it.rar >= 2) quest('loot');
   P.bag.push(l.it); loot.splice(i, 1); sfx('drop'); toast.push({ t: 0, s: RN[l.it.rar] + ': ' + l.it.name, c: ['#d8d8d8', '#8888ff', '#ffff77', '#ff9a3a'][l.it.rar] });
@@ -961,7 +1023,7 @@ const TIPS = [
   { k: ['[LEFT CLICK]  casts Fireball where the mouse points', 'Tap  FIREBALL  — it aims for you'], start: () => tutSpawn(), where: () => mons.find((m) => m.tut && !m.dead), done: () => tut.tutKills >= 3 },
   { k: ['Walk over the loot to pick it up', 'Walk over the loot to pick it up'], start: () => { if (!loot.length) dropItem(pl.x + 70, pl.y + 30, 1, false); }, where: () => loot.length ? loot.reduce((a, b) => (dist(a, pl) < dist(b, pl) ? a : b)) : null, done: () => tipDone.pick },
   { k: ['New item: its card (right) compares it with what you wear.  [F]  or EQUIP to wear it', 'New item: its card (right) compares it with what you wear. Tap  EQUIP'], done: () => tipDone.equip || P.bag.length === 0 },
-  { k: ['[G]  Gems → Multiple Projectiles → a glowing socket next to Fireball', 'CHARACTER → Gems → Multiple Projectiles → a glowing socket'], ui: 1, done: () => P.slots.some((s) => s.s.includes('mp')) },
+  { k: ['[G]  Gems → Multiple Projectiles → a glowing socket next to Fireball', 'Tap  GEMS  → Multiple Projectiles → a glowing socket'], ui: 1, done: () => P.slots.some((s) => s.s.includes('mp')) },
   { k: ['[SPACE]  dash: you are untouchable while dashing', 'Tap  DASH  to dodge: untouchable while dashing'], done: () => tipDone.dash },
   { k: ['Clear the crypt. Blue and yellow monsters drop better loot', 'Clear the crypt. Blue and yellow monsters drop better loot'], done: () => P.kills >= 25 },
   { k: ['Find the Hollow King: follow  ☠  on the map', 'Find the Hollow King: follow  ☠  on the map'], where: () => boss && !boss.dead ? boss : null, done: () => !!portal },
@@ -981,12 +1043,12 @@ function tips() {
   const cur = TIPS[P.tip];
   if (cur && tut.started !== P.tip) { tut.started = P.tip; if (cur.start) cur.start(); }
   if (cur && P.tip < TIPS.length - 1 && cur.done()) { P.tip++; sfx('drop'); tut.flash = 1; save(); }
-  $('#charBtn').classList.toggle('new', !!(TIPS[P.tip] && TIPS[P.tip].ui) || availPoints() > 0);
+  $('#treeBtn').classList.toggle('new', availPoints() > 0); $('#gemBtn').classList.toggle('new', P.tip === 4 || (P.gemBag.length > 0 && !!P.newGem)); $('#questBtn').classList.toggle('new', !!(P.daily && P.daily.q.some((q) => q.n >= q.goal && !q.claimed)));
 }
 function drawTip() {
   const tip = TIPS[P.tip]; if (!tip || state !== 'play') return;
   // passive points interrupt any step
-  const s = availPoints() > 0 && P.tip >= 2 ? (TOUCH ? 'Level up!  Tap  CHARACTER  → Passives → a glowing node' : 'Level up!  [P]  Passives → a glowing node → ALLOCATE') : tip.k[TOUCH ? 1 : 0];
+  const s = availPoints() > 0 && P.tip >= 2 ? (TOUCH ? 'Level up!  Tap  PASSIVES  → a glowing node' : 'Level up!  [P]  Passives → a glowing node → ALLOCATE') : tip.k[TOUCH ? 1 : 0];
   const sm = W < 600, fs = sm ? 13 : 16, y = TOUCH ? H * 0.25 : H - 120;
   g.font = `700 ${fs}px Fredoka, sans-serif`;
   // measure with key caps: [X] parts become boxed keys
@@ -1008,6 +1070,7 @@ function drawTip() {
   else { const [px, py] = toScreen(pl.x, pl.y, 1.2), a = Math.atan2(sy - py, sx - px), r = Math.min(W, H) * 0.32; const ex = W / 2 + Math.cos(a) * r, ey = H / 2 + Math.sin(a) * r; g.save(); g.translate(ex, ey); g.rotate(a); g.fillStyle = '#ffd890'; g.strokeStyle = '#1a1008'; g.lineWidth = 3; g.beginPath(); g.moveTo(22, 0); g.lineTo(-10, -14); g.lineTo(-4, 0); g.lineTo(-10, 14); g.closePath(); g.fill(); g.stroke(); g.restore(); }
 }
 function markNew() { $('#charBtn').classList.add('new'); }
+function markGem() { P.newGem = 1; }
 
 // ---------- drawing ----------
 function drawPlayer() {
@@ -1202,13 +1265,14 @@ function metaInit() {
   if (st.last !== today) { st.n = st.last === yest ? st.n + 1 : 1; st.last = today; streakGift = st.n; }
   P.streak = st;
   // rewards while away: your followers keep raiding the rift (up to 8 hours)
+  const firstVisit = !P.lastSeen;
   const away = P.lastSeen ? Math.min(8, (Date.now() - P.lastSeen) / 3600000) : 0; P.lastSeen = Date.now();
   const gifts = { shards: 0, items: [] };
   if (away >= 0.25) { gifts.shards += Math.floor(away * 6 * (1 + 0.3 * (P.tier - 1))); const n = Math.min(6, 1 + Math.floor(away)); for (let i = 0; i < n; i++) gifts.items.push(rnd() < 0.08 ? mkUnique() : mkItem(pick(SLOTS), rnd() < 0.35 ? 2 : 1, P.tier)); }
   if (streakGift) { gifts.shards += Math.min(7, streakGift) * 5; if (streakGift % 7 === 0) gifts.items.push(mkUnique()); }
   P.shards += gifts.shards; for (const it of gifts.items) if (P.bag.length < 30) P.bag.push(it);
   save();
-  if (gifts.shards || gifts.items.length) welcome(away, streakGift, gifts);
+  if (!firstVisit && (gifts.shards || gifts.items.length)) welcome(away, streakGift, gifts);
 }
 function welcome(away, streak, gifts) {
   const h = Math.floor(away), m = Math.round((away - h) * 60);
@@ -1218,12 +1282,12 @@ function welcome(away, streak, gifts) {
     ${streak ? `<p>Login streak: <b style="color:#ffd890">day ${streak}</b> ${streak % 7 === 0 ? '· a unique item!' : '· come back tomorrow for more'}</p>` : ''}
     <div style="display:flex;gap:6px;justify-content:center;margin:10px 0">${[1, 2, 3, 4, 5, 6, 7].map((d) => `<span style="width:34px;height:34px;border-radius:8px;display:grid;place-items:center;border:1px solid ${d <= ((streak - 1) % 7) + 1 ? '#e8b860' : '#3a2c1e'};color:${d <= ((streak - 1) % 7) + 1 ? '#ffd890' : '#5a4a36'};font-weight:700">${d === 7 ? '★' : d}</span>`).join('')}</div>
     <p style="font-size:20px"><b style="color:#7fe0ff">+${gifts.shards} Rift Shards</b>${gifts.items.length ? ` · <b style="color:#ffef6a">${gifts.items.length} item${gifts.items.length > 1 ? 's' : ''}</b> in your bag` : ''}</p>
-    <p class="hint" style="color:#9a8a6a">Spend shards on Reforge and Upgrade in Character → Gear.</p>
+    <p class="hint" style="color:#9a8a6a">Spend shards on Reforge and Upgrade in GEAR (top of the screen).</p>
     <button class="btn" id="wOk">COLLECT</button></div>`;
   document.body.appendChild(el); sfx('uni'); $('#wOk').onclick = () => { el.remove(); };
 }
 function quest(id, n = 1) {
-  if (!P.daily) return; for (const q of P.daily.q) if (q.id === id && q.n < q.goal) { q.n = Math.min(q.goal, q.n + n); if (q.n >= q.goal) { toast.push({ t: 0, s: 'Daily quest done! Claim it in Character → Quests', c: '#7fe0ff' }); sfx('lvl'); markNew(); } }
+  if (!P.daily) return; for (const q of P.daily.q) if (q.id === id && q.n < q.goal) { q.n = Math.min(q.goal, q.n + n); if (q.n >= q.goal) { toast.push({ t: 0, s: 'Daily quest done! Claim it in QUESTS (top)', c: '#7fe0ff' }); sfx('lvl'); markNew(); } }
 }
 function claimQuest(i) { const q = P.daily.q[i]; if (!q || q.claimed || q.n < q.goal) return; q.claimed = true; P.shards += 12; if (P.bag.length < 30) P.bag.push(mkItem(pick(SLOTS), 2, P.tier)); if (P.daily.q.every((x) => x.claimed) && P.bag.length < 30) P.bag.push(mkUnique()); sfx('uni'); save(); }
 // crafting with shards
@@ -1235,11 +1299,22 @@ addEventListener('visibilitychange', () => { if (P && document.hidden) { P.lastS
 // ---------- character panel ----------
 let tab = 'gear', selItem = null, selGem = null;
 const availPoints = () => P.lv - P.tree.length;
-function openPanel(t) { if (state !== 'play') return; state = 'panel'; tab = t; selItem = null; selGem = null; setPads(false); $('#charBtn').classList.remove('new'); $('#panel').classList.remove('hide'); held.fill(0); renderPanel(); }
-function closePanel() { $('#panel').classList.add('hide'); state = 'play'; setPads(true); save(); }
-$('#px').onclick = closePanel; $('#charBtn').onclick = () => state === 'panel' ? closePanel() : openPanel('gear');
+function openPanel(t) { if (state !== 'play') return; state = 'panel'; hideCard(); $('#menuBar').classList.add('hide'); tab = t; selItem = null; selGem = null; setPads(false); if (t === 'gear') $('#charBtn').classList.remove('new'); if (t === 'gems') P.newGem = 0; $('#panel').classList.remove('hide'); held.fill(0); renderPanel(); }
+function closePanel() { $('#menuBar').classList.remove('hide'); $('#panel').classList.add('hide'); state = 'play'; setPads(true); save(); }
+$('#px').onclick = closePanel; document.querySelectorAll('#menuBar .btn').forEach((b) => b.onclick = () => { if (state === 'panel') { if (tab === b.dataset.t) closePanel(); else { tab = b.dataset.t; selItem = null; selGem = null; if (tab === 'gear') b.classList.remove('new'); if (tab === 'gems') P.newGem = 0; renderPanel(); } } else openPanel(b.dataset.t); });
 document.querySelectorAll('.tab').forEach((b) => b.onclick = () => { tab = b.dataset.t; selItem = null; selGem = null; renderPanel(); });
 $('#panel').addEventListener('pointerdown', (e) => { if (e.target.id === 'panel') closePanel(); });
+
+function better(it) { if (!it || !P.bag.includes(it)) return false; const a = statsWith(it.slot, P.eq[it.slot]), b2 = statsWith(it.slot, it); let sc = 0; for (const [k] of DELTA) sc += ((b2[k] || 0) - (a[k] || 0)) * (k === 'life' || k === 'mana' ? 0.5 : 1); return sc > 0; }
+function itemCardHTML(it) {
+  const col = ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][it.rar], inBag = P.bag.includes(it), cur = P.eq[it.slot];
+  let cmp = '';
+  if (inBag) { const a = statsWith(it.slot, cur), b2 = statsWith(it.slot, it); for (const [k, n] of DELTA) { const d = Math.round((b2[k] || 0) - (a[k] || 0)); if (d) cmp += `<span class="ln" style="color:${d > 0 ? '#7be05a' : '#ff7a6a'}">${d > 0 ? '▲ +' : '▼ '}${d}${n}</span> `; } }
+  return `<div class="tipcard"><div class="top"><img src="${itemIcon(it)}" alt=""><div style="flex:1;min-width:0"><h4 style="color:${col}">${it.name}</h4><div class="ln" style="color:#7a6a52">${RN[it.rar]} ${it.slot}${inBag ? (cur ? ' · you wear ' + cur.name : ' · slot empty') : ' · worn'}</div></div><button class="btn small" id="tcX">✕</button></div>
+    <div style="margin-top:6px">${itemLines(it).map(([k, t]) => `<div class="ln" style="color:${k === 'uni' ? '#ff9a3a' : k === 'imp' ? '#a8a8ff' : '#8fb8ff'}">${t}</div>`).join('')}</div>
+    ${cmp ? `<div style="margin-top:6px">${cmp}</div>` : ''}
+    <div class="row2">${inBag ? '<button class="btn small" id="eqB">EQUIP</button><button class="btn small" id="drB">DISCARD</button>' : ''}${it.rar >= 1 && it.rar <= 2 ? `<button class="btn small" id="rfB" ${P.shards < 5 ? 'disabled' : ''}>REFORGE · 5◆</button>` : ''}${it.rar <= 1 ? `<button class="btn small" id="ugB" ${P.shards < 15 ? 'disabled' : ''}>UPGRADE · 15◆</button>` : ''}</div></div>`;
+}
 function itemHTML(it, cmp) {
   if (!it) return '<div class="detail"><span class="hint">Tap an item to see it.</span></div>';
   const L = itemLines(it).map(([k, s]) => `<div class="${k}">${s}</div>`).join('');
@@ -1250,16 +1325,24 @@ function renderPanel() {
   document.querySelectorAll('.tab').forEach((b) => { b.setAttribute('aria-selected', b.dataset.t === tab ? 'true' : 'false'); if (b.dataset.t === 'tree') b.innerHTML = 'Passives' + (availPoints() ? ` <b>+${availPoints()}</b>` : ''); });
   const pb = $('#pb');
   if (tab === 'gear') {
-    const stats = `Life ${S.life} · Mana ${S.mana} · Spell dmg +${S.inc_spell}% · Fire +${S.inc_fire}% · Cold +${S.inc_cold}% · Lightning +${S.inc_light}% · Phys +${S.inc_phys}% · Cast speed +${S.cast}% · Move +${S.move}% · Crit ${S.crit}%`;
-    pb.innerHTML = `<div class="cols"><div>${SLOTS.map((k) => `<div class="slotrow" data-eq="${k}"><em>${k}</em><span class="r${P.eq[k] ? P.eq[k].rar : 0}">${P.eq[k] ? P.eq[k].name : '<span style="color:#5a4a36">empty</span>'}</span></div>`).join('')}<div class="hint">${stats}</div></div>
-      <div>${itemHTML(selItem, true)}<div style="display:flex;gap:6px;margin:8px 0">${selItem && P.bag.includes(selItem) ? '<button class="btn small" id="eqB">EQUIP</button><button class="btn small" id="drB">DISCARD</button>' : ''}${selItem && selItem.rar >= 1 && selItem.rar <= 2 ? `<button class="btn small" id="rfB" ${P.shards < 5 ? 'disabled' : ''}>REFORGE · 5◆</button>` : ''}${selItem && selItem.rar <= 1 ? `<button class="btn small" id="ugB" ${P.shards < 15 ? 'disabled' : ''}>UPGRADE · 15◆</button>` : ''}</div>
-      <div class="hint">Bag ${P.bag.length}/30</div><div class="bag">${P.bag.map((it, i) => `<div class="it r${it.rar}${it === selItem ? ' sel' : ''}" data-b="${i}">${it.name}<br><span style="color:#7a6a52">${it.slot}</span></div>`).join('')}</div></div></div>`;
-    pb.insertAdjacentHTML('afterbegin', `<div class="hint" style="color:#7fe0ff">◆ ${P.shards || 0} Rift Shards · Reforge re-rolls a magic or rare item's mods, Upgrade raises its rarity</div>`);
-    pb.querySelectorAll('[data-b]').forEach((d) => d.onclick = () => { selItem = P.bag[+d.dataset.b]; renderPanel(); });
-    pb.querySelectorAll('[data-eq]').forEach((d) => d.onclick = () => { selItem = P.eq[d.dataset.eq]; renderPanel(); });
-    const eb = $('#eqB'); if (eb) eb.onclick = () => { const it = selItem, old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; selItem = it; renderPanel(); };
+    const RC = ['#9a9a9a', '#7f8cff', '#ffef6a', '#ff9a3a'];
+    const cell = (it, attrs, cls = '') => it ? `<button class="cell ${cls}${it === selItem ? ' sel' : ''}" ${attrs} style="--rc:${RC[it.rar]}"><img src="${itemIcon(it)}" alt="${it.name}">${better(it) ? '<i class="upg">▲</i>' : ''}</button>` : `<button class="cell empty ${cls}" ${attrs}></button>`;
+    const SLOTPOS = { amulet: 'top:6%;left:50%', weapon: 'top:38%;left:12%', armor: 'top:38%;left:50%', ring: 'top:38%;left:88%', boots: 'top:76%;left:50%' };
+    const SLOTICON = { weapon: '⚔', armor: '🛡', ring: '◯', amulet: '❖', boots: '👢' };
+    const st = [['❤', S.life, '#ff6a6a'], ['💧', S.mana, '#7fa8ff'], ['✦', S.inc_spell + '%', '#d8b8ff'], ['🔥', S.inc_fire + '%', '#ff9a4a'], ['❄', S.inc_cold + '%', '#9fe0ff'], ['⚡', S.inc_light + '%', '#e8f0ff'], ['🗡', S.inc_phys + '%', '#f0e6d0'], ['⏩', S.cast + '%', '#c8e0a0'], ['👟', S.move + '%', '#c8c8c8'], ['🎯', S.crit + '%', '#ffd890']];
+    pb.innerHTML = `<div class="gear">
+      <div class="doll"><img class="hero" src="${heroPortrait()}" alt="">${SLOTS.map((k) => `<div class="slot" style="${SLOTPOS[k]}">${cell(P.eq[k], `data-eq="${k}"`, 'big')}<span>${P.eq[k] ? '' : SLOTICON[k]}</span></div>`).join('')}</div>
+      <div class="side"><div class="shards">◆ <b>${P.shards || 0}</b><small>shards</small><span class="bagn">${P.bag.length}/30</span></div>
+        <div class="grid">${Array.from({ length: 30 }, (_, i) => cell(P.bag[i], `data-b="${i}"`)).join('')}</div>
+        <div class="stats">${st.map(([i, v, c]) => `<span style="color:${c}">${i} ${v}</span>`).join('')}</div></div>
+      ${selItem ? itemCardHTML(selItem) : '<div class="tipcard hint">Tap an item to see it. ▲ = better than what you wear.</div>'}
+    </div>`;
+    pb.querySelectorAll('[data-b]').forEach((d) => d.onclick = () => { const it = P.bag[+d.dataset.b]; if (it) { selItem = it === selItem ? null : it; renderPanel(); } });
+    pb.querySelectorAll('[data-eq]').forEach((d) => d.onclick = () => { const it = P.eq[d.dataset.eq]; if (it) { selItem = it === selItem ? null : it; renderPanel(); } });
+    const eb = $('#eqB'); if (eb) eb.onclick = () => { const it = selItem, old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; sfx('rare'); selItem = null; renderPanel(); };
     const db = $('#drB'); if (db) db.onclick = () => { P.bag.splice(P.bag.indexOf(selItem), 1); selItem = null; renderPanel(); };
     const rf = $('#rfB'); if (rf) rf.onclick = () => { reforge(selItem); renderPanel(); }; const ug = $('#ugB'); if (ug) ug.onclick = () => { upgrade(selItem); renderPanel(); };
+    const cx = $('#tcX'); if (cx) cx.onclick = () => { selItem = null; renderPanel(); };
   } else if (tab === 'gems') {
     const keys = TOUCH ? ['1', '2', '3', '4'] : ['LMB', 'RMB', 'Q', 'E'];
     pb.innerHTML = `<div class="hint">${selGem ? 'Now tap a glowing socket.' : 'Tap a gem below, then a socket. Tap a socketed gem to take it out. Support gems change the skill they sit next to.'}</div>` +
@@ -1306,13 +1389,14 @@ function gemClick(i, k) {
 }
 
 // ---------- flow ----------
-function setPads(on) { for (const id of ['#p0', '#p1', '#p2', '#p3', '#pDash', '#pFlask']) $(id).classList.toggle('hide', !(on && TOUCH)); $('#charBtn').classList.toggle('hide', !on && state !== 'panel'); }
-$('#keys').innerHTML = TOUCH ? '<span>Left thumb: move</span><span>Skill buttons auto-aim</span><span>CHARACTER: gear, gems, passives</span>' : '<span>WASD: move</span><span>Mouse: aim</span><span>LMB / RMB / Q / E: skills</span><span>Space: dash</span><span>1: flask</span><span>C · G · P: gear, gems, passives</span>';
+function setPads(on) { for (const id of ['#p0', '#p1', '#p2', '#p3', '#pDash', '#pFlask']) $(id).classList.toggle('hide', !(on && TOUCH)); $('#menuBar').classList.toggle('hide', !on || state === 'panel'); }
+$('#keys').innerHTML = TOUCH ? '<span>Left thumb: move</span><span>Skill buttons auto-aim</span><span>Top buttons: gear, gems, passives, quests</span>' : '<span>WASD: move</span><span>Mouse: aim</span><span>LMB / RMB / Q / E: skills</span><span>Space: dash</span><span>1: flask</span><span>C · G · P: gear, gems, passives</span>';
 $('#go').onclick = () => { $('#start').classList.add('hide'); state = 'play'; setPads(true); sfx('lvl'); };
 $('#rez').onclick = () => { $('#dead').classList.add('hide'); const s = START(); pl.x = s.x; pl.y = s.y; pl.life = pl.maxLife; pl.mana = pl.maxMana; pl.flask = 3; projs = []; state = 'play'; setPads(true); };
 $('#next').onclick = () => { $('#done').classList.add('hide'); newMap(); state = 'play'; setPads(true); };
-P = load() || freshProgress(); if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#charBtn').classList.add('hide');
+P = load() || freshProgress(); if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
 metaInit();
+if (!TOUCH) { $('#charBtn').textContent = '🎒 GEAR (C)'; $('#gemBtn').textContent = '💎 GEMS (G)'; $('#treeBtn').textContent = '✦ PASSIVES (P)'; $('#questBtn').textContent = '📜 QUESTS'; }
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
 window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, dropItem, dropGem, openPanel, closePanel };
 let last = performance.now();
