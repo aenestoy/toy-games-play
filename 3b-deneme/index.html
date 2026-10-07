@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>3B Görünüm Denemesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* 3D look test: two free asset families side by side in one dark crypt, raw vs our look, plus a 100-monster phone test. */
+html,body{margin:0;height:100%;overflow:hidden;background:#07050c;color:#eee;font-family:Fredoka,system-ui,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
+#ui{position:fixed;left:0;right:0;bottom:max(10px,env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:0 8px;pointer-events:none}
+#ui button{pointer-events:auto;font:inherit;font-weight:700;font-size:14px;border:1px solid #8a6a3a;border-radius:10px;padding:8px 12px;color:#f4e6c8;background:linear-gradient(#3a2a1a,#1e140c);cursor:pointer}
+#ui button[aria-pressed="true"]{border-color:#ffd890;color:#ffd890;box-shadow:0 0 10px rgba(255,216,144,.35)}
+#info{position:fixed;top:max(8px,env(safe-area-inset-top));left:10px;right:10px;display:flex;justify-content:space-between;gap:10px;font-size:13px;pointer-events:none;text-shadow:0 1px 3px #000}
+#fps{font-weight:700;font-size:16px;color:#7be05a}
+.lbl{position:fixed;transform:translate(-50%,-100%);font-family:Cinzel,serif;font-weight:700;font-size:18px;color:#e8b860;text-shadow:0 2px 6px #000;pointer-events:none;white-space:nowrap;text-align:center}
+.lbl small{display:block;font-family:Fredoka,sans-serif;font-size:12px;color:#cbb894;font-weight:500}
+#load{position:fixed;inset:0;display:grid;place-items:center;background:#07050c;font-size:18px;z-index:5}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="load">Yükleniyor… <span id="lp">0%</span></div>
+<div id="info"><div id="note">Sürükle: döndür · iki parmak / tekerlek: yakınlaş</div><div id="fps">– FPS</div></div>
+<div class="lbl" id="lA">KAYKIT<small>tıknaz, çok hafif · ~6 bin üçgen</small></div>
+<div class="lbl" id="lB">QUATERNIUS<small>daha gerçekçi · ~27 bin üçgen</small></div>
+<div id="ui">
+  <button id="bLook" aria-pressed="true">Bizim görünüm</button>
+  <button id="bCam">Oyun kamerası</button>
+  <button id="bK">+100 iskelet (KayKit)</button>
+  <button id="bQ">+100 imp (Quaternius)</button>
+  <button id="bClr">Kalabalığı sil</button>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const $ = (s) => document.querySelector(s);
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(1.5, devicePixelRatio || 1));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 200);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1, 0); controls.enableDamping = true; controls.maxPolarAngle = 1.35; controls.minDistance = 3; controls.maxDistance = 45;
+function gameCam() { camera.position.set(0, 17, 15); controls.target.set(0, 0.5, 1); }
+function closeCam() { camera.position.set(0, 4.5, 11); controls.target.set(0, 1.4, 0); }
+closeCam();
+
+// ---------- lights: raw (bright, neutral) and ours (dark crypt, warm torches, cold moon) ----------
+const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.6);
+const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(5, 12, 8);
+const moon = new THREE.DirectionalLight(0x8a9cff, 1.3); moon.position.set(-6, 10, 6);
+const amb = new THREE.HemisphereLight(0x5a5a8a, 0x1a1018, 1.1);
+// the hero's own light: in an ARPG the area around the player is always readable
+const heroLight = new THREE.PointLight(0xffe2b0, 30, 16, 1.4); heroLight.position.set(0, 4.5, 3.5);
+scene.add(hemi, sun, moon, amb, heroLight);
+const torches = [];
+
+// ---------- post: bloom + colour grade + vignette ----------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.55, 0.5, 0.82);
+composer.addPass(bloom);
+const grade = new ShaderPass({
+  uniforms: { tDiffuse: { value: null }, sat: { value: 0.85 }, vig: { value: 0.55 } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float sat; uniform float vig; varying vec2 vUv;
+    void main(){ vec4 c = texture2D(tDiffuse, vUv); float l = dot(c.rgb, vec3(0.299,0.587,0.114));
+      c.rgb = mix(vec3(l), c.rgb, sat); c.rgb *= vec3(1.04, 0.98, 0.95);
+      float d = distance(vUv, vec2(0.5)); c.rgb *= 1.0 - vig * smoothstep(0.35, 0.85, d); gl_FragColor = c; }`,
+});
+composer.addPass(grade);
+composer.addPass(new OutputPass());
+
+// ---------- our look: toon ramp + rim light on everything, outline on creatures ----------
+const ramp = (() => { const d = new Uint8Array([40, 110, 190, 255]); const t = new THREE.DataTexture(d, 4, 1, THREE.RedFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
+const toonCache = new Map();
+function toonOf(m, creature) {
+  const key = m.uuid + (creature ? 'c' : '');
+  if (toonCache.has(key)) return toonCache.get(key);
+  const t = new THREE.MeshToonMaterial({ map: m.map || null, color: m.color ? m.color.clone() : new THREE.Color(1, 1, 1), gradientMap: ramp, emissive: m.emissive ? m.emissive.clone() : new THREE.Color(0), emissiveMap: m.emissiveMap || null, transparent: m.transparent, alphaTest: m.alphaTest, side: m.side });
+  if (!creature) t.color.multiplyScalar(0.78);
+  t.onBeforeCompile = (sh) => {
+    sh.uniforms.rimCol = { value: new THREE.Color(creature ? 0x6a78b0 : 0x2a2440) };
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 rimCol;')
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\nfloat fr = pow(1.0 - abs(dot(normalize(-vViewPosition), normal)), 3.0);\ntotalEmissiveRadiance += rimCol * fr * 0.6;');
+  };
+  toonCache.set(key, t); return t;
+}
+function outlineFor(mesh) {
+  const mat = new THREE.MeshBasicMaterial({ color: 0x07040a, side: THREE.BackSide });
+  mat.onBeforeCompile = (sh) => { sh.vertexShader = sh.vertexShader.replace('#include <skinning_vertex>', '#include <skinning_vertex>\ntransformed += normalize(objectNormal) * 0.022;'); };
+  const o = mesh.isSkinnedMesh ? new THREE.SkinnedMesh(mesh.geometry, mat) : new THREE.Mesh(mesh.geometry, mat);
+  if (mesh.isSkinnedMesh) o.bind(mesh.skeleton, mesh.bindMatrix);
+  o.userData.outline = true; o.raycast = () => {}; return o;
+}
+const looks = []; // { mesh, raw, ours, outline }
+function register(root, creature) {
+  root.traverse((o) => {
+    if (!o.isMesh || o.userData.outline) return;
+    o.frustumCulled = !o.isSkinnedMesh;
+    const raw = o.material, ours = Array.isArray(raw) ? raw.map((m) => toonOf(m, creature)) : toonOf(raw, creature);
+    let outline = null; if (creature && o.visible) { outline = outlineFor(o); o.parent.add(outline); outline.position.copy(o.position); outline.quaternion.copy(o.quaternion); outline.scale.copy(o.scale); }
+    looks.push({ mesh: o, raw, ours, outline });
+  });
+}
+let ours = true;
+function applyLook() {
+  for (const l of looks) { l.mesh.material = ours ? l.ours : l.raw; if (l.outline) l.outline.visible = ours && l.mesh.visible; }
+  hemi.visible = sun.visible = !ours; moon.visible = amb.visible = heroLight.visible = ours; for (const t of torches) t.light.visible = ours;
+  scene.fog = ours ? new THREE.FogExp2(0x0a0712, 0.035) : null; scene.background = new THREE.Color(ours ? 0x07050c : 0x30343c);
+  renderer.toneMappingExposure = ours ? 1.25 : 1.0;
+  $('#bLook').textContent = ours ? 'Bizim görünüm' : 'Ham hâli'; $('#bLook').setAttribute('aria-pressed', ours ? 'true' : 'false');
+}
+
+// ---------- loading ----------
+const manager = new THREE.LoadingManager(); manager.onProgress = (u, a, b) => { $('#lp').textContent = Math.round(a / b * 100) + '%'; };
+const loader = new GLTFLoader(manager);
+const load = (u) => new Promise((res, rej) => loader.load(u, res, undefined, rej));
+const A = 'assets/';
+const [kk, kkClips, q, ual1, ual2, imp, pug, dun, wpn] = await Promise.all([
+  Promise.all(['knight', 'mage', 'barbarian', 'rogue_hooded', 'skeleton_warrior', 'skeleton_mage', 'skeleton_minion'].map((n) => load(A + 'kk-' + n + '.glb'))),
+  Promise.resolve(null),
+  load(A + 'ranger.glb'), load(A + 'ual1.glb'), load(A + 'ual2.glb'), load(A + 'imp.glb'), load(A + 'puglin.glb'),
+  Promise.all(['floor_tile_large', 'floor_tile_large_rocks', 'wall', 'wall_cracked', 'wall_arched', 'torch_mounted', 'pillar_decorated', 'barrel_large', 'crates_stacked', 'chest_gold', 'coin_stack_large', 'rubble_large', 'banner_patternA_red', 'candle_triple'].map((n) => load(A + 'dungeon/' + n + '.glb').then((g) => [n, g.scene]))).then((a) => Object.fromEntries(a)),
+  Promise.all(['Skeleton_Blade', 'Skeleton_Axe', 'Skeleton_Staff', 'Skeleton_Shield_Small_A'].map((n) => load(A + 'silah/' + n + '.gltf').then((g) => [n, g.scene]))).then((a) => Object.fromEntries(a)),
+]);
+$('#load').remove();
+
+// ---------- crypt ----------
+const box = new THREE.Box3();
+const size = (o) => box.setFromObject(o).getSize(new THREE.Vector3());
+const TILE = size(dun.floor_tile_large).x || 4;
+const room = new THREE.Group(); scene.add(room);
+const put = (name, x, y, z, ry = 0, s = 1) => { const o = dun[name].clone(true); o.position.set(x, y, z); o.rotation.y = ry; o.scale.setScalar(s); room.add(o); return o; };
+const NX = 7, NZ = 5, x0 = -(NX - 1) / 2 * TILE, z0 = -(NZ - 1) / 2 * TILE;
+for (let i = 0; i < NX; i++) for (let j = 0; j < NZ; j++) put((i * 7 + j * 3) % 5 === 0 ? 'floor_tile_large_rocks' : 'floor_tile_large', x0 + i * TILE, 0, z0 + j * TILE);
+for (let i = 0; i < NX; i++) { const w = put(i % 3 === 1 ? 'wall_arched' : i % 4 === 2 ? 'wall_cracked' : 'wall', x0 + i * TILE, 0, z0 - TILE / 2); if (i % 2 === 0) { const t = put('torch_mounted', x0 + i * TILE, 1.9, z0 - TILE / 2 + 0.35); const L = new THREE.PointLight(0xff8a3a, 14, 9, 1.6); L.position.set(x0 + i * TILE, 2.6, z0 - TILE / 2 + 0.8); scene.add(L); torches.push({ light: L, f: Math.random() * 9 }); } }
+for (let j = 0; j < NZ; j++) { put('wall', x0 - TILE / 2, 0, z0 + j * TILE, Math.PI / 2); put('wall', x0 + (NX - 0.5) * TILE, 0, z0 + j * TILE, -Math.PI / 2); }
+put('pillar_decorated', x0 + TILE * 0.5, 0, z0 + TILE * 0.5); put('pillar_decorated', x0 + TILE * 5.5, 0, z0 + TILE * 0.5);
+put('banner_patternA_red', 0, 2.2, z0 - TILE / 2 + 0.3);
+put('barrel_large', x0 + 0.6, 0, z0 + 0.3); put('crates_stacked', x0 + TILE * 6 - 0.4, 0, z0 + 0.4, 0.4); put('rubble_large', x0 + TILE * 6.2, 0, z0 + TILE * 2.6, 0, 0.6);
+put('chest_gold', 0, 0, z0 + 0.6); put('coin_stack_large', 0.9, 0, z0 + 0.9); put('candle_triple', -1, 0, z0 + 0.5);
+const chestLight = new THREE.PointLight(0xffd36a, 6, 5, 2); chestLight.position.set(0, 1.2, z0 + 1.3); scene.add(chestLight); torches.push({ light: chestLight, f: 3, steady: true });
+register(room, false);
+
+// ---------- characters ----------
+const mixers = [];
+const H = 2.0; // every character normalised to the same height for a fair look
+function normalise(o) { const s = size(o); const k = H / (s.y || 1); o.scale.multiplyScalar(k); return k; }
+function attach(root, boneName, obj) { let b = null; root.traverse((o) => { if (!b && o.isBone && o.name === boneName) b = o; }); if (b) b.add(obj); }
+function playlist(mixer, clips, list) {
+  const acts = list.map((n) => { const c = clips.find((c) => c.name === n) || clips.find((c) => c.name.startsWith(n)); return c && mixer.clipAction(c); }).filter(Boolean);
+  if (!acts.length) return; let i = 0; const loop = (a) => { a.reset().fadeIn(0.25).play(); };
+  loop(acts[0]);
+  mixer.addEventListener('loop', () => { const prev = acts[i]; i = (i + 1) % acts.length; prev.fadeOut(0.25); loop(acts[i]); });
+}
+const KAY = [
+  { i: 0, keep: ['1H_Sword', 'Round_Shield', 'Knight_Helmet', 'Knight_Cape'], anim: ['Idle', '1H_Melee_Attack_Chop', 'Idle_Combat', '1H_Melee_Attack_Slice_Diagonal'] },
+  { i: 1, keep: ['2H_Staff', 'Mage_Hat', 'Mage_Cape'], anim: ['Idle', 'Spellcast_Shoot', 'Spellcasting'] },
+  { i: 2, keep: ['2H_Axe', 'Barbarian_Hat', 'Barbarian_Cape'], anim: ['Idle_Combat', '2H_Melee_Attack_Spin', '2H_Melee_Attack_Chop'] },
+  { i: 3, keep: ['Knife', 'Knife_Offhand', 'Rogue_Cape'], anim: ['Idle', 'Dualwield_Melee_Attack_Slice', 'Dodge_Forward'] },
+  { i: 4, keep: ['Skeleton_Warrior_Helmet', 'Skeleton_Warrior_Cloak'], wpn: ['Skeleton_Blade', 'Skeleton_Shield_Small_A'], anim: ['Idle_Combat', '1H_Melee_Attack_Chop', 'Walking_D_Skeletons'] },
+  { i: 5, keep: ['Skeleton_Mage_Hat'], wpn: ['Skeleton_Staff'], anim: ['Spellcasting', 'Spellcast_Shoot'] },
+  { i: 6, keep: ['Skeleton_Minion_Cloak'], wpn: ['Skeleton_Axe'], anim: ['Walking_D_Skeletons', '1H_Melee_Attack_Chop', 'Skeletons_Awaken_Floor'] },
+];
+const WEAPONS = /Sword|Shield|Staff|Wand|Spellbook|Axe|Mug|Knife|Crossbow|Throwable|Helmet|Hat|Cape|Cloak|Hood/;
+function kayKit(idx, keep, wpns) {
+  const src = kk[idx], o = SkeletonUtils.clone(src.scene);
+  o.traverse((m) => { if (m.isMesh && WEAPONS.test(m.name) && !keep.includes(m.name) && !/Head_Hooded/.test(m.name)) m.visible = false; });
+  if (wpns) { const wr = wpns[0] && wpn[wpns[0]].clone(true); if (wr) attach(o, 'handslot.r', wr); const wl = wpns[1] && wpn[wpns[1]].clone(true); if (wl) attach(o, 'handslot.l', wl); }
+  return o;
+}
+KAY.forEach((c, k) => {
+  const o = kayKit(c.i, c.keep, c.wpn); normalise(o);
+  o.position.set(-1.6 - (k % 4) * 1.8, 0, k < 4 ? -2.6 : 0.6); o.rotation.y = 0.15;
+  scene.add(o); register(o, true);
+  const mx = new THREE.AnimationMixer(o); mixers.push(mx); playlist(mx, kk[c.i].animations, c.anim);
+});
+// Quaternius: ranger (UAL clips), imp and puglin (same bone names, zombie clips)
+const qClips = [...ual1.animations, ...ual2.animations];
+const QUA = [
+  { src: q, anim: ['Sword_Idle', 'Sword_Regular_Combo', 'Idle_Loop', 'Spell_Simple_Shoot'], x: 1.8, z: -2.6 },
+  { src: q, anim: ['Jog_Fwd_Loop', 'Roll', 'Sword_Heavy_Combo'], x: 3.6, z: -2.6 },
+  { src: imp, anim: ['Zombie_Idle_Loop', 'Zombie_Scratch', 'Zombie_Walk_Fwd_Loop'], x: 5.4, z: -2.6 },
+  { src: pug, anim: ['Zombie_Walk_Fwd_Loop', 'Zombie_Scratch', 'Hit_Knockback'], x: 2.6, z: 0.6 },
+  { src: imp, anim: ['Zombie_Scratch', 'Death01'], x: 4.6, z: 0.6 },
+];
+QUA.forEach((c) => {
+  const o = SkeletonUtils.clone(c.src.scene); normalise(o); o.position.set(c.x, 0, c.z); o.rotation.y = -0.15; scene.add(o); register(o, true);
+  const mx = new THREE.AnimationMixer(o); mixers.push(mx); playlist(mx, qClips, c.anim);
+});
+applyLook();
+
+// ---------- crowd test ----------
+const crowd = [];
+function addCrowd(kind) {
+  for (let n = 0; n < 100; n++) {
+    let o, mx;
+    if (kind === 'k') { o = kayKit(6, ['Skeleton_Minion_Cloak'], ['Skeleton_Axe']); mx = new THREE.AnimationMixer(o); const c = kk[6].animations.find((c) => c.name.startsWith('Walking_D_Skeletons')); mx.clipAction(c).play(); }
+    else { o = SkeletonUtils.clone(imp.scene); mx = new THREE.AnimationMixer(o); mx.clipAction(qClips.find((c) => c.name === 'Zombie_Walk_Fwd_Loop')).play(); }
+    normalise(o); o.scale.multiplyScalar(0.8);
+    const a = Math.random() * Math.PI * 2, r = 3 + Math.random() * 6; const cr = { o, mx, a, r, sp: (0.25 + Math.random() * 0.2) * (Math.random() < 0.5 ? 1 : -1) };
+    scene.add(o); register(o, true); if (!ours) for (const l of looks.slice(-30)) l.mesh.material = l.raw;
+    mx.setTime(Math.random() * 2); crowd.push(cr);
+  }
+  applyLook(); $('#note').textContent = `Kalabalık: ${crowd.length} canavar (her biri ayrı iskelet; oyunda toplu çizimle çok daha hafif olur)`;
+}
+function clearCrowd() { for (const c of crowd) { scene.remove(c.o); c.o.traverse((m) => { const i = looks.findIndex((l) => l.mesh === m); if (i >= 0) looks.splice(i, 1); }); } crowd.length = 0; $('#note').textContent = 'Sürükle: döndür · iki parmak / tekerlek: yakınlaş'; }
+
+$('#bLook').onclick = () => { ours = !ours; applyLook(); };
+let gcam = false; $('#bCam').onclick = () => { gcam = !gcam; gcam ? gameCam() : closeCam(); $('#bCam').textContent = gcam ? 'Yakın kamera' : 'Oyun kamerası'; };
+$('#bK').onclick = () => addCrowd('k'); $('#bQ').onclick = () => addCrowd('q'); $('#bClr').onclick = clearCrowd;
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+
+// ---------- loop ----------
+const clock = new THREE.Clock(); let fc = 0, ft = 0;
+const lA = $('#lA'), lB = $('#lB'), v = new THREE.Vector3();
+function label(el, x, y, z) { v.set(x, y, z).project(camera); el.style.display = v.z < 1 ? 'block' : 'none'; el.style.left = (v.x * 0.5 + 0.5) * innerWidth + 'px'; el.style.top = (-v.y * 0.5 + 0.5) * innerHeight + 'px'; }
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime;
+  for (const m of mixers) m.update(dt);
+  for (const c of crowd) { c.a += c.sp * dt; c.o.position.set(Math.cos(c.a) * c.r, 0, Math.sin(c.a) * c.r * 0.6 + 1); c.o.rotation.y = -c.a + (c.sp > 0 ? 0 : Math.PI); c.mx.update(dt); }
+  for (const tr of torches) if (!tr.steady) tr.light.intensity = 14 * (0.85 + 0.15 * Math.sin(t * 11 + tr.f) * Math.sin(t * 7.3 + tr.f * 2));
+  controls.update();
+  ours ? composer.render() : renderer.render(scene, camera);
+  label(lA, -4.3, 2.9, -2.6); label(lB, 3.6, 2.9, -2.6);
+  fc++; ft += dt; if (ft >= 1) { $('#fps').textContent = Math.round(fc / ft) + ' FPS'; $('#fps').style.color = fc / ft > 50 ? '#7be05a' : fc / ft > 30 ? '#ffd23a' : '#ff6a6a'; fc = 0; ft = 0; }
+});
+window.__t = { scene, crowd, looks, renderer };
+</script>
+</body>
+</html>
