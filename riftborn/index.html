@@ -132,6 +132,19 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #p2{right:max(122px,calc(env(safe-area-inset-right) + 122px));bottom:max(88px,calc(env(safe-area-inset-bottom) + 88px));width:62px;height:62px}
 #p3{right:max(70px,calc(env(safe-area-inset-right) + 70px));bottom:max(138px,calc(env(safe-area-inset-bottom) + 138px));width:62px;height:62px}
 #p4{right:max(6px,env(safe-area-inset-right));bottom:max(128px,calc(env(safe-area-inset-bottom) + 128px));width:62px;height:62px}
+.skP .tipcard{position:static;box-shadow:none;min-height:92px}.skP .tipcard.hint{min-height:0}
+.skP{display:flex;flex-direction:column;gap:8px}.skHead{display:flex;align-items:center;justify-content:space-between}.skHead .hasPts{color:#7be05a}
+.sbarRow{display:flex;gap:8px;justify-content:center}
+.sbar{position:relative;width:58px;height:58px;border-radius:10px;border:2px solid var(--gc);background:rgba(0,0,0,.45);padding:0;cursor:pointer}.sbar img{width:78%;height:78%;margin-top:1px}.sbar span{position:absolute;bottom:-1px;left:0;right:0;font-size:11px;font-weight:700;color:#ffd890;text-shadow:0 1px 2px #000}.sbar.pick{box-shadow:0 0 10px #ffd890;border-color:#ffd890}
+.tierR{border:1px solid #3a2c1e;border-radius:10px;padding:6px 8px;background:rgba(0,0,0,.25)}.tierR.lock{opacity:.55}
+.tierT{font-family:Cinzel,serif;color:#ffd890;font-size:14px;margin-bottom:5px}.tierT small{color:#9a8a6a;font-family:Fredoka,sans-serif;font-size:11px;margin-left:8px}
+.tierC{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.skc{position:relative;border:1px solid #4a3a28;border-radius:10px;padding:6px;background:linear-gradient(#1c140e,#0e0805);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;text-align:center}
+.skc img{width:44px;height:44px;filter:grayscale(1) brightness(.6)}.skc.got img{filter:none}.skc.got{border-color:var(--gc)}.skc.sel{box-shadow:0 0 0 2px #ffd890}
+.skc b{font-size:13px;color:#e8e0d0}.skc .pips{color:var(--gc);letter-spacing:2px;font-size:11px}
+.skc .plus{position:absolute;top:4px;right:4px;width:30px;height:30px;padding:0;font-size:18px;line-height:1}
+.mods{display:flex;align-items:center;gap:3px;width:100%}.mods i{font-size:10px;color:#7a6a52}
+.mod{flex:1;min-width:0;font:inherit;font-size:10px;padding:3px 2px;border-radius:6px;border:1px solid #3a2c1e;background:rgba(0,0,0,.35);color:#a89878;cursor:pointer}.mod.on{border-color:#7be05a;color:#d8ffc8;background:rgba(60,120,40,.3)}.mod:disabled{opacity:.35;cursor:default}
 .pad img{width:66%;height:66%;pointer-events:none;filter:drop-shadow(0 1px 2px #000)}
 #pAuto{left:max(14px,env(safe-area-inset-left));bottom:max(80px,calc(env(safe-area-inset-bottom) + 80px));width:56px;height:34px;border-radius:17px;font-size:10px;opacity:.75}#pAuto.on{border-color:#ffd890;color:#ffd890;opacity:1}
 #pDash{right:max(196px,calc(env(safe-area-inset-right) + 196px));bottom:max(16px,env(safe-area-inset-bottom));width:52px;height:52px}
@@ -149,7 +162,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:11px;padding:6px 7px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-Bw9cLuZr.js"></script>
+  <script type="module" crossorigin src="./assets/index-CBdcFAnn.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -169,11 +182,11 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p>Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
 <div id="done" class="ov hide"><div class="box"><p class="title">MAP CLEARED</p><p id="doneT"></p><button class="btn" id="next">ENTER THE RIFT</button></div></div>
 <div id="panel" class="hide"><div class="pc">
-  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Gems</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="btn small x" id="px">✕</button></div>
+  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="btn small x" id="px">✕</button></div>
   <div id="pb"></div>
 </div></div>
 <div id="newItem" class="hide"></div>
-<div id="menuBar"><button class="btn small" id="charBtn" data-t="gear">🎒 GEAR</button><button class="btn small" id="gemBtn" data-t="gems">💎 GEMS</button><button class="btn small" id="treeBtn" data-t="tree">✦ PASSIVES</button><button class="btn small" id="questBtn" data-t="quests">📜 QUESTS</button></div>
+<div id="menuBar"><button class="btn small" id="charBtn" data-t="gear">🎒 GEAR</button><button class="btn small" id="gemBtn" data-t="gems">📖 SKILLS</button><button class="btn small" id="treeBtn" data-t="tree">✦ PASSIVES</button><button class="btn small" id="questBtn" data-t="quests">📜 QUESTS</button></div>
 <button class="pad hide" id="pFlask">FLASK</button>
 <button class="pad hide" id="pAuto">AUTO</button>
 <button class="pad hide" id="pDash">DASH</button>
