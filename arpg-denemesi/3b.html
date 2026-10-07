@@ -619,13 +619,13 @@ function render3d(dt) {
   const heavy = active3 > 22;
   for (const [m] of cand) {
     const c = m.c3; if (!c) continue; const d = c.d;
-    c.o.position.set(m.x * S3, 0, m.y * S3); c.o.rotation.y = Math.atan2(Math.cos(m.face), Math.sin(m.face));
+    c.o.position.set(m.x * S3, m.hop || 0, m.y * S3); c.o.rotation.y = Math.atan2(Math.cos(m.face), Math.sin(m.face));
     if (m.dead) { if (m.dieT === undefined) { m.dieT = 1.4; play(c, 'Death_A', true, 1.3, 0.05); } m.dieT -= dt; if (m.dieT <= 0) { releaseMon(m); continue; } }
     else {
-      const atkNow = (m.wind > 0 && m.wind > (m.pw || 0)) || (m.d.ranged && m.atk > (m.pa || 0) + 0.5) || (m.boss && m.act && m.act !== m.pact);
+      const atkNow = (m.sp && m.sp !== m.psp) || (m.wind > 0 && m.wind > (m.pw || 0)) || (m.d.ranged && m.atk > (m.pa || 0) + 0.5) || (m.boss && m.act && m.act !== m.pact);
       if (atkNow) play(c, m.boss && m.act ? (m.act.k === 'slam' ? '2H_Melee_Attack_Chop' : m.act.k === 'summon' ? 'Taunt' : m.act.k === 'blink' ? 'Dodge_Forward' : 'Spellcasting') : d.atk, true, m.boss ? 0.9 : 1.5, 0.06);
       else if (c.once <= 0 || !c.cur) play(c, !m.aggro ? 'Idle' : Math.hypot(m.vx, m.vy) > 12 || m.boss ? d.walk : 'Idle_Combat', false, m.d.spd > 120 ? 1.4 : 1);
-      m.pw = m.wind; m.pa = m.atk; m.pact = m.act;
+      m.pw = m.wind; m.pa = m.atk; m.pact = m.act; m.psp = m.sp;
       if (c.curName === d.walk && !m.boss) legs(c, d.walk, Math.hypot(m.vx, m.vy) * S3); else if (m.boss && c.curName === d.walk) legs(c, d.walk, m.spd * S3); else noLean(c);
       if (c.once > 0) c.once -= dt;
       const bt = m.boss ? m.def.tint : (d.tint || ZONE().monTint);
@@ -657,6 +657,7 @@ function render3d(dt) {
     else if (f.k === 'nova') { const R = (f.r + (f.R - f.r) * Math.min(1, k * 1.6)) * S3; for (const [rr, op] of [[1, 1], [0.86, 0.6]]) { const r = rings.get(); r.position.set(f.x * S3, 0.1, f.y * S3); r.scale.setScalar(R * rr); r.material.color.set(f.col || '#9fe0ff'); r.material.opacity = op * (1 - k); } if (!f.col) for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; spr(f.x + Math.cos(a) * R / S3, f.y + Math.sin(a) * R / S3, 0.7, 0.7, '#dff6ff', 1 - k); } if (fl < 3 && k < 0.5) { FX_L[fl].position.set(f.x * S3, 1.5, f.y * S3); FX_L[fl].color.set('#8fd8ff'); FX_L[fl].intensity = 30 * (1 - k); fl++; } }
     else if (f.k === 'bolt') { const ln = bolts.get(), a = ln.geometry.attributes.position; for (let i = 0; i < 8; i++) { const p = f.pts[Math.min(i, f.pts.length - 1)]; a.setXYZ(i, p.x * S3, (p.h !== undefined ? p.h : 1.3) + (i ? (rnd() - 0.5) * 0.2 : 0), p.y * S3); } a.needsUpdate = true; ln.geometry.computeBoundingSphere(); ln.material.opacity = 1 - k; for (const p of f.pts) spr(p.x, p.y, 1.3, 0.9, '#9fb8ff', 0.6 * (1 - k)); const e = f.pts[f.pts.length - 1]; if (fl < 3) { FX_L[fl].position.set(e.x * S3, 1.6, e.y * S3); FX_L[fl].color.set('#a8c0ff'); FX_L[fl].intensity = 25 * (1 - k); fl++; } }
     else if (f.k === 'slash') { const a = arcs.get(); a.position.set(f.x * S3, 0.9, f.y * S3); a.rotation.y = -f.a; a.scale.setScalar(f.R * S3 * (0.75 + k * 0.3)); a.userData.m.material.color.set(f.col || '#f0e6d0'); a.userData.m.material.opacity = 1 - k; }
+    else if (f.k === 'aim') { const n = 16; for (let i = 1; i <= n; i++) spr(f.x + (f.x2 - f.x) * i / n, f.y + (f.y2 - f.y) * i / n, 0.25, 0.5, '#ff3030', 0.25 + 0.6 * k); }
     else if (f.k === 'warn') { const d = discs.get(); d.position.set(f.x * S3, 0.07, f.y * S3); d.scale.setScalar(f.R * S3); d.material.opacity = 0.15 + 0.25 * k; const r = rings.get(); r.position.set(f.x * S3, 0.09, f.y * S3); r.scale.setScalar(f.R * S3 * k); r.material.color.set('#ff4040'); r.material.opacity = 0.9; }
   }
   for (let i = fl; i < 3; i++) FX_L[i].intensity = 0;
@@ -988,7 +989,7 @@ function hazardAt(x, y) { for (const h of hazards) if (Math.abs(h.x - x) < h.r &
 function hazardsTick(dt) {
   for (let i = hazards.length - 1; i >= 0; i--) { const h = hazards[i]; if (h.life !== undefined) { h.life -= dt; if (h.life <= 0) hazards.splice(i, 1); } }
   const h = pl.leap ? null : hazardAt(pl.x, pl.y); pl.onIce = h && h.type === 'ice'; pl.inVoid = h && h.type === 'void';
-  if (h && h.type === 'lava') { pl.life -= pl.maxLife * 0.14 * dt * (1 - S.r_fire / 100); pl.hurtT = 0.1; if (rnd() < dt * 6) fx.push({ k: 'p', x: pl.x + (rnd() - 0.5) * 20, y: pl.y, vx: 0, vy: -60, t: 0, life: 0.4, col: '#ff7a2a', s: 3 }); if (pl.life <= 0) { pl.life = 0; die(); } }
+  if (h && h.type === 'lava') { pl.life -= pl.maxLife * (h.small ? 0.07 : 0.14) * dt * (1 - S.r_fire / 100); pl.hurtT = 0.1; if (rnd() < dt * 6) fx.push({ k: 'p', x: pl.x + (rnd() - 0.5) * 20, y: pl.y, vx: 0, vy: -60, t: 0, life: 0.4, col: '#ff7a2a', s: 3 }); if (pl.life <= 0) { pl.life = 0; die(); } }
   if (pl.inVoid) pl.mana = Math.max(0, pl.mana - 14 * dt);
   if (h && h.type === 'poison') { pl.life -= pl.maxLife * 0.06 * dt; pl.hurtT = 0.1; if (pl.life <= 0) { pl.life = 0; die(); } }
 }
@@ -1016,12 +1017,13 @@ const MONS = {
   knight: { n: 'Fallen Knight', r: 19, hp: 120, spd: 66, dmg: 9, xp: 11, col: '#a8b0c0', melee: 1 },
 };
 const MAFF = [{ k: 'hasted', n: 'Hasted' }, { k: 'berserk', n: 'Berserk' }, { k: 'regen', n: 'Regenerating' }, { k: 'frost', n: 'Frost Touched' }, { k: 'volatile', n: 'Volatile' }];
+const MAFF_RARE = [{ k: 'storm', n: 'Storm Caller' }, { k: 'molten', n: 'Molten Trail' }, { k: 'summoner', n: 'Grave Summoner' }, { k: 'teleport', n: 'Phasing' }];
 const RARE_MON = ['Gutgnaw', 'Mournflesh', 'Skullrot', 'Ashmaw', 'Veilstalker', 'Grimjaw', 'Nightrender'], RARE_MON2 = ['the Hungering', 'the Hollow', 'the Unburied', 'the Wretched', 'of Ash'];
 function mkMon(kind, x, y, rar) {
   const d = MONS[kind], tm = 1 + 0.45 * (P.tier - 1), dm = 1 + 0.3 * (P.tier - 1);
   const m = { kind, d, x, y, vx: 0, vy: 0, r: d.r * (rar === 2 ? 1.35 : rar === 1 ? 1.1 : 1), max: d.hp * tm * [1, 2, 4.5][rar], spd: d.spd * (0.9 + rnd() * 0.2), dmg: d.dmg * dm * [1, 1.3, 1.7][rar], rar, aff: [], aggro: false, atk: 0, wind: 0, flash: 0, chill: 0, burn: 0, burnD: 0, face: 0, walk: rnd() * 9, name: d.n };
   m.hp = m.max;
-  if (rar) { const n = rar === 2 ? 2 : 1; const pool = [...MAFF]; for (let i = 0; i < n; i++) { const a = pool.splice(ri(0, pool.length - 1), 1)[0]; m.aff.push(a); if (a.k === 'hasted') m.spd *= 1.4; if (a.k === 'berserk') m.dmg *= 1.5; } }
+  if (rar) { const n = rar === 2 ? (P.tier >= 4 ? 3 : 2) : 1; const pool = rar === 2 ? [...MAFF, ...MAFF_RARE, ...MAFF_RARE] : [...MAFF]; if (rar === 2) { const a = MAFF_RARE[ri(0, MAFF_RARE.length - 1)]; m.aff.push(a); pool.splice(pool.findIndex((x) => x.k === a.k), 1); pool.splice(pool.findIndex((x) => x.k === a.k), 1); } for (let i = m.aff.length; i < n; i++) { const a = pool.splice(ri(0, pool.length - 1), 1)[0]; if (m.aff.some((x) => x.k === a.k)) { i--; continue; } m.aff.push(a); if (a.k === 'hasted') m.spd *= 1.4; if (a.k === 'berserk') m.dmg *= 1.5; } }
   if (rar === 2) m.name = pick(RARE_MON) + ', ' + pick(RARE_MON2);
   m.el = m.aff.some((a) => a.k === 'frost') ? 'cold' : rar && ZONE().el ? ZONE().el : 'phys';
   if (hasMod('tough')) { m.max *= 1.5; m.hp = m.max; } if (hasMod('hard')) m.dmg *= 1.3; if (hasMod('fast')) m.spd *= 1.3; if (hasMod('regen') && !m.aff.some((a) => a.k === 'regen')) m.aff.push({ k: 'regen', n: 'Regenerating' });
@@ -1216,11 +1218,12 @@ function hitMon(m, dmg, el, addFire, ign, kb = 40) {
   if (el === 'fire' && rnd() < 0.12) { m.burn = 2; m.burnD = Math.max(m.burnD, dmg * 0.25); }
   const a = Math.atan2(m.y - pl.y, m.x - pl.x); if (!m.boss) { m.vx += Math.cos(a) * kb; m.vy += Math.sin(a) * kb; }
   const col = { fire: '#ff9a4a', cold: '#9fe0ff', light: '#e8f0ff', phys: '#f0e6d0' }[el];
-  floater(m.x + (rnd() - 0.5) * 20, m.y - m.r - 20, String(d), crit ? '#ffe066' : col, crit ? 22 : 16);
+  floater(m.x + (rnd() - 0.5) * 20, m.y - m.r - 20, String(d), crit ? '#ffe066' : col, crit ? 22 : 16); if (crit && kb >= 90 && !ALLYHIT && hitStop < -0.3) { hitStop = 0.045; shake = Math.max(shake, 3); }
   if (m.hp <= 0) killMon(m);
 }
 function killMon(m) {
   quest('kill'); if (m.rar === 2) quest('rare'); if (m.boss) quest('boss'); if (m.lastAlly) quest('minion'); if (T - (m.aoeT || -9) < 0.1) quest('leap'); if (rnd() < (m.boss ? 1 : m.rar === 2 ? 0.6 : m.rar === 1 ? 0.2 : 0.06)) { const n = m.boss ? 12 : m.rar === 2 ? 3 : 1; P.shards = (P.shards || 0) + n; floater(m.x, m.y - 40, '+' + n + ' shard' + (n > 1 ? 's' : ''), '#7fe0ff', 15); }
+  if (m.boss) hitStop = 0.3; else if (m.rar === 2) hitStop = Math.max(hitStop, 0.09);
   m.dead = true; if (m.tut) { tut.tutKills++; if (tut.tutKills === 3 && !loot.length) dropItem(m.x, m.y, 1, false); } P.kills++; gainXp(Math.round(m.d.xp * [1, 2.5, 6, 1][m.rar] * (1 + 0.3 * (P.tier - 1))));
   if (S.lok) pl.life = Math.min(pl.maxLife, pl.life + S.lok);
   pl.flaskKills++; if (pl.flaskKills >= 5 && pl.flask < 3) { pl.flaskKills = 0; pl.flask++; }
@@ -1293,17 +1296,57 @@ function monUpdate(m, dt) {
   if (m.aggro) {
     const a = Math.atan2(pl.y - m.y, pl.x - m.x); m.face = a;
     if (m.blinkCd) m.blinkCd = Math.max(0, m.blinkCd - dt); if (m.block) m.block = Math.max(0, m.block - dt);
+    if (m.rar === 2) eliteTick(m, dt, d);
+    if (m.sp) { if (runSpecial(m, dt)) { m.x += m.vx * dt; m.y += m.vy * dt; collide(m); return; } }
+    else if (SPEC[m.kind] && !m.tut && !m.charge && m.wind <= 0) { m.spCd = (m.spCd === undefined ? 1 + rnd() * 3 : m.spCd) - dt; if (m.spCd <= 0 && SPEC[m.kind].ok(d) && los(m, pl)) { const c = SPEC[m.kind].cd; m.spCd = c[0] + rnd() * (c[1] - c[0]); startSpecial(m, d, a); m.vx *= 0.3; m.vy *= 0.3; return; } }
     if (m.d.charger && m.charge) { m.charge.t -= dt; if (m.charge.t > 0.5) { mx = my = 0; } else if (m.charge.t > 0) { m.vx = Math.cos(m.charge.a) * 430; m.vy = Math.sin(m.charge.a) * 430; m.x += m.vx * dt; m.y += m.vy * dt; collide(m); if (!m.charge.hit && d < m.r + pl.r + 10) { m.charge.hit = 1; hurtPl(m.dmg * 1.6, m.el); } return; } else m.charge = null; }
     else if (m.d.charger && d < 380 && d > 120 && (m.chargeCd = (m.chargeCd || 3) - dt) <= 0 && los(m, pl)) { m.chargeCd = 5 + rnd() * 2; m.charge = { t: 1.0, a, hit: 0 }; fx.push({ k: 'warn', x: m.x + Math.cos(a) * 110, y: m.y + Math.sin(a) * 110, R: 70, t: 0, life: 0.5 }); }
     if (m.d.ranged) { const keep = m.d.caster ? 300 : 320; if (d > keep) { mx = Math.cos(a); my = Math.sin(a); } else if (d < keep - 100) { mx = -Math.cos(a); my = -Math.sin(a); } if (m.atk <= 0 && d < 560 && los(m, pl)) { if (m.d.caster) { m.atk = 2.6; projs.push({ x: m.x, y: m.y - 20, vx: Math.cos(a) * 230, vy: Math.sin(a) * 230, r: 9, life: 3, dmg: m.dmg * 1.3, mine: false, kind: 'orb', el: 'light' }); } else { m.atk = 2.1; const v = 400; projs.push({ x: m.x, y: m.y - 16, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: 5, life: 1.6, dmg: m.dmg, mine: false, kind: 'arrow', el: m.el }); } } }
     else {
-      if (m.wind > 0) { m.wind -= dt; if (m.wind <= 0) { if (d < m.r + pl.r + 26) { hurtPl(m.dmg, m.el); if (m.aff.some((x) => x.k === 'frost')) pl.chillT = 1.5; } if (m.d.burst) { m.hp = 0; killMon(m); return; } } }
-      else if (d < m.r + pl.r + 14 && m.atk <= 0) { m.wind = 0.35; m.atk = 1.4 + rnd() * 0.4; }
+      if (m.wind > 0) { m.wind -= dt; if (m.wind <= 0) { if (m.d.burst) { m.hp = 0; killMon(m); return; } if (Math.hypot(pl.x - m.wx, pl.y - m.wy) < 36 + pl.r) { hurtPl(m.dmg, m.el); if (m.aff.some((x) => x.k === 'frost')) pl.chillT = 1.5; } } }
+      else if (d < m.r + pl.r + 14 && m.atk <= 0) { m.wind = m.d.burst ? 0.4 : 0.45; m.atk = 1.4 + rnd() * 0.4; m.wx = m.x + Math.cos(a) * (m.r + 20); m.wy = m.y + Math.sin(a) * (m.r + 20); if (!m.d.burst) warnAt(m.wx, m.wy, 36, 0.45); }
       else if (d > m.r + pl.r + 6) { mx = Math.cos(a); my = Math.sin(a); }
     }
   }
   const k = 1 - Math.exp(-dt * 8); m.vx += (mx * sp - m.vx) * k; m.vy += (my * sp - m.vy) * k;
   m.x += m.vx * dt; m.y += m.vy * dt; collide(m); m.walk += Math.hypot(m.vx, m.vy) * dt * 0.06;
+}
+const warnAt = (x, y, R, t) => fx.push({ k: 'warn', x, y, R, t: 0, life: t });
+// kind: when it may start (distance), cooldown
+const SPEC = { ghoul: { ok: (d) => d > 130 && d < 300, cd: [3.5, 5.5] }, archer: { ok: (d) => d < 520, cd: [5.5, 7.5] }, cultist: { ok: (d) => d < 480, cd: [4.5, 6.5] },
+  brute: { ok: (d) => d < 140, cd: [4, 6] }, knight: { ok: (d) => d < 120, cd: [3.5, 5] }, assassin: { ok: (d) => d > 60 && d < 260, cd: [4, 6] } };
+function startSpecial(m, d, a) {
+  const k = m.kind;
+  if (k === 'ghoul') { m.sp = { k: 'pounce', t: 0.9, x: pl.x, y: pl.y, x0: m.x, y0: m.y }; warnAt(pl.x, pl.y, 58, 0.9); }
+  else if (k === 'archer') { m.sp = { k: 'volley', t: 0.75, a }; fx.push({ k: 'aim', x: m.x, y: m.y, x2: m.x + Math.cos(a) * 560, y2: m.y + Math.sin(a) * 560, t: 0, life: 0.75 }); }
+  else if (k === 'cultist') { m.sp = { k: 'rift', t: 1.0, x: pl.x, y: pl.y }; warnAt(pl.x, pl.y, 85, 1.0); }
+  else if (k === 'brute') { m.sp = { k: 'slam', t: 0.75 }; warnAt(m.x, m.y, 125, 0.75); }
+  else if (k === 'knight') { const x = m.x + Math.cos(a) * 62, y = m.y + Math.sin(a) * 62; m.sp = { k: 'bash', t: 0.6, a, x, y }; warnAt(x, y, 60, 0.6); }
+  else if (k === 'assassin') { m.sp = { k: 'fan', t: 0.5, a }; for (const o of [-0.36, 0, 0.36]) fx.push({ k: 'aim', x: m.x, y: m.y, x2: m.x + Math.cos(a + o) * 300, y2: m.y + Math.sin(a + o) * 300, t: 0, life: 0.5 }); }
+}
+// returns true while the monster is busy with its move
+function runSpecial(m, dt) {
+  const sp = m.sp; sp.t -= dt; m.vx *= 0.8; m.vy *= 0.8;
+  if (sp.k === 'pounce' && sp.t < 0.35) { const k = 1 - sp.t / 0.35, x = sp.x0 + (sp.x - sp.x0) * k, y = sp.y0 + (sp.y - sp.y0) * k; if (!solidAt(x, y)) { m.x = x; m.y = y; } m.hop = Math.sin(Math.PI * k) * 1.4; }
+  if (sp.t > 0) return true;
+  m.sp = null; m.hop = 0;
+  const inR = (x, y, R) => Math.hypot(pl.x - x, pl.y - y) < R + pl.r;
+  if (sp.k === 'pounce') { fx.push({ k: 'boom', x: m.x, y: m.y, r: 6, R: 58, t: 0, life: 0.3, col: '#c8b8a0' }); sfx('slam'); if (inR(m.x, m.y, 58)) hurtPl(m.dmg * 1.5, m.el, true); }
+  else if (sp.k === 'volley') { sfx('fire'); for (const o of [-0.12, 0, 0.12]) projs.push({ x: m.x, y: m.y - 16, vx: Math.cos(sp.a + o) * 640, vy: Math.sin(sp.a + o) * 640, r: 6, life: 1.1, dmg: m.dmg * 1.1, mine: false, kind: 'arrow', el: m.el }); }
+  else if (sp.k === 'rift') { fx.push({ k: 'boom', x: sp.x, y: sp.y, r: 10, R: 85, t: 0, life: 0.4, col: '#b07aff' }); fx.push({ k: 'bolt', pts: zig({ x: sp.x, y: sp.y, h: 7 }, { x: sp.x, y: sp.y, h: 0.2 }), t: 0, life: 0.2 }); sfx('arc'); if (inR(sp.x, sp.y, 85)) hurtPl(m.dmg * 1.8, 'light', true); }
+  else if (sp.k === 'slam') { fx.push({ k: 'boom', x: m.x, y: m.y, r: 20, R: 125, t: 0, life: 0.4, col: '#e0b070' }); sfx('slam'); shake = Math.max(shake, 7); if (inR(m.x, m.y, 125)) { hurtPl(m.dmg * 1.6, m.el, true); const a = Math.atan2(pl.y - m.y, pl.x - m.x); pl.vx += Math.cos(a) * 420; pl.vy += Math.sin(a) * 420; } }
+  else if (sp.k === 'bash') { fx.push({ k: 'slash', x: m.x, y: m.y - 10, a: sp.a, R: 90, t: 0, life: 0.25, col: '#c8d0e0' }); sfx('cleave'); if (inR(sp.x, sp.y, 60)) { hurtPl(m.dmg * 1.5, m.el); pl.vx += Math.cos(sp.a) * 520; pl.vy += Math.sin(sp.a) * 520; } }
+  else if (sp.k === 'fan') { sfx('dash'); for (const o of [-0.36, -0.18, 0, 0.18, 0.36]) projs.push({ x: m.x, y: m.y - 16, vx: Math.cos(sp.a + o) * 560, vy: Math.sin(sp.a + o) * 560, r: 5, life: 0.6, dmg: m.dmg * 0.8, mine: false, kind: 'arrow', el: m.el }); }
+  return false;
+}
+// rare monster powers that act on their own
+function eliteTick(m, dt, d) {
+  for (const af of m.aff) {
+    if (af.k === 'storm') { m.stT = (m.stT === undefined ? 2 : m.stT) - dt; if (m.stT <= 0 && d < 600) { m.stT = 4; for (let i = 0; i < 3; i++) { const x = pl.x + (i ? (rnd() - 0.5) * 220 : 0), y = pl.y + (i ? (rnd() - 0.5) * 220 : 0), dm = m.dmg; warnAt(x, y, 55, 0.85); delayed.push({ t: 0.85, f: () => { fx.push({ k: 'bolt', pts: zig({ x, y, h: 8 }, { x, y, h: 0.2 }), t: 0, life: 0.2 }); fx.push({ k: 'boom', x, y, r: 6, R: 55, t: 0, life: 0.3, col: '#c8e0ff' }); sfx('arc'); if (Math.hypot(pl.x - x, pl.y - y) < 55 + pl.r) hurtPl(dm * 1.2, 'light', true); } }); } } }
+    if (af.k === 'molten') { m.mtT = (m.mtT || 0) - dt; if (m.mtT <= 0 && Math.hypot(m.vx, m.vy) > 20) { m.mtT = 0.3; hazards.push({ x: m.x, y: m.y, r: 28, type: 'lava', ph: rnd() * 9, life: 3, small: 1 }); } }
+    if (af.k === 'summoner') { m.suT = (m.suT === undefined ? 1.5 : m.suT) - dt; if (m.suT <= 0 && d < 500) { m.suT = 7; const mine = mons.filter((o) => !o.dead && o.master === m).length; for (let i = 0; i < Math.min(2, 4 - mine); i++) { const an = rnd() * TAU, x = m.x + Math.cos(an) * 70, y = m.y + Math.sin(an) * 70; if (solidAt(x, y)) continue; const z = mkMon('zombie', x, y, 0); z.master = m; z.summoned = true; z.aggro = true; mons.push(z); fx.push({ k: 'nova', x, y, r: 4, R: 46, t: 0, life: 0.45, col: '#9ae07a' }); } } }
+    if (af.k === 'teleport') { m.tpT = (m.tpT === undefined ? 3 : m.tpT) - dt; if (m.tpT <= 0 && d > 160 && d < 700 && !m.sp) { m.tpT = 5; const an = rnd() * TAU, x = pl.x + Math.cos(an) * 95, y = pl.y + Math.sin(an) * 95; if (!solidAt(x, y)) { fx.push({ k: 'boom', x: m.x, y: m.y, r: 4, R: 50, t: 0, life: 0.3, col: '#a07aff' }); m.x = x; m.y = y; fx.push({ k: 'boom', x, y, r: 4, R: 50, t: 0, life: 0.3, col: '#a07aff' }); m.atk = Math.max(m.atk, 0.6); } } }
+  }
 }
 function bossUpdate(b, dt, d) {
   if (!b.aggro) return;
@@ -1561,6 +1604,7 @@ function drawFx(f) {
   else if (f.k === 'nova') { const R = f.r + (f.R - f.r) * Math.min(1, k * 1.6); g.strokeStyle = hexA(f.col || '#9fe0ff', 1 - k); g.lineWidth = 10 * (1 - k) + 2; g.beginPath(); g.ellipse(f.x, f.y, R, R * 0.75, 0, 0, TAU); g.stroke(); if (!f.col) { g.fillStyle = `rgba(220,245,255,${0.8 * (1 - k)})`; for (let i = 0; i < 14; i++) { const a = i / 14 * TAU; g.save(); g.translate(f.x + Math.cos(a) * R, f.y + Math.sin(a) * R * 0.75); g.rotate(a); g.beginPath(); g.moveTo(10, 0); g.lineTo(-4, -4); g.lineTo(-4, 4); g.fill(); g.restore(); } } }
   else if (f.k === 'bolt') { g.globalCompositeOperation = 'lighter'; for (const [w, c] of [[8, 'rgba(120,160,255,.35)'], [3, 'rgba(230,240,255,.95)']]) { g.strokeStyle = c; g.lineWidth = w * (1 - k * 0.5); g.beginPath(); f.pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.stroke(); } g.globalCompositeOperation = 'source-over'; }
   else if (f.k === 'slash') { g.strokeStyle = hexA(f.col || '#f0e6d0', 1 - k); g.lineWidth = 14 * (1 - k) + 2; g.beginPath(); g.arc(f.x, f.y, f.R * (0.7 + k * 0.3), f.a - 1.2, f.a + 1.2); g.stroke(); }
+  else if (f.k === 'aim') { g.strokeStyle = `rgba(255,50,50,${0.3 + 0.6 * k})`; g.lineWidth = 3; g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(f.x2, f.y2); g.stroke(); }
   else if (f.k === 'warn') { g.fillStyle = `rgba(255,40,40,${0.12 + 0.18 * k})`; g.beginPath(); g.ellipse(f.x, f.y, f.R, f.R * 0.8, 0, 0, TAU); g.fill(); g.strokeStyle = 'rgba(255,60,60,.8)'; g.lineWidth = 2; g.beginPath(); g.ellipse(f.x, f.y, f.R * k, f.R * 0.8 * k, 0, 0, TAU); g.stroke(); }
 }
 function hexA(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${Math.max(0, a)})`; }
@@ -1937,7 +1981,8 @@ $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIE
 window.__grid = () => grid; window.__haz = () => hazards; window.__kill = (m) => killMon(m); window.__newMap = () => newMap();
 window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, hurtPl, skillInfo, mainDps, mkItem, hitMon, dropItem, dropGem, openPanel, closePanel };
 let last = performance.now();
-function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; update(dt); draw(); requestAnimationFrame(loop); }
+let hitStop = 0;
+function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; update(hitStop > 0 ? dt * 0.06 : dt); hitStop -= dt; draw(); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
 </script>
 </body>
