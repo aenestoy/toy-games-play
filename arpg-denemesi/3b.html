@@ -58,6 +58,11 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .shards{display:flex;align-items:baseline;gap:6px;color:#7fe0ff;font-size:18px}.shards small{color:#5a8a9a;font-size:12px}.shards .bagn{margin-left:auto;color:#9a8a6a;font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
 .stats{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px;font-weight:700}
+.pickT{font-family:Cinzel,serif;color:#ffd890;font-size:20px;margin:6px 0}
+.clsRow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.clsCard{font:inherit;width:180px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px 12px;border:1px solid #4a3a28;border-radius:12px;background:linear-gradient(#22180f,#100a06);color:#e8e0d0;cursor:pointer;transition:transform .12s,border-color .12s}
+.clsCard:hover{transform:translateY(-3px);border-color:var(--cc)}.clsCard img{width:120px;height:164px}.clsCard b{font-family:Cinzel,serif;font-size:19px;color:var(--cc)}.clsCard small{color:#a89878;font-size:12px;line-height:1.3}
+@media (max-width:620px){.clsCard{width:30%;padding:6px}.clsCard img{width:80px;height:110px}.clsCard small{font-size:10px}}
 .statsBtn{font:inherit;font-weight:700;font-size:13px;background:rgba(0,0,0,.35);border:1px solid #4a3a28;border-radius:8px;padding:6px 8px;cursor:pointer;text-align:left;align-items:center}.statsBtn:hover{border-color:#c89a50}.statsBtn b{color:#ffd890;margin-left:auto;font-family:Cinzel,serif;font-size:12px}
 .statsP{display:grid;grid-template-columns:1fr 1fr;gap:8px}.scard{border:1px solid #4a3a28;border-radius:10px;padding:8px 10px;background:rgba(0,0,0,.35)}.scard.wide{grid-column:1/-1}
 .scard h5{margin:0 0 6px;font-family:Cinzel,serif;font-size:15px;color:#ffd890}.scard h5 small{font-family:Fredoka,sans-serif;font-weight:400;color:#7a6a52;font-size:11px;margin-left:6px}
@@ -119,7 +124,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .chip{border:1px solid #3a2c1e;border-radius:16px;padding:5px 10px;font-size:13px;cursor:pointer;background:rgba(0,0,0,.35)}
 .chip.sel{outline:2px solid #ffd890}
 .hint{color:#9a8a6a;font-size:13px;margin:6px 0}
-#treeC{width:100%;max-width:440px;aspect-ratio:1;display:block;margin:0 auto;touch-action:manipulation}
+#treeC{width:100%;max-width:min(560px,100%);aspect-ratio:1;display:block;margin:0 auto;touch-action:manipulation}
 .pad{position:fixed;border-radius:50%;border:2px solid rgba(255,220,160,.5);color:#fff;font:inherit;font-weight:700;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,rgba(90,60,30,.9),rgba(30,18,10,.9));text-shadow:0 1px 2px #000;font-size:12px;touch-action:none;padding:0}
 #p0{right:max(18px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));width:96px;height:96px;font-size:14px}
 #p1{right:max(126px,calc(env(safe-area-inset-right) + 126px));bottom:max(18px,env(safe-area-inset-bottom));width:64px;height:64px}
@@ -150,6 +155,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
     <p class="title">RIFTBORN</p>
     <p>Descend into the Sunken Crypt. Shape your exile with skill gems, support gems, loot and a passive tree. Slay the Hollow King, open the rift, go deeper.</p>
     <div class="keys" id="keys"></div>
+    <div id="clsPick" class="hide"></div>
     <button class="btn" id="go" disabled>LOADING…</button>
     <div><button class="btn small hide" id="wipe" style="margin-top:12px;opacity:.75">NEW CHARACTER</button></div>
   </div>
@@ -366,7 +372,11 @@ function dressZone(group, r) {
 }
 
 // ---------- characters ----------
-const hero3 = makeChar(gMage, ['Mage_Cape'], null, null, 2.7); scene3.add(hero3.o); play(hero3, 'Idle');
+// each class has its own body; worn gear goes on top
+const CLASS3 = () => ({ mage: [gMage, ['Mage_Cape']], rogue: [gRogH, ['Rogue_Cape', 'Rogue_Head_Hooded']], barb: [gBarb, ['Barbarian_Cape']] });
+const curCls = () => (P && P.cls) || 'mage';
+function classModel(cls = curCls()) { const [src, keep] = CLASS3()[cls]; const c = makeChar(src, keep, null, null, 2.7); c.cls = cls; return c; }
+let hero3 = classModel('mage'); scene3.add(hero3.o); play(hero3, 'Idle');
 // shots leave from the far end of the worn weapon
 let staffTip = null; const _ta = new THREE.Vector3();
 function updateStaffTip() {
@@ -549,12 +559,22 @@ function gemIcon(gm) {
 let portraitUrl = null;
 function heroPortrait() {
   if (portraitUrl) return portraitUrl;
-  const c = makeChar(gMage, ['Mage_Cape'], null, null, 2.7); iconScene.add(c.o); wearGear(c); const a = c.acts.Idle_Combat || c.acts.Idle; if (a) { a.play(); c.mixer.setTime(0.4); }
+  const c = classModel(); iconScene.add(c.o); wearGear(c); const a = c.acts.Idle_Combat || c.acts.Idle; if (a) { a.play(); c.mixer.setTime(0.4); }
   iconR.setSize(220, 300, false); const g2 = c.o; g2.rotation.y = 0.35; g2.updateMatrixWorld(true); g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); }); followHead(c); if (c.gear && c.gear.head) c.gear.head.position.y += 0.14;
   g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); }); const bx = new THREE.Box3(); g2.traverse((o) => { if (o.isMesh && o.visible) bx.expandByObject(o, true); }); const bc = bx.getCenter(new THREE.Vector3()), bh = bx.max.y - bx.min.y; const cam = new THREE.PerspectiveCamera(26, 220 / 300, 0.1, 80); cam.position.set(bc.x, bc.y + bh * 0.05, bc.z + bh * 0.62 / Math.tan(13 * Math.PI / 180)); cam.lookAt(bc);
   iconR.setClearColor(0x000000, 0); iconR.render(iconScene, cam); portraitUrl = iconR.domElement.toDataURL('image/png'); iconScene.remove(g2); if (c.gear && c.gear.head) iconScene.remove(c.gear.head); return portraitUrl;
 }
 
+const clsPics = {};
+function classPortrait(cls) {
+  if (clsPics[cls]) return clsPics[cls];
+  const c = classModel(cls); const wpn = { mage: 'Ashwood Staff', rogue: 'Rogue Dagger', barb: 'Great Axe' }[cls]; const off = cls === 'rogue' ? 'Off-hand Dagger' : null;
+  c.gear = {}; for (const [b, slot] of [[wpn, 'weapon'], [off, 'offhand']]) { if (!b || !GEAR3D[b]) continue; const node = kitNode(b), bone = boneOf(c.inner, GEAR3D[b][2]); if (node && bone) bone.add(node); }
+  iconScene.add(c.o); const a = c.acts.Idle; if (a) { a.play(); c.mixer.setTime(0.4); }
+  iconR.setSize(220, 300, false); const g2 = c.o; g2.rotation.y = 0.45; g2.updateMatrixWorld(true); g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); });
+  const bx = new THREE.Box3(); g2.traverse((o) => { if (o.isMesh && o.visible) bx.expandByObject(o, true); }); const bc = bx.getCenter(new THREE.Vector3()), bh = bx.max.y - bx.min.y; const cam = new THREE.PerspectiveCamera(26, 220 / 300, 0.1, 80); cam.position.set(bc.x, bc.y + bh * 0.05, bc.z + bh * 0.62 / Math.tan(13 * Math.PI / 180)); cam.lookAt(bc);
+  iconR.setClearColor(0x000000, 0); iconR.render(iconScene, cam); clsPics[cls] = iconR.domElement.toDataURL('image/png'); iconScene.remove(g2); return clsPics[cls];
+}
 // ---------- live 3D hero on the Gear page: idles, wears what you wear, drag to turn ----------
 const dollR = new THREE.WebGLRenderer({ antialias: true, alpha: true }); dollR.setPixelRatio(Math.min(2, devicePixelRatio || 1)); dollR.outputColorSpace = THREE.SRGBColorSpace; dollR.toneMapping = THREE.ACESFilmicToneMapping; dollR.toneMappingExposure = 1.25;
 const dollScene = new THREE.Scene(); dollScene.add(new THREE.HemisphereLight(0xfff0d8, 0x2a1a24, 1.5)); const dollKey = new THREE.DirectionalLight(0xffe0b0, 2.4); dollKey.position.set(2, 4, 5); const dollRim = new THREE.DirectionalLight(0x8aa0ff, 1.6); dollRim.position.set(-3, 3, -4); dollScene.add(dollKey, dollRim);
@@ -562,7 +582,7 @@ const dollCam = new THREE.PerspectiveCamera(28, 0.75, 0.1, 60);
 let doll = null, dollYaw = 0.35, dollGk = '', dollOn = false;
 const dollFloor = new THREE.Mesh(new THREE.CircleGeometry(1.1, 40), new THREE.MeshBasicMaterial({ map: glowTex, color: 0xe8b860, transparent: true, opacity: 0.55, depthWrite: false })); dollFloor.rotation.x = -Math.PI / 2; dollScene.add(dollFloor);
 function dollMount(host) {
-  if (!doll) { doll = makeChar(gMage, ['Mage_Cape'], null, null, 2.7); dollScene.add(doll.o); play(doll, 'Idle'); }
+  if (!doll || doll.cls !== curCls()) { if (doll) dollScene.remove(doll.o); doll = classModel(); dollScene.add(doll.o); play(doll, 'Idle'); dollGk = ''; }
   const cv3 = dollR.domElement; cv3.className = 'dollC'; host.prepend(cv3); dollOn = true;
   let drag = null;
   cv3.onpointerdown = (e) => { drag = { x: e.clientX, yaw: dollYaw }; cv3.setPointerCapture(e.pointerId); };
@@ -599,6 +619,7 @@ function render3d(dt) {
   TORCH_L.forEach((l, i) => { const t = near[i]; if (!t) { l.intensity = 0; return; } l.position.copy(t[0].position).add(_v3.set(0, 0, 0.8)); l.intensity = 34 * (0.85 + 0.15 * Math.sin(T * 11 + t[0].userData.f)); });
   for (const s of torchSpr) s.scale.setScalar(1.2 + Math.sin(T * 13 + s.userData.f) * 0.12);
   // hero
+  if (hero3.cls !== curCls()) { scene3.remove(hero3.o); hero3 = classModel(); scene3.add(hero3.o); play(hero3, 'Idle'); }
   const h = hero3; h.o.position.set(tx, pl.leap ? pl.leapH || 0 : 0, tz); { const want = Math.atan2(Math.cos(pl.face), Math.sin(pl.face)); let d = want - h.o.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); h.o.rotation.y += d * Math.min(1, dt * (pl.cast ? 30 : 14)); }
   if (state === 'dead') { if (h.curName !== 'Death_A') play(h, 'Death_A', true); }
   else if (pl.cast && pl.cast !== lastCast) { lastCast = pl.cast; const gm = pl.cast.gem, n = gm === 'cleave' ? (P.eq.weapon && P.eq.weapon.base === 'Rusted Greatsword' ? '2H_Melee_Attack_Slice' : '1H_Melee_Attack_Slice_Diagonal') : gm === 'whirl' ? '2H_Melee_Attack_Spin' : gm === 'slam' ? '2H_Melee_Attack_Chop' : gm === 'leap' ? '2H_Melee_Attack_Chop' : gm === 'nova' || gm === 'raise' || gm === 'firestorm' ? 'Spellcasting' : 'Spellcast_Shoot'; const a = h.acts[n] || h.acts.Idle; play(h, n, true, Math.max(1, a.getClip().duration / Math.max(0.15, pl.cast.dur * 1.6)), 0.08); }
@@ -727,10 +748,10 @@ const BASES = {
   weapon: [{ n: 'Ashwood Staff', imp: { inc_spell: 20 }, hand: 2, kind: 'spell' }, { n: 'Bone Wand', imp: { cast: 8, inc_spell: 8 }, hand: 1, kind: 'spell' },
     { n: 'Rusted Greatsword', imp: { inc_phys: 20 }, hand: 2, kind: 'attack', dmg: [26, 44], spd: 1.25 }, { n: 'Knight Sword', imp: { crit: 2 }, hand: 1, kind: 'attack', dmg: [16, 28], spd: 1 },
     { n: 'Great Axe', imp: { area: 10 }, hand: 2, kind: 'attack', dmg: [24, 52], spd: 1.3 }, { n: 'Hatchet', imp: { lok: 2 }, hand: 1, kind: 'attack', dmg: [14, 26], spd: 0.95 },
-    { n: 'Rogue Dagger', imp: { crit: 4, critm: 15 }, hand: 1, kind: 'attack', dmg: [10, 18], spd: 0.8 }],
+    { n: 'Rogue Dagger', imp: { crit: 4, critm: 15 }, hand: 1, kind: 'attack', dmg: [12, 22], spd: 0.8 }],
   offhand: [{ n: 'Round Shield', imp: { block: 8, armour: 30 } }, { n: 'Spiked Shield', imp: { block: 6, armour: 20, inc_phys: 10 } }, { n: 'Kite Shield', imp: { life: 20, block: 10, armour: 45 } },
     { n: 'Crest Shield', imp: { block: 8, res: 8 } }, { n: 'Spellbook', imp: { inc_spell: 14, mana: 15 } }, { n: 'Parrying Blade', imp: { crit: 3, evade: 5 } },
-    { n: 'Throwing Axe', imp: { inc_phys: 12, lok: 2 } }, { n: 'Off-hand Dagger', imp: { crit: 4 } }],
+    { n: 'Throwing Axe', imp: { inc_phys: 12, lok: 2 } }, { n: 'Off-hand Dagger', imp: { crit: 4, aspd: 10 } }],
   armor: [{ n: 'Wizard Hat', imp: { mana: 20, res: 6 } }, { n: 'Iron Helm', imp: { life: 20, armour: 40 } }, { n: 'Bear Hood', imp: { life: 20, evade: 5 } }],
   ring: [{ n: 'Ruby Ring', imp: { inc_fire: 12 } }, { n: 'Sapphire Ring', imp: { inc_cold: 12 } }, { n: 'Topaz Ring', imp: { inc_light: 12 } }, { n: 'Iron Ring', imp: { inc_phys: 10 } }, { n: 'Onyx Ring', imp: { critm: 12 } }, { n: 'Coral Ring', imp: { res: 6 } }],
   amulet: [{ n: 'Jade Amulet', imp: { regen: 2 } }, { n: 'Lapis Amulet', imp: { mana: 20 } }, { n: 'Amber Amulet', imp: { inc_phys: 12 } }, { n: 'Onyx Amulet', imp: { inc_spell: 10 } }],
@@ -772,23 +793,60 @@ const UNIQUES = [
 const STAT_TEXT = Object.fromEntries(AFFIX.map((a) => [a.k, a.t]));
 const RARE_A = ['Doom', 'Grim', 'Storm', 'Blood', 'Soul', 'Dusk', 'Hollow', 'Ember', 'Rift', 'Bone'], RARE_B = ['Whisper', 'Bane', 'Song', 'Grip', 'Gaze', 'Thirst', 'Veil', 'Mark', 'Coil', 'Spire'];
 const RN = ['Normal', 'Magic', 'Rare', 'Unique'];
-// passive tree: a small wheel; notables on the outer ring
+// passive tree: twelve themed paths around a ring. Each class starts on its own side; big notables at the end of each path,
+// keystones between paths change the rules of the game
+const KEYSTONES = {
+  glass: { nm: 'Glass Cannon', d: '40% more damage · 25% less maximum Life' },
+  blood: { nm: 'Blood Magic', d: 'Skills cost Life instead of Mana · 15% more maximum Life' },
+  iron: { nm: 'Unbreakable', d: 'Take 15% less damage · 10% less movement speed' },
+  pact: { nm: 'Necromancer\'s Pact', d: 'Minions deal 60% more damage, +1 skeleton · your own hits deal 20% less' },
+};
+const CLASSES = {
+  mage: { n: 'Mage', spoke: 0, st: { mana: 20, inc_spell: 10 }, d: 'Fire, ice and lightning spells from a staff. Strong from afar, fragile up close.', col: '#9fb8ff' },
+  rogue: { n: 'Rogue', spoke: 4, st: { evade: 6, crit: 3 }, d: 'Two daggers, fast strikes, critical hits and dodging.', col: '#b8f0a0' },
+  barb: { n: 'Barbarian', spoke: 8, st: { life: 30, armour: 40 }, d: 'A great axe, huge hits that shake the ground. Hard to kill.', col: '#ff9a6a' },
+};
 const TREE = (() => {
-  // three rings around the start: small nodes lead out to eight notables on the outer ring
-  const n = [{ id: 0, x: 0.5, y: 0.5, st: {}, nm: 'Exile', start: 1 }], e = [];
-  const R1 = [{ life: 12 }, { inc_spell: 10 }, { inc_phys: 10 }, { inc_fire: 10 }, { mana: 15 }, { inc_cold: 10 }, { crit: 2 }, { inc_light: 10 }];
-  const R2 = [{ armour: 50 }, { lifep: 5 }, { inc_spell: 12 }, { cast: 6 }, { inc_phys: 12 }, { aspd: 6 }, { inc_fire: 12 }, { res_fire: 15 }, { mana: 20 }, { res: 8 }, { inc_cold: 12 }, { res_cold: 15 }, { critm: 15 }, { evade: 5 }, { inc_light: 12 }, { res_light: 15 }];
-  const NOT = [{ nm: 'Juggernaut', st: { lifep: 15, block: 8 } }, { nm: 'Arcanist', st: { inc_spell: 30, cast: 10 } }, { nm: 'Warlord', st: { inc_phys: 35, area: 10 } }, { nm: 'Pyromancer', st: { inc_fire: 35, area: 8 } },
-    { nm: 'Bloodbound', st: { life: 40, leechp: 2 } }, { nm: 'Frostborn', st: { inc_cold: 35, crit: 3 } }, { nm: 'Assassin', st: { crit: 6, move: 8, boss: 15 } }, { nm: 'Stormcaller', st: { inc_light: 30, chain1: 1 } }];
-  const ring = (list, rad, off, extra) => list.map((st, i) => { const a = -Math.PI / 2 + (i + off) * TAU / list.length, o = { id: n.length, x: 0.5 + Math.cos(a) * rad, y: 0.5 + Math.sin(a) * rad, st: st.st || st, ...extra(st) }; n.push(o); return o; });
-  const r1 = ring(R1, 0.13, 0, () => ({})), r2 = ring(R2, 0.25, -0.5, () => ({})), r3 = ring(NOT, 0.37, 0, (o) => ({ nm: o.nm, notable: true }));
-  r1.forEach((a) => e.push([0, a.id]));
-  r1.forEach((a, i) => { e.push([a.id, r2[(2 * i) % 16].id], [a.id, r2[(2 * i + 1) % 16].id]); e.push([a.id, r1[(i + 1) % 8].id]); });
-  r2.forEach((a, i) => { if (i % 2 === 0) e.push([a.id, r2[i + 1].id]); });
-  r3.forEach((a, i) => { e.push([a.id, r2[(2 * i) % 16].id], [a.id, r2[(2 * i + 1) % 16].id]); });
-  return { n, e };
+  const n = [], e = [];
+  // per path: what its small nodes give (alternating), the notable at its end, and a resistance or regen in the middle
+  const SP = [
+    { a: { inc_spell: 8 }, b: { cast: 4 }, mid: { mana: 15 }, nt: { nm: 'Arcane Mind', st: { inc_spell: 25, mana: 30 } } },
+    { a: { inc_light: 10 }, b: { inc_spell: 6 }, mid: { res_light: 12 }, nt: { nm: 'Stormcaller', st: { inc_light: 30, chain1: 1 } } },
+    { a: { crit: 2 }, b: { critm: 8 }, mid: { res: 5 }, nt: { nm: 'Sharpshooter', st: { proj: 1, crit: 4 } } },
+    { a: { evade: 3 }, b: { move: 3 }, mid: { regen: 1 }, nt: { nm: 'Shadow Dancer', st: { evade: 10, move: 8, cdr: 15 } } },
+    { a: { aspd: 4 }, b: { inc_phys: 6 }, mid: { res: 5 }, nt: { nm: 'Bladestorm', st: { aspd: 12, area: 10 } } },
+    { a: { critm: 8 }, b: { crit: 2 }, mid: { leechp: 1 }, nt: { nm: 'Bloodletter', st: { critm: 25, leechp: 2 } } },
+    { a: { inc_phys: 8 }, b: { block: 2 }, mid: { res: 5 }, nt: { nm: 'Warlord', st: { inc_phys: 25, block: 6 } } },
+    { a: { life: 12 }, b: { armour: 30 }, mid: { regen: 2 }, nt: { nm: 'Juggernaut', st: { lifep: 12, armour: 80 } } },
+    { a: { area: 5 }, b: { inc_phys: 8 }, mid: { res_fire: 12 }, nt: { nm: 'Earthbreaker', st: { area: 15, boss: 15 } } },
+    { a: { inc_fire: 10 }, b: { area: 4 }, mid: { res_fire: 12 }, nt: { nm: 'Pyromancer', st: { inc_fire: 30, res_fire: 20 } } },
+    { a: { minion: 12 }, b: { life: 10 }, mid: { res: 5 }, nt: { nm: 'Lord of Bones', st: { minion: 35, life: 25 } } },
+    { a: { inc_cold: 10 }, b: { mana: 12 }, mid: { res_cold: 12 }, nt: { nm: 'Frostborn', st: { inc_cold: 30, res_cold: 20 } } },
+  ];
+  const HUB = [{ life: 10 }, { res: 4 }, { mregen: 15 }], RAD = [0.12, 0.176, 0.232, 0.288, 0.344], NOT_R = 0.4, KS_R = 0.445;
+  const at = (ang, r) => ({ x: 0.5 + Math.cos(ang) * r, y: 0.5 + Math.sin(ang) * r });
+  const spokes = SP.map((p, j) => {
+    const ang = -Math.PI / 2 + j * TAU / 12, ids = [];
+    const cls = Object.entries(CLASSES).find(([, c]) => c.spoke === j);
+    for (let k = 0; k < RAD.length; k++) {
+      const o = { id: n.length, ...at(ang, RAD[k]), st: k === 0 ? (cls ? cls[1].st : HUB[j % 3]) : k === 2 ? p.mid : k % 2 ? p.a : p.b };
+      if (k === 0 && cls) { o.start = 1; o.cls = cls[0]; o.nm = cls[1].n; }
+      n.push(o); ids.push(o.id); if (k) e.push([ids[k - 1], o.id]);
+    }
+    const nt = { id: n.length, ...at(ang, NOT_R), st: p.nt.st, nm: p.nt.nm, notable: true }; n.push(nt); e.push([ids[RAD.length - 1], nt.id]); ids.push(nt.id);
+    return ids;
+  });
+  // the inner ring joins every path; every other path is also joined in the middle
+  for (let j = 0; j < 12; j++) { e.push([spokes[j][0], spokes[(j + 1) % 12][0]]); if (j % 2) e.push([spokes[j][2], spokes[(j + 1) % 12][2]]); }
+  for (const [k, a, b] of [['glass', 1, 2], ['blood', 5, 6], ['iron', 7, 8], ['pact', 9, 10]]) {
+    const ang = -Math.PI / 2 + (a + 0.5) * TAU / 12, o = { id: n.length, ...at(ang, KS_R), st: {}, nm: KEYSTONES[k].nm, d: KEYSTONES[k].d, ks: k, notable: true }; n.push(o);
+    e.push([spokes[a][5], o.id], [spokes[b][5], o.id]);
+  }
+  const start = Object.fromEntries(Object.keys(CLASSES).map((c) => [c, n.find((x) => x.cls === c).id]));
+  return { n, e, start };
 })();
 const nodeText = (st) => Object.entries(st).map(([k, v]) => k === 'chain1' ? 'Arc and projectiles chain +1 time' : (STAT_TEXT[k] || k).replace('#', v)).join(' · ');
+const nodeDesc = (n) => n.d || nodeText(n.st);
 // old saves: passives from the small tree are refunded
 
 // ---------- player progress (saved) ----------
@@ -797,13 +855,21 @@ let P = null;
 function freshProgress() {
   return { lv: 1, xp: 0, tier: 1, eq: { weapon: mkItem('weapon', 0, 1, BASES.weapon[0]), offhand: null, armor: null, ring: null, amulet: null, boots: null }, bag: [],
     slots: [{ g: 'fireball', s: [null, null] }, { g: 'cleave', s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }],
-    gemBag: [{ sup: 'mp' }], tree: [0], tip: 0, kills: 0 };
+    gemBag: [{ sup: 'mp' }], tree: [], tip: 0, kills: 0, treeV3: 1 };
 }
 if (/[?&]reset=1/.test(location.search)) { try { localStorage.removeItem(SAVE); } catch (e) { /* storage blocked */ } }
 function load() { try { const s = JSON.parse(localStorage.getItem(SAVE)); if (s && s.lv) return s; } catch (e) { /* storage blocked */ } return null; }
 let wiped = false;
 function save() { if (wiped) return; try { localStorage.setItem(SAVE, JSON.stringify(P)); } catch (e) { /* storage blocked */ } }
 
+function applyClass(cls) {
+  const B = (slot, n) => BASES[slot].find((b) => b.n === n);
+  P.cls = cls; P.tree = [TREE.start[cls]];
+  if (cls === 'mage') { P.eq.weapon = mkItem('weapon', 0, 1, B('weapon', 'Ashwood Staff')); P.eq.offhand = null; P.slots = [{ g: 'fireball', s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }]; P.gemBag = [{ sup: 'mp' }, { g: 'cleave' }]; }
+  if (cls === 'rogue') { P.eq.weapon = mkItem('weapon', 0, 1, B('weapon', 'Rogue Dagger')); P.eq.offhand = mkItem('offhand', 0, 1, B('offhand', 'Off-hand Dagger')); P.slots = [{ g: 'cleave', s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }]; P.gemBag = [{ sup: 'swift' }, { g: 'fireball' }]; }
+  if (cls === 'barb') { P.eq.weapon = mkItem('weapon', 0, 1, B('weapon', 'Great Axe')); P.eq.offhand = null; P.slots = [{ g: 'slam', s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }, { g: null, s: [null, null] }]; P.gemBag = [{ sup: 'brutal' }, { g: 'fireball' }]; }
+  lastKind = null; calcStats(); save();
+}
 // ---------- items ----------
 function mkItem(slot, rar, tier, base) {
   base = base || pick(BASES[slot]);
@@ -846,8 +912,8 @@ function calcStats() {
   const s = { addp: 0, addf: 0, addc: 0, addl: 0, aspd: 0, critm: 0, armour: 0, evade: 0, res: 0, res_fire: 0, res_cold: 0, res_light: 0, regen: 0, mhit: 0, minion: 0, lifep: 0, mcost: 0, cdr: 0, boss: 0, block: 0, leechp: 0, life: 130 + P.lv * 10, mana: 60 + P.lv * 4, inc_spell: 0, inc_fire: 0, inc_cold: 0, inc_light: 0, inc_phys: 0, cast: 0, move: 0, crit: 5, lok: 0, mregen: 0, area: 0, proj: 0, chain1: 0, sp: new Set() };
   const add = (o) => { for (const [k, v] of Object.entries(o)) s[k] = (s[k] || 0) + v; };
   for (const k of SLOTS) { const it = P.eq[k]; if (!it) continue; add(it.imp); add(it.mods); if (it.sp) s.sp.add(it.sp); }
-  for (const id of P.tree) add(TREE.n[id].st);
-  s.life = Math.round(s.life * (1 + s.lifep / 100)); s.block = Math.min(50, s.block); s.evade = Math.min(50, s.evade);
+  s.ks = new Set(); for (const id of P.tree) { const nd = TREE.n[id]; if (!nd) continue; add(nd.st); if (nd.ks) s.ks.add(nd.ks); }
+  s.life = Math.round(s.life * (1 + s.lifep / 100) * (s.ks.has('glass') ? 0.75 : 1) * (s.ks.has('blood') ? 1.15 : 1)); s.block = Math.min(50, s.block); s.evade = Math.min(50, s.evade);
   // deeper rifts take away elemental resistance; 75% is the most you can have
   s.pen = Math.min(45, (P.tier - 1) * 3);
   for (const e of ['fire', 'cold', 'light']) { s['raw_' + e] = s.res + s['res_' + e] - s.pen; s['r_' + e] = Math.min(75, s['raw_' + e]); }
@@ -1135,7 +1201,7 @@ function skillMul(gem, sup, echo) { const has = (k) => sup.includes(k), sk = SKI
 // what a skill really does: average hit (with crits), uses per second, damage per second on one target
 function skillInfo(slot) {
   const gem = slot.g, sup = supOf(slot), has = (k) => sup.includes(k), sk = SKILLS[gem], mul = skillMul(gem, sup, false);
-  let hit = dmgOf(gem, mul) + (has('addfire') ? 6 * (1 + 0.1 * P.lv) * mul : 0); if (gem === 'raise') hit *= (has('minion') ? 1.4 : 1) * (1 + S.minion / 100);
+  let hit = dmgOf(gem, mul) + (has('addfire') ? 6 * (1 + 0.1 * P.lv) * mul : 0); if (gem === 'raise') hit *= (has('minion') ? 1.4 : 1) * (1 + S.minion / 100) * allyMul(); else hit *= ownMul();
   const cc = Math.min(100, S.crit + (has('crit') ? 25 : 0)); hit *= 1 + cc / 100 * (critMul() - 1);
   const t = useTime(gem, sup), echo = has('echo') || (S.sp.has('echo') && sk.tags.includes('spell'));
   const hits = gem === 'firestorm' ? 3 : 1;
@@ -1144,11 +1210,13 @@ function skillInfo(slot) {
 const mainDps = () => { const sl = P.slots.find((x) => x.g && skillOk(x.g)); return sl ? skillInfo(sl).dps : 0; };
 function startCast(i, aim) {
   const slot = P.slots[i]; if (!slot.g || pl.cast || pl.dashT > 0 || pl.leap) return; if (!skillOk(slot.g)) return;
-  const cost = manaCost(slot); if (pl.mana < cost) { if (!pl.oomT || T - pl.oomT > 1.2) { pl.oomT = T; floater(pl.x, pl.y - 60, 'Not enough mana', '#7fa8ff', 16); } return; }
-  pl.mana -= cost; const sup = supOf(slot); const ct = useTime(slot.g, sup);
+  const cost = manaCost(slot), bm = S.ks.has('blood'); if (bm ? pl.life <= cost + 1 : pl.mana < cost) { if (!pl.oomT || T - pl.oomT > 1.2) { pl.oomT = T; floater(pl.x, pl.y - 60, 'Not enough ' + (bm ? 'life' : 'mana'), bm ? '#ff6a6a' : '#7fa8ff', 16); } return; }
+  if (bm) pl.life -= cost; else pl.mana -= cost; const sup = supOf(slot); const ct = useTime(slot.g, sup);
   pl.cast = { i, t: 0, dur: ct, aim, gem: slot.g, sup }; pl.face = Math.atan2(aim.y - pl.y, aim.x - pl.x);
 }
 let LEECH = false, CRITB = 0, ALLYHIT = false;
+// keystones: how much your own hits and your minions' hits are worth
+const ownMul = () => (S.ks.has('glass') ? 1.4 : 1) * (S.ks.has('pact') ? 0.8 : 1), allyMul = () => S.ks.has('pact') ? 1.6 : 1;
 function execCast(c, echo) {
   const gem = c.gem, sup = c.sup, has = (k) => sup.includes(k), sk = SKILLS[gem]; LEECH = has('leech');
   const area = (1 + S.area / 100) * (has('area') ? 1.4 : 1) * (has('conc') ? 0.7 : 1); CRITB = has('crit') ? 25 : 0;
@@ -1184,9 +1252,9 @@ function execCast(c, echo) {
       delayed.push({ t: 0.3, f: () => { fx.push({ k: 'boom', x, y, r: 4, R: 46 * Math.sqrt(area), t: 0, life: 0.3, col: '#ff6a2a' }); sfx('boom'); LEECH = lee; for (const m of mons) if (!m.dead && Math.hypot(m.x - x, m.y - y) < 46 * Math.sqrt(area) + m.r) { m.aoeT = T; quest('leap'); hitMon(m, dmg, 'fire', addFire, ign, 20); } LEECH = false; } });
     } });
   } else if (gem === 'raise') {
-    const n = 2 + (has('minion') ? 1 : 0), mul2 = (has('minion') ? 1.4 : 1) * (1 + S.minion / 100); sfx('nova');
+    const n = 2 + (has('minion') ? 1 : 0) + (S.ks.has('pact') ? 1 : 0), mul2 = (has('minion') ? 1.4 : 1) * (1 + S.minion / 100); sfx('nova');
     for (let k = 0; k < n; k++) {
-      if (allies.length >= 4 + (has('minion') ? 1 : 0)) allies.shift();
+      if (allies.length >= 4 + (has('minion') ? 1 : 0) + (S.ks.has('pact') ? 1 : 0)) allies.shift();
       const a = ang + (k - (n - 1) / 2) * 0.9, x = pl.x + Math.cos(a) * 60, y = pl.y + Math.sin(a) * 60;
       allies.push({ x: solidAt(x, y) ? pl.x : x, y: solidAt(x, y) ? pl.y : y, vx: 0, vy: 0, r: 14, dmg: dmg * mul2, life: 18, atk: 0, face: ang, rise: 0.6, id: Math.random() });
       fx.push({ k: 'nova', x, y, r: 4, R: 46, t: 0, life: 0.45, col: '#9ae07a' });
@@ -1209,7 +1277,7 @@ function execCast(c, echo) {
 function zig(a, b) { const pts = [a], n = 6; /* a.h: launch height */ for (let i = 1; i < n; i++) { const k = i / n; pts.push({ x: a.x + (b.x - a.x) * k + (rnd() - 0.5) * 26, y: a.y + (b.y - a.y) * k + (rnd() - 0.5) * 26 }); } pts.push(b); return pts; }
 function hitMon(m, dmg, el, addFire, ign, kb = 40) {
   if (m.dead) return;
-  let d = dmg + (addFire || 0), crit = rnd() < (S.crit + (CRITB || 0)) / 100; if (crit) d *= critMul(); if (m.rar >= 2 || m.boss) d *= 1 + S.boss / 100;
+  let d = (dmg + (addFire || 0)) * (ALLYHIT ? allyMul() : ownMul()), crit = rnd() < (S.crit + (CRITB || 0)) / 100; if (crit) d *= critMul(); if (m.rar >= 2 || m.boss) d *= 1 + S.boss / 100;
   if (S.sp.has('chillall')) m.chill = Math.max(m.chill, 1.5); if (S.sp.has('igniteall') && rnd() < 0.3) { m.burn = 3; m.burnD = Math.max(m.burnD, dmg * 0.3); }
   if (m.kind === 'knight' && Math.abs(angDiff(Math.atan2(pl.y - m.y, pl.x - m.x), m.face)) < 1.0) { d *= 0.5; m.block = 0.3; }
   d = Math.max(1, Math.round(d)); m.hp -= d; m.flash = 0.1; m.aggro = true; if (LEECH || S.leechp) pl.life = Math.min(pl.maxLife, pl.life + d * ((LEECH ? 0.03 : 0) + S.leechp / 100)); if (S.mhit && !ALLYHIT) pl.mana = Math.min(pl.maxMana, pl.mana + S.mhit);
@@ -1251,7 +1319,7 @@ function gainXp(n) { P.xp += n; while (P.xp >= xpNeed(P.lv)) { P.xp -= xpNeed(P.
 const armourCut = (d) => Math.min(0.75, S.armour / (S.armour + 10 * d));
 const EL_COL = { fire: '#ff9a4a', cold: '#9fe0ff', light: '#e8f0ff' };
 function hurtPl(d, el = 'phys', aoe = false) { if (pl.ifr > 0 || state !== 'play') return; if (!aoe && rnd() < S.evade / 100) { floater(pl.x, pl.y - 50, 'EVADE', '#b8f0a0', 16); return; } if (rnd() < S.block / 100) { floater(pl.x, pl.y - 50, 'BLOCK', '#c8d8ff', 16); sfx('hit'); return; }
-  d *= el === 'phys' ? 1 - armourCut(d) : 1 - S['r_' + el] / 100; if (el !== 'phys') fx.push({ k: 'p', x: pl.x, y: pl.y - 20, vx: 0, vy: -50, t: 0, life: 0.4, col: EL_COL[el], s: 5 }); pl.life -= d; pl.hurtT = 0.25; shake = Math.max(shake, 5); sfx('hurt'); floater(pl.x, pl.y - 50, '-' + Math.round(d), '#ff6a6a', 16); if (pl.life <= 0) { pl.life = 0; die(); } }
+  d *= (el === 'phys' ? 1 - armourCut(d) : 1 - S['r_' + el] / 100) * (S.ks.has('iron') ? 0.85 : 1); if (el !== 'phys') fx.push({ k: 'p', x: pl.x, y: pl.y - 20, vx: 0, vy: -50, t: 0, life: 0.4, col: EL_COL[el], s: 5 }); pl.life -= d; pl.hurtT = 0.25; shake = Math.max(shake, 5); sfx('hurt'); floater(pl.x, pl.y - 50, '-' + Math.round(d), '#ff6a6a', 16); if (pl.life <= 0) { pl.life = 0; die(); } }
 function dash() { if (pl.dashCd > 0 || state !== 'play') return; tipDone.dash = 1; const [x, y] = moveDir(); const a = x || y ? Math.atan2(y, x) : pl.face; pl.vx = Math.cos(a) * 780; pl.vy = Math.sin(a) * 780; pl.dashT = 0.16; pl.ifr = 0.25; pl.dashCd = 1.2 * (1 - S.cdr / 100); if (S.sp.has('ghost')) pl.ifr = 0.45; pl.cast = null; sfx('dash'); }
 function drink() { if (pl.flask <= 0 || pl.life >= pl.maxLife || state !== 'play') return; pl.flask--; pl.flaskT = 1.5; sfx('flask'); }
 function die() { pl.leap = null; pl.leapH = 0; state = 'dead'; setPads(false); setTimeout(() => $('#dead').classList.remove('hide'), 700); }
@@ -1393,7 +1461,7 @@ function update(dt) {
     if (pl.leap) { /* in the air: leapUpdate moves the hero */ }
     else if (pl.dashT > 0) { pl.dashT -= dt; }
     else {
-      const sp = 165 * (1 + S.move / 100) * (pl.cast ? 0.45 : 1) * (pl.chillT > 0 ? 0.7 : 1) * (pl.inVoid ? 0.65 : 1); const k = 1 - Math.exp(-dt * (pl.onIce ? 2.2 : 14));
+      const sp = 165 * (1 + S.move / 100) * (S.ks.has('iron') ? 0.9 : 1) * (pl.cast ? 0.45 : 1) * (pl.chillT > 0 ? 0.7 : 1) * (pl.inVoid ? 0.65 : 1); const k = 1 - Math.exp(-dt * (pl.onIce ? 2.2 : 14));
       pl.vx += (mx * sp - pl.vx) * k; pl.vy += (my * sp - pl.vy) * k;
       if (!pl.cast && (mx || my)) pl.face = Math.atan2(my, mx);
     }
@@ -1767,6 +1835,12 @@ function quest(id, n = 1) {
 function claimQuest(i) { const q = P.daily.q[i]; if (!q || q.claimed || q.n < q.goal) return; q.claimed = true; P.shards += 12; if (P.bag.length < 30) P.bag.push(mkItem(pick(SLOTS), 2, P.tier)); if (P.daily.q.every((x) => x.claimed) && P.bag.length < 30) P.bag.push(mkUnique()); sfx('uni'); save(); }
 // crafting with shards
 function reforge(it) { if (P.shards < 5 || it.rar === 0 || it.rar === 3) return; P.shards -= 5; const n = mkItem(it.slot, it.rar, P.tier, BASES[it.slot].find((b) => b.n === it.base)); it.mods = n.mods; it.name = n.name; sfx('rare'); calcStats(); save(); }
+function rollAffix(it) { const used = new Set(Object.keys(it.mods)); const pool = AFFIX.filter((a) => !used.has(a.k) && (!a.only || a.only.includes(it.slot)) && (!a.no || !a.no.includes(it.slot)) && (!a.rare || it.rar === 2)); if (!pool.length) return false; const a = pick(pool), m = a.flat ? 1 : 1 + 0.25 * (P.tier - 1); it.mods[a.k] = a.r[0] === a.r[1] ? a.r[0] : Math.round((a.r[0] + rnd() * (a.r[1] - a.r[0])) * m); return true; }
+const maxMods = (it) => it.rar === 1 ? 2 : it.rar === 2 ? 5 : 0;
+// Augment: one more random property (magic up to 2, rare up to 5)
+function augment(it) { if (P.shards < 10 || Object.keys(it.mods).length >= maxMods(it)) return; if (rollAffix(it)) { P.shards -= 10; sfx('rare'); calcStats(); save(); } }
+// Divine: the same properties, new numbers
+function divine(it) { if (P.shards < 8 || it.rar === 0) return; P.shards -= 8; const keys = Object.keys(it.mods); for (const k of keys) { const a = AFFIX.find((x) => x.k === k); if (!a) continue; const m = a.flat ? 1 : 1 + 0.25 * (P.tier - 1); it.mods[k] = a.r[0] === a.r[1] ? a.r[0] : Math.round((a.r[0] + rnd() * (a.r[1] - a.r[0])) * m); } const b = baseOf(it); if (b && b.dmg) { const k = (1 + 0.15 * (P.tier - 1)) * (0.92 + rnd() * 0.16); it.wd = [Math.round(b.dmg[0] * k), Math.round(b.dmg[1] * k)]; } sfx('uni'); calcStats(); save(); }
 function upgrade(it) { if (P.shards < 15 || it.rar >= 2) return; P.shards -= 15; const n = mkItem(it.slot, it.rar + 1, P.tier, BASES[it.slot].find((b) => b.n === it.base)); Object.assign(it, { rar: n.rar, mods: n.mods, name: n.name }); sfx('uni'); calcStats(); save(); }
 setInterval(() => { if (P) { P.lastSeen = Date.now(); save(); } }, 30000);
 addEventListener('visibilitychange', () => { if (P && document.hidden) { P.lastSeen = Date.now(); save(); } });
@@ -1796,7 +1870,7 @@ function itemCardHTML(it) {
   return `<div class="tipcard"><div class="top"><img src="${itemIcon(it)}" alt=""><div style="flex:1;min-width:0"><h4 style="color:${col}">${it.name}</h4><div class="ln" style="color:#7a6a52">${RN[it.rar]} ${it.slot === 'armor' ? 'head' : it.slot === 'offhand' ? 'off-hand' : it.slot}${baseOf(it) && baseOf(it).hand ? (baseOf(it).hand === 2 ? ' · two-handed' : ' · one-handed') + (baseOf(it).kind === 'spell' ? ' · spells' : ' · melee') : ''}${inBag ? (cur ? ' · you wear ' + cur.name : ' · slot empty') : ' · worn'}</div></div><button class="btn small" id="tcX">✕</button></div>
     <div style="margin-top:6px">${itemLines(it).map(([k, t]) => `<div class="ln" style="color:${k === 'uni' ? '#ff9a3a' : k === 'imp' ? '#a8a8ff' : '#8fb8ff'}">${t}</div>`).join('')}</div>
     ${cmp ? `<div style="margin-top:6px">${cmp}</div>` : ''}
-    <div class="row2">${inBag ? '<button class="btn small" id="eqB">EQUIP</button><button class="btn small" id="drB">DISCARD</button>' : ''}${it.rar >= 1 && it.rar <= 2 ? `<button class="btn small" id="rfB" ${P.shards < 5 ? 'disabled' : ''}>REFORGE · 5◆</button>` : ''}${it.rar <= 1 ? `<button class="btn small" id="ugB" ${P.shards < 15 ? 'disabled' : ''}>UPGRADE · 15◆</button>` : ''}</div></div>`;
+    <div class="row2">${inBag ? '<button class="btn small" id="eqB">EQUIP</button><button class="btn small" id="drB">DISCARD</button>' : ''}${it.rar >= 1 && it.rar <= 2 ? `<button class="btn small" id="rfB" ${P.shards < 5 ? 'disabled' : ''}>REFORGE · 5◆</button>` : ''}${it.rar >= 1 && it.rar <= 2 && Object.keys(it.mods).length < maxMods(it) ? `<button class="btn small" id="auB" ${P.shards < 10 ? 'disabled' : ''} title="Add one random property">AUGMENT · 10◆</button>` : ''}${it.rar >= 1 ? `<button class="btn small" id="dvB" ${P.shards < 8 ? 'disabled' : ''} title="Same properties, new numbers">DIVINE · 8◆</button>` : ''}${it.rar <= 1 ? `<button class="btn small" id="ugB" ${P.shards < 15 ? 'disabled' : ''}>UPGRADE · 15◆</button>` : ''}</div></div>`;
 }
 function itemHTML(it, cmp) {
   if (!it) return '<div class="detail"><span class="hint">Tap an item to see it.</span></div>';
@@ -1837,7 +1911,7 @@ function renderPanel() {
     pb.querySelectorAll('[data-eq]').forEach((d) => d.onclick = () => { const it = P.eq[d.dataset.eq]; if (it) { selItem = it === selItem ? null : it; renderPanel(); } });
     const eb = $('#eqB'); if (eb) eb.onclick = () => { equipItem(selItem); selItem = null; renderPanel(); };
     const db = $('#drB'); if (db) db.onclick = () => { P.bag.splice(P.bag.indexOf(selItem), 1); selItem = null; renderPanel(); };
-    const rf = $('#rfB'); if (rf) rf.onclick = () => { reforge(selItem); renderPanel(); }; const ug = $('#ugB'); if (ug) ug.onclick = () => { upgrade(selItem); renderPanel(); };
+    const rf = $('#rfB'); if (rf) rf.onclick = () => { reforge(selItem); renderPanel(); }; const ug = $('#ugB'); if (ug) ug.onclick = () => { upgrade(selItem); renderPanel(); }; const au = $('#auB'); if (au) au.onclick = () => { augment(selItem); renderPanel(); }; const dv = $('#dvB'); if (dv) dv.onclick = () => { divine(selItem); renderPanel(); };
     const cx = $('#tcX'); if (cx) cx.onclick = () => { selItem = null; renderPanel(); };
   } else if (tab === 'gems') {
     const keys = TOUCH ? ['1', '2', '3', '4'] : ['LMB', 'RMB', 'Q', 'E'];
@@ -1866,9 +1940,9 @@ function renderPanel() {
   } else {
     pb.innerHTML = `<div class="treeP"><canvas id="treeC" width="900" height="900"></canvas><div class="treeSide"><div class="pts">${availPoints() ? '✦ ' + availPoints() + ' point' + (availPoints() > 1 ? 's' : '') : 'No points'}</div><div class="nodeCard" id="treeD"><div class="ln" style="color:#9a8a6a">Tap a glowing node next to your path. Big nodes are powerful notables.</div></div><div class="legend">${Object.entries(NODEIC).map(([k, v]) => `<span>${v} ${NODEN[k]}</span>`).join('')}</div></div></div>`;
     const c = $('#treeC'); drawTree(c, treeSel);
-    const showNode = (n) => { const ok = canAlloc(n) && availPoints() > 0, on = P.tree.includes(n.id); $('#treeD').innerHTML = `<div class="ic">${n.start ? '★' : nodeIcon(n)}</div><h4 style="margin:2px 0;font-family:Cinzel,serif;color:${n.notable ? '#ffd890' : '#e8e0d0'}">${n.nm || 'Passive'}</h4><div class="ln">${nodeText(n.st) || 'Your starting point'}</div>${ok ? '<button class="btn" id="alB" style="margin-top:8px;width:100%">ALLOCATE</button>' : on ? '<div class="ln" style="color:#7be05a;margin-top:6px">✓ Allocated</div>' : '<div class="ln" style="color:#7a6a52;margin-top:6px">Not connected yet' + (availPoints() ? '' : ', or no points') + '</div>'}`; const ab = $('#alB'); if (ab) ab.onclick = () => { P.tree.push(n.id); calcStats(); sfx('lvl'); treeSel = n; renderPanel(); }; };
+    const showNode = (n) => { const ok = canAlloc(n) && availPoints() > 0, on = P.tree.includes(n.id); $('#treeD').innerHTML = `<div class="ic">${n.start ? '★' : nodeIcon(n)}</div><h4 style="margin:2px 0;font-family:Cinzel,serif;color:${n.notable ? '#ffd890' : '#e8e0d0'}">${n.nm || 'Passive'}</h4><div class="ln">${nodeDesc(n) || 'Your starting point'}${n.start ? (n.cls === curClsP() ? '<br><i>Your class starts here</i>' : '<br><i>' + CLASSES[n.cls].n + ' starts here</i>') : ''}${n.ks ? '<br><b style="color:#c8a0ff">Keystone: changes how you play</b>' : ''}</div>${ok ? '<button class="btn" id="alB" style="margin-top:8px;width:100%">ALLOCATE</button>' : on ? '<div class="ln" style="color:#7be05a;margin-top:6px">✓ Allocated</div>' : '<div class="ln" style="color:#7a6a52;margin-top:6px">Not connected yet' + (availPoints() ? '' : ', or no points') + '</div>'}`; const ab = $('#alB'); if (ab) ab.onclick = () => { P.tree.push(n.id); calcStats(); sfx('lvl'); treeSel = n; renderPanel(); }; };
     if (treeSel) showNode(treeSel);
-    c.onclick = (e) => { const r = c.getBoundingClientRect(), sz = Math.min(r.width, r.height), ox = r.left + (r.width - sz) / 2, oy = r.top + (r.height - sz) / 2, x = (e.clientX - ox) / sz, y = (e.clientY - oy) / sz; let hit = null, bd = 0.06; for (const n of TREE.n) { const d = Math.hypot(n.x - x, n.y - y); if (d < bd) { bd = d; hit = n; } } if (!hit) return; treeSel = hit; drawTree(c, hit); showNode(hit); };
+    c.onclick = (e) => { const r = c.getBoundingClientRect(), sz = Math.min(r.width, r.height), ox = r.left + (r.width - sz) / 2, oy = r.top + (r.height - sz) / 2, x = (e.clientX - ox) / sz, y = (e.clientY - oy) / sz; let hit = null, bd = 0.04; for (const n of TREE.n) { const d = Math.hypot(n.x - x, n.y - y); if (d < bd) { bd = d; hit = n; } } if (!hit) return; treeSel = hit; drawTree(c, hit); showNode(hit); };
   }
   $('#px').onclick = closePanel;
 }
@@ -1880,7 +1954,7 @@ function statsPage() {
   const skills = P.slots.map((sl, i) => { if (!sl.g || !skillOk(sl.g)) return ''; const f = skillInfo(sl), sk = SKILLS[sl.g]; return `<div class="sk2"><img src="${skillIconUrl(sl.g)}" alt=""><div><b>${sk.n}</b><small>${['LMB', 'RMB', 'Q', 'E'][i]} · ${f.cost} mana</small></div><span><b>${Math.round(f.hit)}</b><small>per hit</small></span><span><b>${f.ps.toFixed(2)}</b><small>per sec</small></span><span class="dps"><b>${Math.round(f.dps)}</b><small>DPS</small></span></div>`; }).join('');
   const kind = weaponKind(), wd = wdOf(P.eq.weapon), wb = baseOf(P.eq.weapon);
   return `<div class="statsP">
-    <div class="scard wide"><h5>⚔ Your skills <small>real damage with everything you wear, your gems and passives</small></h5>${skills || '<div class="hint">No skill fits your weapon</div>'}
+    ${S.ks.size ? `<div class="scard wide" style="border-color:#7a4ab0"><h5 style="color:#d8b0ff">✪ Keystones</h5>${[...S.ks].map((k) => `<div class="srow"><span class="si">✪</span><span class="sn">${KEYSTONES[k].nm}<small>${KEYSTONES[k].d}</small></span></div>`).join('')}</div>` : ''}<div class="scard wide"><h5>⚔ ${CLASSES[curClsP()].n} · your skills <small>real damage with everything you wear, your gems and passives</small></h5>${skills || '<div class="hint">No skill fits your weapon</div>'}
       <div class="hint">${kind === 'attack' ? `Melee skills hit with your weapon: <b>${wd ? wd[0] + '–' + wd[1] : '?'}</b> physical, one swing every <b>${wb ? wb.spd.toFixed(2) : 1}s</b> before attack speed. A better weapon = more damage.` : 'Spells deal their own damage. Spell damage, element damage and added damage make them stronger.'}</div></div>
     <div class="scard"><h5>🗡 Offense</h5>
       ${row('🎯', 'Critical chance', S.crit + '%', 'chance a hit is a critical')}
@@ -1919,23 +1993,24 @@ function statsPage() {
       ${row('💨', 'Dash recovery', pct(S.cdr), 'dash comes back sooner')}</div>
   </div>`;
 }
-function canAlloc(n) { if (P.tree.includes(n.id)) return false; return TREE.e.some(([a, b]) => (a === n.id && P.tree.includes(b)) || (b === n.id && P.tree.includes(a))); }
+const curClsP = () => P.cls || 'mage';
+function canAlloc(n) { if (P.tree.includes(n.id) || n.start) return false; return TREE.e.some(([a, b]) => (a === n.id && P.tree.includes(b)) || (b === n.id && P.tree.includes(a))); }
 let treeSel = null;
-const NODEIC = { armour: '⛨', aspd: '⚔', res: '◈', res_fire: '🔥', res_cold: '❄', res_light: '⚡', critm: '💥', evade: '💨', lifep: '♥', block: '🛡', leechp: '🩸', move: '👟', mregen: '🌀', cdr: '💨', boss: '☠', inc_phys: '🗡', life: '❤', mana: '💧', inc_spell: '✦', inc_fire: '🔥', inc_cold: '❄', inc_light: '⚡', cast: '⏩', area: '◎', crit: '🎯', lok: '🩸', chain1: '⛓' };
-const NODEN = { armour: 'Armour', aspd: 'Attack speed', res: 'Resist', res_fire: 'Fire resist', res_cold: 'Cold resist', res_light: 'Lightning resist', critm: 'Crit multi', evade: 'Evasion', lifep: 'Life %', block: 'Block', leechp: 'Leech', move: 'Speed', mregen: 'Mana regen', cdr: 'Dash', boss: 'Boss dmg', inc_phys: 'Physical', life: 'Life', mana: 'Mana', inc_spell: 'Spell', inc_fire: 'Fire', inc_cold: 'Cold', inc_light: 'Lightning', cast: 'Cast speed', area: 'Area', crit: 'Crit', lok: 'Life on kill', chain1: 'Chain' };
+const NODEIC = { minion: '💀', regen: '🌿', proj: '➶', armour: '⛨', aspd: '⚔', res: '◈', res_fire: '🔥', res_cold: '❄', res_light: '⚡', critm: '💥', evade: '💨', lifep: '♥', block: '🛡', leechp: '🩸', move: '👟', mregen: '🌀', cdr: '💨', boss: '☠', inc_phys: '🗡', life: '❤', mana: '💧', inc_spell: '✦', inc_fire: '🔥', inc_cold: '❄', inc_light: '⚡', cast: '⏩', area: '◎', crit: '🎯', lok: '🩸', chain1: '⛓' };
+const NODEN = { minion: 'Minions', regen: 'Life regen', proj: 'Projectile', armour: 'Armour', aspd: 'Attack speed', res: 'Resist', res_fire: 'Fire resist', res_cold: 'Cold resist', res_light: 'Lightning resist', critm: 'Crit multi', evade: 'Evasion', lifep: 'Life %', block: 'Block', leechp: 'Leech', move: 'Speed', mregen: 'Mana regen', cdr: 'Dash', boss: 'Boss dmg', inc_phys: 'Physical', life: 'Life', mana: 'Mana', inc_spell: 'Spell', inc_fire: 'Fire', inc_cold: 'Cold', inc_light: 'Lightning', cast: 'Cast speed', area: 'Area', crit: 'Crit', lok: 'Life on kill', chain1: 'Chain' };
 const nodeIcon = (n) => NODEIC[Object.keys(n.st)[0]] || '✦';
 function drawTree(c, sel) {
   const prev = g; g = c.getContext('2d'); const w = c.width; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, w, w);
   const gr = g.createRadialGradient(w / 2, w / 2, 10, w / 2, w / 2, w / 2); gr.addColorStop(0, '#2a1c12'); gr.addColorStop(1, '#0c0806'); g.fillStyle = gr; g.fillRect(0, 0, w, w);
   for (const [a, b] of TREE.e) { const A = TREE.n[a], B = TREE.n[b], on = P.tree.includes(a) && P.tree.includes(b); g.strokeStyle = on ? '#e8b860' : '#3a2c1e'; g.lineWidth = on ? 8 : 5; g.beginPath(); g.moveTo(A.x * w, A.y * w); g.lineTo(B.x * w, B.y * w); g.stroke(); }
   for (const n of TREE.n) {
-    const on = P.tree.includes(n.id), can = canAlloc(n) && availPoints() > 0, r = (n.notable ? 0.06 : n.start ? 0.055 : 0.04) * w, x = n.x * w, y = n.y * w;
+    const on = P.tree.includes(n.id), can = canAlloc(n) && availPoints() > 0, r = (n.ks ? 0.04 : n.notable ? 0.033 : n.start ? 0.032 : 0.021) * w, x = n.x * w, y = n.y * w;
     if (can) { const gl = g.createRadialGradient(x, y, r, x, y, r * 2.2); gl.addColorStop(0, 'rgba(123,224,90,.45)'); gl.addColorStop(1, 'rgba(123,224,90,0)'); g.fillStyle = gl; g.beginPath(); g.arc(x, y, r * 2.2, 0, TAU); g.fill(); }
     if (on) { const gl = g.createRadialGradient(x, y, r, x, y, r * 2); gl.addColorStop(0, 'rgba(255,200,100,.4)'); gl.addColorStop(1, 'rgba(255,200,100,0)'); g.fillStyle = gl; g.beginPath(); g.arc(x, y, r * 2, 0, TAU); g.fill(); }
-    const fg = g.createRadialGradient(x - r * 0.3, y - r * 0.3, 2, x, y, r); fg.addColorStop(0, on ? '#ffe7a8' : can ? '#4a7a3a' : '#2a1e14'); fg.addColorStop(1, on ? '#b07a28' : can ? '#1e3a16' : '#0e0906'); g.fillStyle = fg; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
-    g.strokeStyle = n === sel ? '#ffffff' : on ? '#ffd890' : can ? '#7be05a' : '#5a4a36'; g.lineWidth = n === sel ? 8 : n.notable ? 7 : 5; g.stroke();
-    g.globalAlpha = on || can ? 1 : 0.45; g.font = `${Math.round(r * 1.05)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'; g.fillText(n.start ? '★' : nodeIcon(n), x, y + 2); g.globalAlpha = 1;
-    if (n.notable) { g.font = '700 25px Cinzel'; g.lineWidth = 6; g.strokeStyle = '#0c0806'; g.strokeText(n.nm, x, y + r + 34); g.fillStyle = on ? '#ffd890' : '#a89870'; g.fillText(n.nm, x, y + r + 34); }
+    const fg = g.createRadialGradient(x - r * 0.3, y - r * 0.3, 2, x, y, r); fg.addColorStop(0, on ? (n.ks ? '#e8c8ff' : '#ffe7a8') : can ? '#4a7a3a' : n.ks ? '#3a2050' : '#2a1e14'); fg.addColorStop(1, on ? (n.ks ? '#7a3ab0' : '#b07a28') : can ? '#1e3a16' : n.ks ? '#140820' : '#0e0906'); g.fillStyle = fg; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    g.strokeStyle = n === sel ? '#ffffff' : on ? '#ffd890' : can ? '#7be05a' : n.ks ? '#a070d0' : n.start ? '#8a7a5a' : '#5a4a36'; g.lineWidth = n === sel ? 8 : n.notable ? 7 : 5; g.stroke();
+    g.globalAlpha = on || can ? 1 : 0.45; g.font = `${Math.round(r * 1.05)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'; g.fillText(n.start ? '★' : n.ks ? '✪' : nodeIcon(n), x, y + 2); g.globalAlpha = 1;
+    if (n.notable && !n.ks) { g.font = '700 21px Cinzel'; const tw = g.measureText(n.nm).width, lx = clamp(x, tw / 2 + 6, w - tw / 2 - 6); const room = (ly) => ly > w - 8 || ly < 20 ? -1e9 : Math.min(...TREE.n.filter((o) => o !== n).map((o) => { const ox = o.x * w, oy = o.y * w, rr = (o.ks ? 0.04 : o.notable ? 0.033 : 0.022) * w; const dx = Math.max(0, Math.abs(ox - lx) - tw / 2), dy = Math.max(0, Math.abs(oy - (ly - 7)) - 11); return Math.hypot(dx, dy) - rr; })); const up = y - r - 12, dn = y + r + 26, ly = room(dn) >= room(up) ? dn : up; g.lineWidth = 6; g.strokeStyle = '#0c0806'; g.strokeText(n.nm, lx, ly); g.fillStyle = on ? '#ffd890' : '#a89870'; g.fillText(n.nm, lx, ly); }
   }
   g = prev;
 }
@@ -1971,15 +2046,20 @@ $('#keys').innerHTML = TOUCH ? '<span>Left thumb: move</span><span>Skill buttons
 $('#go').onclick = () => { $('#start').classList.add('hide'); state = 'play'; setPads(true); sfx('lvl'); };
 $('#rez').onclick = () => { $('#dead').classList.add('hide'); const s = START(); pl.x = s.x; pl.y = s.y; pl.life = pl.maxLife; pl.mana = pl.maxMana; pl.flask = 3; projs = []; state = 'play'; setPads(true); };
 $('#next').onclick = () => { $('#done').classList.add('hide'); newMap(); state = 'play'; setPads(true); };
-P = load() || freshProgress(); lastKind = null; if (!P.map) P.map = { zone: (P.tier - 1) % 4, mods: [] }; if (!P.treeV2) { P.tree = [0]; P.treeV2 = 1; } if (!('offhand' in P.eq)) P.eq.offhand = null; for (const it of [...Object.values(P.eq), ...P.bag]) if (it) { if (it.base === 'Tattered Robe') { it.name = it.name.replace('Tattered Robe', 'Wizard Hat'); it.base = 'Wizard Hat'; } if (it.base === 'Scale Vest') { it.name = it.name.replace('Scale Vest', 'Iron Helm'); it.base = 'Iron Helm'; } } if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
+P = load() || freshProgress(); lastKind = null; if (!P.map) P.map = { zone: (P.tier - 1) % 4, mods: [] }; if (!P.cls && P.kills > 0) P.cls = 'mage'; if (!P.treeV3) { P.tree = [TREE.start[P.cls || 'mage']]; P.treeV3 = 1; } if (!('offhand' in P.eq)) P.eq.offhand = null; for (const it of [...Object.values(P.eq), ...P.bag]) if (it) { if (it.base === 'Tattered Robe') { it.name = it.name.replace('Tattered Robe', 'Wizard Hat'); it.base = 'Wizard Hat'; } if (it.base === 'Scale Vest') { it.name = it.name.replace('Scale Vest', 'Iron Helm'); it.base = 'Iron Helm'; } } if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
 metaInit();
 if (!TOUCH) { $('#charBtn').textContent = '🎒 GEAR (C)'; $('#gemBtn').textContent = '💎 GEMS (G)'; $('#treeBtn').textContent = '✦ PASSIVES (P)'; $('#questBtn').textContent = '📜 QUESTS'; }
 if (P.kills > 0) $('#wipe').classList.remove('hide');
 let wipeArm = false;
 $('#wipe').onclick = () => { if (!wipeArm) { wipeArm = true; $('#wipe').textContent = 'SURE? CLICK AGAIN TO WIPE ALL PROGRESS'; $('#wipe').style.color = '#ff8a7a'; return; } wiped = true; try { localStorage.removeItem(SAVE); } catch (e) { /* storage blocked */ } location.replace(location.pathname); };
+if (!P.cls) {
+  $('#go').classList.add('hide'); const cp = $('#clsPick'); cp.classList.remove('hide');
+  cp.innerHTML = '<p class="pickT">Choose your class</p><div class="clsRow">' + Object.entries(CLASSES).map(([k, c]) => `<button class="clsCard" data-c="${k}" style="--cc:${c.col}"><img src="${classPortrait(k)}" alt=""><b>${c.n}</b><small>${c.d}</small></button>`).join('') + '</div>';
+  cp.querySelectorAll('.clsCard').forEach((b) => b.onclick = () => { applyClass(b.dataset.c); cp.classList.add('hide'); $('#go').classList.remove('hide'); $('#go').click(); });
+}
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
 window.__grid = () => grid; window.__haz = () => hazards; window.__kill = (m) => killMon(m); window.__newMap = () => newMap();
-window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, hurtPl, skillInfo, mainDps, mkItem, hitMon, dropItem, dropGem, openPanel, closePanel };
+window.__rb = { mkMon, strideSpeed, gMage, gWar, gMin, gRog, gSMage, scene3, get active3() { return active3; }, get P() { return P; }, get pl() { return pl; }, get mons() { return mons; }, get loot() { return loot; }, get state() { return state; }, get boss() { return boss; }, get S() { return S; }, calcStats, hurtPl, skillInfo, mainDps, mkItem, hitMon, applyClass, TREE, get hero3() { return hero3; }, dropItem, dropGem, openPanel, closePanel };
 let last = performance.now();
 let hitStop = 0;
 function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; update(hitStop > 0 ? dt * 0.06 : dt); hitStop -= dt; draw(); requestAnimationFrame(loop); }
