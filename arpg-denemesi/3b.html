@@ -80,6 +80,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
 .bgem{aspect-ratio:1;border-radius:10px;border:2px solid var(--gc);background:radial-gradient(circle,color-mix(in srgb,var(--gc) 25%,#120c08),#0c0806);cursor:grab;padding:4px;touch-action:none}
 .bgem.empty{border:1px solid #2a2016;background:rgba(0,0,0,.25);cursor:default}
 .bgem.sel{outline:3px solid #ffd890}
+.bgem.off{opacity:.35;filter:grayscale(.7)}
+.wk{color:#ffd890;font-size:13px;margin-bottom:2px}
 @media (max-height:500px){.gemsP .tipcard:not(.hint){top:0;bottom:auto;left:auto;width:250px;padding:6px 8px}.gemsP .tipcard img{width:36px;height:36px}.link{padding:3px 8px}.sk{height:40px;min-width:120px}.sk img{width:32px;height:32px}.sock2{width:36px;height:36px}.gbag{grid-template-columns:repeat(auto-fill,minmax(42px,1fr))}}
 #dragGem{position:fixed;width:56px;height:56px;pointer-events:none;z-index:50;transform:translate(-50%,-50%) scale(1.15);filter:drop-shadow(0 6px 10px #000)}
 .treeP{display:grid;grid-template-columns:1fr minmax(200px,260px);gap:10px;height:100%}
@@ -499,7 +501,7 @@ function render3d(dt) {
   // hero
   const h = hero3; h.o.position.set(tx, pl.leapH || 0, tz); { const want = Math.atan2(Math.cos(pl.face), Math.sin(pl.face)); let d = want - h.o.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); h.o.rotation.y += d * Math.min(1, dt * (pl.cast ? 30 : 14)); }
   if (state === 'dead') { if (h.curName !== 'Death_A') play(h, 'Death_A', true); }
-  else if (pl.cast && pl.cast !== lastCast) { lastCast = pl.cast; const gm = pl.cast.gem, n = gm === 'cleave' ? '1H_Melee_Attack_Slice_Diagonal' : gm === 'leap' ? '2H_Melee_Attack_Chop' : gm === 'nova' || gm === 'raise' || gm === 'firestorm' ? 'Spellcasting' : 'Spellcast_Shoot'; const a = h.acts[n] || h.acts.Idle; play(h, n, true, Math.max(1, a.getClip().duration / Math.max(0.15, pl.cast.dur * 1.6)), 0.08); }
+  else if (pl.cast && pl.cast !== lastCast) { lastCast = pl.cast; const gm = pl.cast.gem, n = gm === 'cleave' ? (P.eq.weapon && P.eq.weapon.base === 'Rusted Greatsword' ? '2H_Melee_Attack_Slice' : '1H_Melee_Attack_Slice_Diagonal') : gm === 'whirl' ? '2H_Melee_Attack_Spin' : gm === 'slam' ? '2H_Melee_Attack_Chop' : gm === 'leap' ? '2H_Melee_Attack_Chop' : gm === 'nova' || gm === 'raise' || gm === 'firestorm' ? 'Spellcasting' : 'Spellcast_Shoot'; const a = h.acts[n] || h.acts.Idle; play(h, n, true, Math.max(1, a.getClip().duration / Math.max(0.15, pl.cast.dur * 1.6)), 0.08); }
   else if (pl.dashT > 0 && h.curName !== 'Dodge_Forward') play(h, 'Dodge_Forward', true, 1.8, 0.05);
   else if (!pl.cast && (h.once <= 0 || h.curName === 'Idle' || h.curName === 'Running_A')) play(h, Math.hypot(pl.vx, pl.vy) > 30 ? 'Running_A' : 'Idle');
   const spU = Math.hypot(pl.vx, pl.vy) * S3; if (h.curName === 'Running_A') legs(h, 'Running_A', spU); else noLean(h);
@@ -593,6 +595,8 @@ const SKILLS = {
   spark: { n: 'Spark', tags: ['spell', 'projectile', 'lightning'], el: 'light', base: 13, cast: 0.36, mana: 7, col: '#9fc8ff', d: 'Three sparks that wander and bounce off walls.' },
   firestorm: { n: 'Firestorm', tags: ['spell', 'area', 'fire'], el: 'fire', base: 15, cast: 0.6, mana: 16, col: '#ff5a2a', d: 'Fire rains on the target spot for a moment.' },
   raise: { n: 'Raise Skeletons', tags: ['spell', 'minion'], el: 'phys', base: 10, cast: 0.7, mana: 18, col: '#9ae07a', d: 'Two skeletons fight for you for 18 seconds (up to 4).' },
+  whirl: { n: 'Whirlwind', tags: ['attack', 'melee', 'area', 'phys'], el: 'phys', base: 22, cast: 0.32, mana: 6, col: '#d8e0f0', d: 'Spin your blade and hit everything around you.' },
+  slam: { n: 'Ground Slam', tags: ['attack', 'melee', 'area', 'phys'], el: 'phys', base: 30, cast: 0.5, mana: 8, col: '#e0b070', d: 'A shockwave that rolls forward through the ground and stuns.' },
   leap: { n: 'Leap Slam', tags: ['attack', 'melee', 'area', 'movement', 'phys'], el: 'phys', base: 34, cast: 0.25, mana: 10, col: '#ffcf6a', d: 'Jump to the target spot and smash the ground.' },
 };
 const SUPPORTS = {
@@ -675,12 +679,30 @@ function itemLines(it) { const L = []; for (const [k, v] of Object.entries(it.im
 
 // ---------- stats ----------
 let S = null;
+// the weapon decides the kind of skill: staff and wand cast spells, a sword uses melee attacks
+const weaponKind = () => { const b = P.eq.weapon ? P.eq.weapon.base : 'Ashwood Staff'; return b === 'Rusted Greatsword' ? 'attack' : 'spell'; };
+const skillOk = (gem) => SKILLS[gem].tags.includes(weaponKind());
+let lastKind = null;
+function fitSkillsToWeapon(announce) {
+  const kind = weaponKind(); if (kind === lastKind) return; const first = lastKind === null; lastKind = kind;
+  // skills that do not fit go to the gem bag (with their supports), fitting ones from the bag fill the empty slots
+  // a skill leaving keeps its supports with it, so they come back together
+  for (const s of P.slots) if (s.g && !skillOk(s.g)) { P.gemBag.push({ g: s.g, s: s.s.slice() }); s.g = null; s.s = [null, null]; }
+  for (const s of P.slots) if (!s.g) { const i = P.gemBag.findIndex((b) => b.g && skillOk(b.g)); if (i >= 0) { s.g = P.gemBag[i].g; s.s = (P.gemBag[i].s || [null, null]).map((sp) => sp && supportFits(sp, s.g) ? sp : null); P.gemBag.splice(i, 1); } }
+  // a sword always comes with its basic attack
+  if (kind === 'attack' && !P.slots.some((s) => s.g)) P.slots[0].g = 'cleave';
+  if (kind === 'spell' && !P.slots.some((s) => s.g)) P.slots[0].g = 'fireball';
+  // the main button gets the main skill
+  if (!P.slots[0].g) { const j = P.slots.findIndex((s) => s.g); if (j > 0) { const t = P.slots[0]; P.slots[0] = P.slots[j]; P.slots[j] = t; } }
+  if (!first && announce) { banner = { t: 0, a: kind === 'attack' ? 'SWORD IN HAND' : 'STAFF IN HAND', b: kind === 'attack' ? 'Melee skills: ' + P.slots.filter((s) => s.g).map((s) => SKILLS[s.g].n).join(', ') : 'Spells: ' + P.slots.filter((s) => s.g).map((s) => SKILLS[s.g].n).join(', ') }; sfx('lvl'); }
+}
 function calcStats() {
   const s = { life: 130 + P.lv * 10, mana: 60 + P.lv * 4, inc_spell: 0, inc_fire: 0, inc_cold: 0, inc_light: 0, inc_phys: 0, cast: 0, move: 0, crit: 5, lok: 0, mregen: 0, area: 0, proj: 0, chain1: 0, sp: new Set() };
   const add = (o) => { for (const [k, v] of Object.entries(o)) s[k] = (s[k] || 0) + v; };
   for (const k of SLOTS) { const it = P.eq[k]; if (!it) continue; add(it.imp); add(it.mods); if (it.sp) s.sp.add(it.sp); }
   for (const id of P.tree) add(TREE.n[id].st);
   S = s;
+  if (P && !previewing) fitSkillsToWeapon(true);
   if (pl) { pl.maxLife = s.life; pl.maxMana = s.mana; pl.life = Math.min(pl.life, s.life); pl.mana = Math.min(pl.mana, s.mana); }
 }
 const xpNeed = (lv) => Math.round(40 * Math.pow(lv, 1.5));
@@ -841,7 +863,7 @@ function dmgOf(gem, mul) {
   return sk.base * (1 + 0.07 * (P.lv - 1)) * (1 + inc / 100) * mul;
 }
 function startCast(i, aim) {
-  const slot = P.slots[i]; if (!slot.g || pl.cast || pl.dashT > 0 || pl.leap) return;
+  const slot = P.slots[i]; if (!slot.g || pl.cast || pl.dashT > 0 || pl.leap) return; if (!skillOk(slot.g)) return;
   const cost = manaCost(slot); if (pl.mana < cost) { if (!pl.oomT || T - pl.oomT > 1.2) { pl.oomT = T; floater(pl.x, pl.y - 60, 'Not enough mana', '#7fa8ff', 16); } return; }
   pl.mana -= cost; const sup = supOf(slot); let ct = SKILLS[slot.g].cast / (1 + S.cast / 100); if (sup.includes('faster')) ct *= 0.65;
   pl.cast = { i, t: 0, dur: ct, aim, gem: slot.g, sup }; pl.face = Math.atan2(aim.y - pl.y, aim.x - pl.x);
@@ -889,6 +911,12 @@ function execCast(c, echo) {
       allies.push({ x: solidAt(x, y) ? pl.x : x, y: solidAt(x, y) ? pl.y : y, vx: 0, vy: 0, r: 14, dmg: dmg * mul2, life: 18, atk: 0, face: ang, rise: 0.6, id: Math.random() });
       fx.push({ k: 'nova', x, y, r: 4, R: 46, t: 0, life: 0.45, col: '#9ae07a' });
     }
+  } else if (gem === 'whirl') {
+    sfx('cleave'); const R = 125 * Math.sqrt(area); fx.push({ k: 'slash', x: pl.x, y: pl.y - 10, a: T * 9, R: R * 0.8, t: 0, life: 0.25, col: '#c8d4ec' }); fx.push({ k: 'slash', x: pl.x, y: pl.y - 10, a: T * 9 + Math.PI, R: R * 0.8, t: 0, life: 0.25, col: '#c8d4ec' });
+    for (const m of mons) if (!m.dead && dist(m, pl) < R + m.r) hitMon(m, dmg, 'phys', addFire, ign, 120);
+  } else if (gem === 'slam') {
+    sfx('slam'); shake = Math.max(shake, 6); const L = 330 * Math.sqrt(area), hitS = new Set();
+    for (let k = 1; k <= 6; k++) delayed.push({ t: k * 0.05, f: () => { const d = L * k / 6, x = pl.x + Math.cos(ang) * d, y = pl.y + Math.sin(ang) * d; if (solidAt(x, y)) return; const w = 40 + k * 9; fx.push({ k: 'boom', x, y, r: 6, R: w, t: 0, life: 0.3, col: '#e0b070' }); for (const m of mons) if (!m.dead && !hitS.has(m) && Math.hypot(m.x - x, m.y - y) < w + m.r) { hitS.add(m); m.stun = 0.6; hitMon(m, dmg, 'phys', addFire, ign, 90); } } });
   } else if (gem === 'leap') {
     let tx = c.aim.x, ty = c.aim.y; const dd = Math.hypot(tx - pl.x, ty - pl.y); if (dd > 330) { tx = pl.x + (tx - pl.x) / dd * 330; ty = pl.y + (ty - pl.y) / dd * 330; }
     for (let k = 0; k < 8 && solidAt(tx, ty); k++) { tx = (tx + pl.x) / 2; ty = (ty + pl.y) / 2; }
@@ -973,7 +1001,7 @@ function monUpdate(m, dt) {
   if (m.dead) return;
   if (m.burn > 0) { m.burn -= dt; m.hp -= m.burnD * dt; if (Math.random() < dt * 8) fx.push({ k: 'p', x: m.x + (rnd() - 0.5) * m.r, y: m.y - m.r, vx: 0, vy: -60, t: 0, life: 0.4, col: '#ff8a2a', s: 3 }); if (m.hp <= 0) { killMon(m); return; } }
   if (m.aff.some((a) => a.k === 'regen')) m.hp = Math.min(m.max, m.hp + m.max * 0.03 * dt);
-  m.flash -= dt; m.chill -= dt; m.atk -= dt;
+  m.flash -= dt; m.chill -= dt; m.atk -= dt; if (m.stun > 0) { m.stun -= dt; m.vx *= 0.8; m.vy *= 0.8; m.x += m.vx * dt; m.y += m.vy * dt; collide(m); return; }
   const d = dist(m, pl);
   if (!m.aggro && d < (m.boss ? 520 : 470) && los(m, pl)) { m.aggro = true; if (!m.boss) for (const o of mons) if (!o.dead && !o.aggro && dist(o, m) < 220) o.aggro = true; }
   const sp = m.spd * (m.chill > 0 ? 0.55 : 1);
@@ -1080,7 +1108,8 @@ function pickUp(l, i) {
 // ---------- item card: shows what was picked up, compares it with what you wear, equips in one tap ----------
 const DELTA = [['life', 'Life'], ['mana', 'Mana'], ['inc_spell', '% Spell damage'], ['inc_fire', '% Fire damage'], ['inc_cold', '% Cold damage'], ['inc_light', '% Lightning damage'], ['inc_phys', '% Physical damage'], ['cast', '% Cast speed'], ['move', '% Move speed'], ['crit', '% Crit chance'], ['lok', ' Life on kill'], ['mregen', '% Mana regen'], ['area', '% Area'], ['proj', ' Projectile']];
 let cardItem = null, cardT = 0;
-function statsWith(slot, it) { const old = P.eq[slot]; P.eq[slot] = it; calcStats(); const o = { ...S }; P.eq[slot] = old; calcStats(); return o; }
+let previewing = false;
+function statsWith(slot, it) { previewing = true; const old = P.eq[slot]; P.eq[slot] = it; calcStats(); const o = { ...S }; P.eq[slot] = old; calcStats(); previewing = false; return o; }
 function showCard(it, equipped) {
   if (equipped && cardItem) { toast.push({ t: 0, s: 'Now worn: ' + it.name + ' (' + it.slot + ' slot was empty)', c: '#7be05a' }); return; }
   const el = $('#newItem'), col = ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][it.rar], cur = P.eq[it.slot];
@@ -1339,6 +1368,8 @@ function skillIcon(gem, x, y, r) {
   if (gem === 'spark') { g.fillStyle = c; for (const [x, y] of [[-r * 0.6, r * 0.3], [0, -r * 0.4], [r * 0.6, r * 0.2]]) { circ(x, y, r * 0.2); } g.strokeStyle = c; g.lineWidth = 2; g.beginPath(); g.moveTo(-r * 0.6, r * 0.3); g.lineTo(0, -r * 0.4); g.lineTo(r * 0.6, r * 0.2); g.stroke(); }
   if (gem === 'firestorm') { for (let i = 0; i < 3; i++) { g.fillStyle = c; circ(-r * 0.5 + i * r * 0.5, -r * 0.3 + (i % 2) * r * 0.5, r * 0.22); g.strokeStyle = '#ffd23a'; g.lineWidth = 2; g.beginPath(); g.moveTo(-r * 0.5 + i * r * 0.5 - r * 0.3, -r * 0.3 + (i % 2) * r * 0.5 - r * 0.4); g.lineTo(-r * 0.5 + i * r * 0.5, -r * 0.3 + (i % 2) * r * 0.5); g.stroke(); } }
   if (gem === 'raise') { g.fillStyle = c; circ(0, -r * 0.15, r * 0.55); g.fillRect(-r * 0.3, r * 0.25, r * 0.6, r * 0.35); g.fillStyle = '#1a1008'; circ(-r * 0.2, -r * 0.2, r * 0.14); circ(r * 0.2, -r * 0.2, r * 0.14); }
+  if (gem === 'whirl') { g.strokeStyle = c; g.lineWidth = 3; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(0, 0, r * (0.35 + i * 0.25), i, i + 4); g.stroke(); } }
+  if (gem === 'slam') { g.fillStyle = c; g.beginPath(); g.moveTo(-r, r * 0.5); g.lineTo(-r * 0.3, -r * 0.2); g.lineTo(0, r * 0.2); g.lineTo(r * 0.4, -r * 0.6); g.lineTo(r, r * 0.5); g.closePath(); g.fill(); }
   if (gem === 'leap') { g.strokeStyle = c; g.lineWidth = 3; g.beginPath(); g.moveTo(-r * 0.8, r * 0.5); g.quadraticCurveTo(0, -r * 1.2, r * 0.8, r * 0.5); g.stroke(); g.fillStyle = c; circ(r * 0.8, r * 0.5, r * 0.2); }
   g.restore();
 }
@@ -1469,11 +1500,11 @@ function renderPanel() {
         ${s.s.map((sp, j) => `<i class="chainl ${sp ? 'on' : ''}"></i><button class="sock2 ${slotCls(i, j)} ${sp ? 'full' : ''}" data-s="${i}" data-k="${j}" style="--gc:${sp ? SUPCOL[sp] : '#3a2c1e'}">${sp ? gemImg({ sup: sp }) : ''}</button>`).join('')}
         ${s.g ? `<span class="mana">💧${manaCost(s)}</span>` : ''}</div>`;
     }).join('');
-    const bag = P.gemBag.map((b, i) => `<button class="bgem${b === selGem ? ' sel' : ''}" data-g="${i}" style="--gc:${b.g ? SKILLS[b.g].col : SUPCOL[b.sup]}">${b.g ? `<img src="${skillIconUrl(b.g)}" alt="" draggable="false">` : gemImg(b)}</button>`).join('') + Array.from({ length: Math.max(0, 12 - P.gemBag.length) }, () => '<span class="bgem empty"></span>').join('');
+    const bag = P.gemBag.map((b, i) => `<button class="bgem${b === selGem ? ' sel' : ''}${b.g && !skillOk(b.g) ? ' off' : ''}" data-g="${i}" style="--gc:${b.g ? SKILLS[b.g].col : SUPCOL[b.sup]}">${b.g ? `<img src="${skillIconUrl(b.g)}" alt="" draggable="false">` : gemImg(b)}</button>`).join('') + Array.from({ length: Math.max(0, 12 - P.gemBag.length) }, () => '<span class="bgem empty"></span>').join('');
     const card = selGem ? (selGem.g ? `<div class="tipcard"><div class="top"><img src="${skillIconUrl(selGem.g)}" alt=""><div style="flex:1"><h4 style="color:${SKILLS[selGem.g].col}">${SKILLS[selGem.g].n}</h4><div class="ln" style="color:#7a6a52">Skill gem · ${SKILLS[selGem.g].tags.join(' · ')}</div></div><button class="btn small" id="tcX">✕</button></div><div class="ln" style="margin-top:6px">${SKILLS[selGem.g].d}</div><div class="ln" style="color:#ffd890;margin-top:4px">Now tap a big glowing slot ↑</div></div>`
       : `<div class="tipcard"><div class="top">${gemImg(selGem)}<div style="flex:1"><h4 style="color:${SUPCOL[selGem.sup]}">${SUPPORTS[selGem.sup].n}</h4><div class="ln" style="color:#7a6a52">Support gem · works with ${SUPPORTS[selGem.sup].need.join(' or ') || 'any skill'}</div></div><button class="btn small" id="tcX">✕</button></div><div class="ln" style="margin-top:6px">${SUPPORTS[selGem.sup].d}</div><div class="ln" style="color:#ffd890;margin-top:4px">Now tap a small glowing socket ↑</div></div>`)
       : '<div class="tipcard hint">Tap or drag a gem into a socket. Big slot = skill, small sockets = supports that change it. Tap a socketed gem to take it out.</div>';
-    pb.innerHTML = `<div class="gemsP"><div class="links">${rows}</div><div class="bagT">💎 Gem bag</div><div class="gbag">${bag}</div>${card}</div>`;
+    pb.innerHTML = `<div class="gemsP"><div class="wk">${weaponKind() === 'attack' ? '⚔ Sword in hand: melee skills only (Cleave, Whirlwind, Ground Slam, Leap Slam)' : '🪄 Staff or wand in hand: spells only (Fireball, Ice Nova, Arc, Spark, Firestorm, Raise Skeletons)'}</div><div class="links">${rows}</div><div class="bagT">💎 Gem bag</div><div class="gbag">${bag}</div>${card}</div>`;
     pb.querySelectorAll('[data-g]').forEach((d) => { d.onclick = () => { if (suppressClick) return; const b = P.gemBag[+d.dataset.g]; selGem = selGem === b ? null : b; renderPanel(); }; d.onpointerdown = (e) => gemDragStart(e, P.gemBag[+d.dataset.g], d); });
     pb.querySelectorAll('[data-s]').forEach((d) => d.onclick = () => gemClick(+d.dataset.s, +d.dataset.k));
     const cx = $('#tcX'); if (cx) cx.onclick = () => { selGem = null; renderPanel(); };
@@ -1512,7 +1543,7 @@ function drawTree(c, sel) {
 }
 function slotCls(i, k) {
   if (!selGem) return ''; const s = P.slots[i];
-  if (k === -1) return selGem.g ? 'ok' : 'no';
+  if (k === -1) return selGem.g && skillOk(selGem.g) ? 'ok' : 'no';
   if (selGem.g || !s.g) return 'no'; return supportFits(selGem.sup, s.g) && !s.s.includes(selGem.sup) ? 'ok' : 'no';
 }
 function gemDragStart(e, gem, el) {
@@ -1525,6 +1556,7 @@ let suppressClick = false;
 function gemClick(i, k) {
   const s = P.slots[i];
   if (selGem) {
+    if (k === -1 && selGem.g && !skillOk(selGem.g)) { toast.push({ t: 0, s: SKILLS[selGem.g].n + (weaponKind() === 'attack' ? ' is a spell: equip a staff or wand' : ' is a melee attack: equip a sword'), c: '#ff9a7a' }); floater(pl.x, pl.y - 60, weaponKind() === 'attack' ? 'Needs a staff or wand' : 'Needs a sword', '#ff9a7a', 16); selGem = null; renderPanel(); return; }
     if (k === -1 && selGem.g) { P.gemBag.splice(P.gemBag.indexOf(selGem), 1); if (s.g) P.gemBag.push({ g: s.g }); s.g = selGem.g; s.s.forEach((sp, j) => { if (sp && !supportFits(sp, s.g)) { P.gemBag.push({ sup: sp }); s.s[j] = null; } }); }
     else if (k >= 0 && selGem.sup && s.g && supportFits(selGem.sup, s.g) && !s.s.includes(selGem.sup)) { P.gemBag.splice(P.gemBag.indexOf(selGem), 1); if (s.s[k]) P.gemBag.push({ sup: s.s[k] }); s.s[k] = selGem.sup; }
     else return;
@@ -1541,7 +1573,7 @@ $('#keys').innerHTML = TOUCH ? '<span>Left thumb: move</span><span>Skill buttons
 $('#go').onclick = () => { $('#start').classList.add('hide'); state = 'play'; setPads(true); sfx('lvl'); };
 $('#rez').onclick = () => { $('#dead').classList.add('hide'); const s = START(); pl.x = s.x; pl.y = s.y; pl.life = pl.maxLife; pl.mana = pl.maxMana; pl.flask = 3; projs = []; state = 'play'; setPads(true); };
 $('#next').onclick = () => { $('#done').classList.add('hide'); newMap(); state = 'play'; setPads(true); };
-P = load() || freshProgress(); for (const it of [...Object.values(P.eq), ...P.bag]) if (it) { if (it.base === 'Tattered Robe') { it.name = it.name.replace('Tattered Robe', 'Wizard Hat'); it.base = 'Wizard Hat'; } if (it.base === 'Scale Vest') { it.name = it.name.replace('Scale Vest', 'Iron Helm'); it.base = 'Iron Helm'; } } if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
+P = load() || freshProgress(); lastKind = null; for (const it of [...Object.values(P.eq), ...P.bag]) if (it) { if (it.base === 'Tattered Robe') { it.name = it.name.replace('Tattered Robe', 'Wizard Hat'); it.base = 'Wizard Hat'; } if (it.base === 'Scale Vest') { it.name = it.name.replace('Scale Vest', 'Iron Helm'); it.base = 'Iron Helm'; } } if (P.tip === undefined || (P.lv > 2 && P.tip < 6)) P.tip = P.lv > 2 ? 6 : 0; pl = mkPlayer(); calcStats(); pl.life = pl.maxLife; pl.mana = pl.maxMana; newMap(); setPads(false); $('#menuBar').classList.add('hide');
 metaInit();
 if (!TOUCH) { $('#charBtn').textContent = '🎒 GEAR (C)'; $('#gemBtn').textContent = '💎 GEMS (G)'; $('#treeBtn').textContent = '✦ PASSIVES (P)'; $('#questBtn').textContent = '📜 QUESTS'; }
 $('#go').disabled = false; $('#go').textContent = P.kills > 0 ? 'CONTINUE · TIER ' + P.tier : 'ENTER THE CRYPT';
