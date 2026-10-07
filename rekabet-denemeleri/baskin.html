@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Raid Rush</title>
+<style>
+html,body{margin:0;height:100%;background:#10161a;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block;margin:0 auto}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Competitive prototype 3 — RAID RUSH: a 3-minute live base-and-raid match, you against three bots on one map.
+// Every base earns gold. Spend it on turrets for your base or on raid squads sent at a rival. Raiders steal gold and must
+// carry it HOME: kill them on the way back and the loot drops for anyone to grab. The richest base at the bell wins.
+'use strict';
+const W = 1280, H = 720;
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let scale = 1;
+function fit() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), s = Math.min(innerWidth / W, innerHeight / H);
+  cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px'; cv.width = W * s * dpr; cv.height = H * s * dpr; scale = s * dpr;
+  cv.style.marginTop = Math.max(0, (innerHeight - H * s) / 2) + 'px';
+}
+addEventListener('resize', fit); fit();
+
+const COLS = ['#5aa8ff', '#ff6a6a', '#ffcf4a', '#7dea7d'];
+const NAMES = ['YOU', 'RED', 'GOLD', 'GREEN'];
+const SPOTS = [[230, 470], [1050, 470], [1050, 160], [230, 160]];
+const SQUAD = { cost: 30, n: 4 }, TURRET = { cost: 45, range: 140, rate: 0.7, dmg: 26 };
+const RAIDER = { hp: 60, speed: 85, carry: 12, dmg: 14 };
+let S;
+function reset(mode) {
+  S = { mode, time: 180, bases: [], units: [], loot: [], shots: [], texts: [], fx: [], sel: null, shake: 0 };
+  SPOTS.forEach(([x, y], i) => S.bases.push({ i, x, y, gold: 40, hp: 400, max: 400, turrets: [], botT: 2 + Math.random() * 3, alive: true, stolen: 0, lost: 0 }));
+}
+reset('title');
+const me = () => S.bases[0];
+function text(s, x, y, col, size, t) { S.texts.push({ s, x, y, col, size, t, max: t }); }
+
+function sendRaid(from, to) {
+  if (from.gold < SQUAD.cost || !to.alive || to === from) return false;
+  from.gold -= SQUAD.cost;
+  for (let k = 0; k < SQUAD.n; k++) {
+    const a = Math.random() * 6.28;
+    S.units.push({ o: from.i, to: to.i, x: from.x + Math.cos(a) * 30, y: from.y + Math.sin(a) * 30, hp: RAIDER.hp, gold: 0, state: 'go', cd: 0, hit: 0 });
+  }
+  return true;
+}
+function buildTurret(b) {
+  if (b.gold < TURRET.cost || b.turrets.length >= 6) return false;
+  b.gold -= TURRET.cost;
+  const a = (b.turrets.length / 6) * 6.28 + 0.3;
+  b.turrets.push({ x: b.x + Math.cos(a) * 70, y: b.y + Math.sin(a) * 55, cd: 0, hp: 150 });
+  return true;
+}
+
+function step(dt) {
+  if (S.mode !== 'play') return;
+  S.time -= dt;
+  for (const b of S.bases) if (b.alive) b.gold += 4 * dt;
+  // raiders
+  for (const u of S.units) {
+    u.hit = Math.max(0, u.hit - dt); u.cd -= dt;
+    const home = S.bases[u.o], tgt = S.bases[u.to];
+    if (u.state === 'go' && !tgt.alive) u.state = 'back';
+    const dest = u.state === 'go' ? tgt : home;
+    // loose loot on the way: grab it
+    for (const l of S.loot) if (!l.taken && Math.hypot(l.x - u.x, l.y - u.y) < 22 && u.gold < RAIDER.carry * 2) { u.gold += l.g; l.taken = true; u.state = 'back'; text('+' + Math.round(l.g), u.x, u.y - 16, COLS[u.o], 18, 0.6); }
+    // turrets in the way: hit them when close
+    let tur = null;
+    if (u.state === 'go') for (const t of tgt.turrets) if (t.hp > 0 && Math.hypot(t.x - u.x, t.y - u.y) < 34) tur = t;
+    const dx = dest.x - u.x, dy = dest.y - u.y, d = Math.hypot(dx, dy);
+    if (tur) { if (u.cd <= 0) { u.cd = 0.6; tur.hp -= RAIDER.dmg; } }
+    else if (u.state === 'go' && d < 40) {
+      // at the vault: steal what fits; an empty vault takes damage instead
+      if (u.cd <= 0) {
+        u.cd = 0.7;
+        const take = Math.min(RAIDER.carry, tgt.gold);
+        if (take >= 1) { tgt.gold -= take; tgt.lost += take; u.gold += take; u.state = 'back'; text('-' + Math.round(take), tgt.x, tgt.y - 50, '#ff8a8a', 20, 0.7); }
+        else { tgt.hp -= RAIDER.dmg; if (tgt.hp <= 0) eliminate(tgt, u.o); }
+      }
+    } else if (u.state === 'back' && d < 40) {
+      home.gold += u.gold; home.stolen += u.gold;
+      if (u.gold > 0) text('+' + Math.round(u.gold), home.x, home.y - 60, '#7dff9a', 22, 0.8);
+      u.done = true;
+    } else { u.x += (dx / d) * RAIDER.speed * dt * (u.gold > 0 ? 0.8 : 1); u.y += (dy / d) * RAIDER.speed * dt * (u.gold > 0 ? 0.8 : 1); }
+    if (!S.bases[u.o].alive) u.done = true;
+  }
+  // turrets shoot the nearest raider of another colour
+  for (const b of S.bases) for (const t of b.turrets) {
+    if (t.hp <= 0 || !b.alive) continue;
+    t.cd -= dt;
+    let best = null, bd = TURRET.range;
+    for (const u of S.units) if (u.o !== b.i && !u.done) { const d = Math.hypot(u.x - t.x, u.y - t.y); if (d < bd) { bd = d; best = u; } }
+    if (best && t.cd <= 0) { t.cd = TURRET.rate; S.shots.push({ x: t.x, y: t.y, u: best, col: COLS[b.i] }); }
+  }
+  for (const s of S.shots) {
+    const dx = s.u.x - s.x, dy = s.u.y - s.y, d = Math.hypot(dx, dy);
+    if (d < 12 || s.u.done) { s.done = true; if (!s.u.done) { s.u.hp -= TURRET.dmg; s.u.hit = 0.1; if (s.u.hp <= 0) { s.u.done = true; if (s.u.gold > 0) S.loot.push({ x: s.u.x, y: s.u.y, g: s.u.gold, t: 12 }); S.fx.push({ x: s.u.x, y: s.u.y, t: 0.3 }); } } }
+    else { s.x += (dx / d) * 600 * dt; s.y += (dy / d) * 600 * dt; }
+  }
+  S.shots = S.shots.filter((s) => !s.done);
+  S.units = S.units.filter((u) => !u.done);
+  for (const b of S.bases) b.turrets = b.turrets.filter((t) => t.hp > 0);
+  for (const l of S.loot) l.t -= dt; S.loot = S.loot.filter((l) => !l.taken && l.t > 0);
+  for (const t of S.texts) { t.t -= dt; t.y -= 26 * dt; } S.texts = S.texts.filter((t) => t.t > 0);
+  for (const f of S.fx) f.t -= dt; S.fx = S.fx.filter((f) => f.t > 0);
+  S.shake = Math.max(0, S.shake - dt * 30);
+  for (const b of S.bases) if (b.i > 0 && b.alive) bot(b, dt);
+  if (S.time <= 0 || !me().alive || S.bases.filter((b) => b.alive).length === 1) S.mode = 'over';
+}
+function eliminate(b, by) {
+  b.alive = false; S.shake = 16;
+  const winner = S.bases[by]; winner.gold += b.gold * 0.5; b.gold = 0;
+  text(NAMES[b.i] + ' IS OUT!', W / 2, 330, COLS[b.i], 48, 1.6);
+}
+
+// bots: turtle when raided, raid the richest base they can afford to, keep a small reserve
+function bot(b, dt) {
+  b.botT -= dt;
+  if (b.botT > 0) return;
+  b.botT = 1.2 + Math.random() * 2;
+  const incoming = S.units.filter((u) => u.to === b.i && u.state === 'go').length;
+  if ((incoming > 2 || b.turrets.length < 2) && b.gold >= TURRET.cost && b.turrets.length < 6 && Math.random() < 0.7) return void buildTurret(b);
+  if (b.gold >= SQUAD.cost + 10) {
+    const rivals = S.bases.filter((o) => o !== b && o.alive);
+    rivals.sort((x, y) => y.gold - x.gold - (x.turrets.length - y.turrets.length) * 8);
+    sendRaid(b, Math.random() < 0.7 ? rivals[0] : rivals[Math.floor(Math.random() * rivals.length)]);
+  }
+}
+
+// input: tap a rival base to send a squad there; TURRET button builds one at home
+const BTN = { x: 640, y: 660, w: 220, h: 60 };
+function toL(e) { const r = cv.getBoundingClientRect(); return [((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H]; }
+cv.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  const [x, y] = toL(e);
+  if (S.mode !== 'play') { reset('play'); return; }
+  if (x > BTN.x - BTN.w / 2 && x < BTN.x + BTN.w / 2 && y > BTN.y - BTN.h / 2 && y < BTN.y + BTN.h / 2) { if (!buildTurret(me())) text('NEED ' + TURRET.cost + ' GOLD', BTN.x, BTN.y - 50, '#ff8a8a', 22, 0.8); return; }
+  for (const b of S.bases) if (b.i > 0 && b.alive && Math.hypot(b.x - x, b.y - y) < 90) { if (sendRaid(me(), b)) text('RAID!', b.x, b.y - 80, COLS[0], 26, 0.7); else text('NEED ' + SQUAD.cost + ' GOLD', x, y - 40, '#ff8a8a', 22, 0.8); return; }
+});
+addEventListener('keydown', (e) => { if (e.code === 'KeyT' && S.mode === 'play') buildTurret(me()); const n = +e.key; if (n >= 1 && n <= 3 && S.mode === 'play') sendRaid(me(), S.bases[n]); });
+
+function draw() {
+  g.setTransform(scale, 0, 0, scale, 0, 0);
+  g.translate((Math.random() - 0.5) * S.shake, (Math.random() - 0.5) * S.shake);
+  g.fillStyle = '#2a3a2a'; g.fillRect(-20, -20, W + 40, H + 40);
+  g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 50;
+  for (const a of S.bases) for (const b of S.bases) if (a.i < b.i) { g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); }
+  for (const l of S.loot) { g.fillStyle = '#ffd36a'; g.beginPath(); g.arc(l.x, l.y, 7 + Math.sin(performance.now() / 150) * 2, 0, 7); g.fill(); }
+  for (const b of S.bases) {
+    g.globalAlpha = b.alive ? 1 : 0.3;
+    g.fillStyle = COLS[b.i]; g.globalAlpha *= 0.15; g.beginPath(); g.arc(b.x, b.y, 100, 0, 7); g.fill(); g.globalAlpha = b.alive ? 1 : 0.3;
+    g.fillStyle = '#3a2f26'; g.fillRect(b.x - 34, b.y - 30, 68, 60);
+    g.fillStyle = COLS[b.i]; g.fillRect(b.x - 34, b.y - 40, 68, 12);
+    g.fillStyle = '#ffd36a'; g.beginPath(); g.arc(b.x, b.y + 4, 10 + Math.min(14, b.gold / 25), 0, 7); g.fill();
+    g.fillStyle = '#fff'; g.font = '900 20px system-ui'; g.textAlign = 'center'; g.fillText(NAMES[b.i] + '  ' + Math.floor(b.gold), b.x, b.y + 62);
+    g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(b.x - 40, b.y - 56, 80, 7); g.fillStyle = COLS[b.i]; g.fillRect(b.x - 40, b.y - 56, 80 * Math.max(0, b.hp) / b.max, 7);
+    for (const t of b.turrets) { g.fillStyle = COLS[b.i]; g.fillRect(t.x - 10, t.y - 10, 20, 20); g.strokeStyle = '#111'; g.lineWidth = 2; g.strokeRect(t.x - 10, t.y - 10, 20, 20); g.strokeStyle = 'rgba(255,255,255,.07)'; g.beginPath(); g.arc(t.x, t.y, TURRET.range, 0, 7); g.stroke(); }
+    if (b.i > 0 && b.alive && S.mode === 'play') { g.strokeStyle = 'rgba(255,255,255,.25)'; g.setLineDash([6, 6]); g.beginPath(); g.arc(b.x, b.y, 88, 0, 7); g.stroke(); g.setLineDash([]); }
+    g.globalAlpha = 1;
+  }
+  for (const u of S.units) {
+    g.fillStyle = u.hit > 0 ? '#fff' : COLS[u.o]; g.beginPath(); g.arc(u.x, u.y, 8, 0, 7); g.fill();
+    if (u.gold > 0) { g.fillStyle = '#ffd36a'; g.beginPath(); g.arc(u.x, u.y - 11, 5, 0, 7); g.fill(); }
+  }
+  for (const s of S.shots) { g.fillStyle = s.col; g.beginPath(); g.arc(s.x, s.y, 4, 0, 7); g.fill(); }
+  for (const f of S.fx) { g.fillStyle = 'rgba(255,255,255,' + f.t * 3 + ')'; g.beginPath(); g.arc(f.x, f.y, 18 * (1.2 - f.t), 0, 7); g.fill(); }
+  g.setTransform(scale, 0, 0, scale, 0, 0);
+  for (const t of S.texts) { g.globalAlpha = Math.min(1, t.t / t.max * 2); g.fillStyle = t.col; g.font = '900 ' + t.size + 'px system-ui'; g.textAlign = 'center'; g.fillText(t.s, t.x, t.y); g.globalAlpha = 1; }
+  // top bar: timer and ranking
+  g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(W / 2 - 90, 6, 180, 44);
+  const tm = Math.max(0, Math.ceil(S.time)); g.fillStyle = '#fff'; g.font = '900 30px system-ui'; g.textAlign = 'center';
+  g.fillText(Math.floor(tm / 60) + ':' + String(tm % 60).padStart(2, '0'), W / 2, 40);
+  const rank = S.bases.slice().sort((a, b) => b.gold - a.gold);
+  rank.forEach((b, i) => { g.textAlign = 'left'; g.fillStyle = COLS[b.i]; g.font = '800 17px system-ui'; g.fillText((i + 1) + '. ' + NAMES[b.i] + '  ' + Math.floor(b.gold) + (b.alive ? '' : ' (out)'), W / 2 + 120, 22 + i * 19); });
+  // buttons
+  const ok = me().gold >= TURRET.cost;
+  g.fillStyle = ok ? '#2f5f9f' : '#2a3040'; g.fillRect(BTN.x - BTN.w / 2, BTN.y - BTN.h / 2, BTN.w, BTN.h);
+  g.fillStyle = '#fff'; g.font = '900 22px system-ui'; g.textAlign = 'center'; g.fillText('BUILD TURRET  ' + TURRET.cost, BTN.x, BTN.y + 8);
+  g.fillStyle = 'rgba(255,255,255,.6)'; g.font = '600 16px system-ui'; g.textAlign = 'left';
+  g.fillText('Tap a rival base to send 4 raiders (' + SQUAD.cost + ' gold). They steal gold and carry it home.', 20, H - 18);
+  if (S.mode !== 'play') {
+    g.fillStyle = 'rgba(6,8,10,.82)'; g.fillRect(0, 0, W, H); g.textAlign = 'center';
+    const win = S.mode === 'over' && rank[0].i === 0;
+    g.fillStyle = '#ffd36a'; g.font = '900 64px system-ui'; g.fillText(S.mode === 'title' ? 'RAID RUSH' : win ? 'RICHEST BASE - YOU WIN!' : NAMES[rank[0].i] + ' WINS', W / 2, 240);
+    g.fillStyle = '#fff'; g.font = '600 24px system-ui';
+    (S.mode === 'title' ? ['Four bases, one map, three minutes. The richest base wins.', 'Send raiders to steal gold - they must carry it home alive.', 'Build turrets so nobody steals yours.', 'Shot-down raiders drop their loot for anyone to grab.']
+      : ['Your gold: ' + Math.floor(me().gold) + '   stolen: ' + Math.floor(me().stolen) + '   lost: ' + Math.floor(me().lost)]).forEach((l, i) => g.fillText(l, W / 2, 310 + i * 36));
+    g.fillStyle = '#7dff9a'; g.font = '800 30px system-ui'; g.fillText('TAP TO ' + (S.mode === 'title' ? 'PLAY' : 'PLAY AGAIN'), W / 2, 520);
+  }
+}
+let last = performance.now();
+function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; step(dt); draw(); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
