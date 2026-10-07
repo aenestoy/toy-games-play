@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Yeni Oyun Denemeleri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Two-cartridge chooser: each prototype opens full screen (phones play them in portrait or landscape). */
+:root { --bg: #fff8e8; --fg: #2b1d0e; --muted: #7d6a50; --card: #ffffff; --line: #ecdcb8; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #1b1610; --fg: #f5ecdc; --muted: #b8a888; --card: #2a2218; --line: #4a3c28; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #1b1610; --fg: #f5ecdc; --muted: #b8a888; --card: #2a2218; --line: #4a3c28; color-scheme: dark; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: Fredoka, system-ui, sans-serif; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 22px 16px 32px; display: grid; gap: 16px; }
+h1 { margin: 0; font-size: clamp(26px, 6vw, 38px); }
+p { margin: 0; color: var(--muted); line-height: 1.45; }
+.games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 640px) { .games { grid-template-columns: 1fr; } }
+a.game { display: grid; gap: 8px; text-decoration: none; color: inherit; background: var(--card); border: 3px solid var(--line); border-radius: 20px; padding: 18px; }
+a.game:hover, a.game:focus-visible { border-color: var(--c); outline: none; }
+a.game b { font-size: 28px; color: var(--c); }
+a.game .from { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+a.game ul { margin: 0; padding-left: 18px; line-height: 1.5; }
+a.game .go { justify-self: start; margin-top: 4px; background: var(--c); color: #fff; font-weight: 700; padding: 10px 22px; border-radius: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Yeni oyun denemeleri</h1>
+  <p>Roblox'ta milyonlarca oyuncusu olan iki türün web için iyileştirilmiş hâli. İkisi de botlara karşı, telefonda ve bilgisayarda oynanır. Reklam düğmeleri şimdilik 2 saniyelik sahte reklamdır.</p>
+  <div class="games">
+    <a class="game" href="binek.html" style="--c:#f07b12">
+      <span class="from">Roblox: Ride A Pet + Steal An Egg</span>
+      <b>Egg Riders</b>
+      <ul>
+        <li>Hayvanına bin, uzağa git: uzaklaştıkça yumurta nadirleşir</li>
+        <li>Çatlamadan eve yetiştir, çıkan hayvana bin, daha uzağa git</li>
+        <li>Rakiplerin yumurtasını DASH ile çal (onlar da seninkini)</li>
+      </ul>
+      <span class="go">Oyna</span>
+    </a>
+    <a class="game" href="balik.html" style="--c:#2a86e0">
+      <span class="from">Roblox: Fisch + Fish It</span>
+      <b>Deep Hook</b>
+      <ul>
+        <li>Oltayı istediğin balığın üstüne yönlendir</li>
+        <li>Makara oyunuyla yakala, sat ya da akvaryumda para kazandır</li>
+        <li>Gece ve fırtınada özel balıklar, rakip teknelere karşı Derby</li>
+      </ul>
+      <span class="go">Oyna</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>
