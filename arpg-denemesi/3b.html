@@ -40,6 +40,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07050c;touch-action:n
 @media (max-width:620px){.gear{grid-template-columns:1fr}}
 @media (max-height:500px){.doll{min-height:0;height:calc(100% - 4px)}.cell.big{width:44px;height:44px}.grid{grid-template-columns:repeat(8,1fr);gap:3px}.gear{grid-template-columns:minmax(170px,230px) 1fr}}
 .doll{position:relative;border:1px solid #3a2c1e;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,rgba(120,80,40,.25),rgba(0,0,0,.35));min-height:300px}
+.dollC{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;border-radius:12px}
+.doll .turn{position:absolute;left:8px;bottom:6px;font-size:11px;color:#7a6a52;pointer-events:none;z-index:1}
+.slot{z-index:1}
+.cell.drop{outline:3px solid #7be05a;box-shadow:0 0 14px rgba(123,224,90,.7)}
 .doll .hero{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:88%;opacity:.95;pointer-events:none}
 .slot{position:absolute;transform:translate(-50%,0);display:grid;place-items:center}
 .slot span{position:absolute;font-size:22px;opacity:.35;pointer-events:none}
@@ -393,7 +397,7 @@ function wearGear(c) {
   c.inner.traverse((m) => { if (!m.isMesh) return; if (m.name === '2H_Staff') m.visible = wb === 'Ashwood Staff'; if (m.name === '1H_Wand') { m.visible = wb === 'Bone Wand'; if (m.visible && !c.wandMat) { m.material = toon(m.material, false).clone(); c.wandMat = 1; } } });
   // greatsword: the skeleton kit's blade in the right hand slot
   if (c.gear.sword) { c.gear.sword.parent && c.gear.sword.parent.remove(c.gear.sword); c.gear.sword = null; }
-  if (wb === 'Rusted Greatsword') { const s = wpn3.Skeleton_Blade.clone(true); s.scale.setScalar(1.35); s.traverse((m) => { if (m.isMesh) m.material = toon(m.material, false); }); const b = boneOf(c.inner, 'handslot.r'); if (b) { b.add(s); c.gear.sword = s; } }
+  if (wb === 'Rusted Greatsword') { const s = wpn3.Skeleton_Blade.clone(true); s.scale.setScalar(1.0); s.traverse((m) => { if (m.isMesh) m.material = toon(m.material, false); }); const b = boneOf(c.inner, 'handslot.r'); if (b) { b.add(s); c.gear.sword = s; } }
   // head piece
   const hb = eq.armor ? eq.armor.base : null, want = hb && HEADGEAR[hb] ? hb : null;
   if (c.gear.headKey !== want) {
@@ -447,6 +451,30 @@ function heroPortrait() {
   iconR.setSize(220, 300, false); const g2 = c.o; g2.rotation.y = 0.35; g2.updateMatrixWorld(true); g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); }); followHead(c); if (c.gear && c.gear.head) c.gear.head.position.y += 0.14;
   g2.traverse((o) => { if (o.isSkinnedMesh) o.skeleton.update(); }); const bx = new THREE.Box3(); g2.traverse((o) => { if (o.isMesh && o.visible) bx.expandByObject(o, true); }); const bc = bx.getCenter(new THREE.Vector3()), bh = bx.max.y - bx.min.y; const cam = new THREE.PerspectiveCamera(26, 220 / 300, 0.1, 80); cam.position.set(bc.x, bc.y + bh * 0.05, bc.z + bh * 0.62 / Math.tan(13 * Math.PI / 180)); cam.lookAt(bc);
   iconR.setClearColor(0x000000, 0); iconR.render(iconScene, cam); portraitUrl = iconR.domElement.toDataURL('image/png'); iconScene.remove(g2); if (c.gear && c.gear.head) iconScene.remove(c.gear.head); return portraitUrl;
+}
+
+// ---------- live 3D hero on the Gear page: idles, wears what you wear, drag to turn ----------
+const dollR = new THREE.WebGLRenderer({ antialias: true, alpha: true }); dollR.setPixelRatio(Math.min(2, devicePixelRatio || 1)); dollR.outputColorSpace = THREE.SRGBColorSpace; dollR.toneMapping = THREE.ACESFilmicToneMapping; dollR.toneMappingExposure = 1.25;
+const dollScene = new THREE.Scene(); dollScene.add(new THREE.HemisphereLight(0xfff0d8, 0x2a1a24, 1.5)); const dollKey = new THREE.DirectionalLight(0xffe0b0, 2.4); dollKey.position.set(2, 4, 5); const dollRim = new THREE.DirectionalLight(0x8aa0ff, 1.6); dollRim.position.set(-3, 3, -4); dollScene.add(dollKey, dollRim);
+const dollCam = new THREE.PerspectiveCamera(28, 0.75, 0.1, 60);
+let doll = null, dollYaw = 0.35, dollGk = '', dollOn = false;
+const dollFloor = new THREE.Mesh(new THREE.CircleGeometry(1.1, 40), new THREE.MeshBasicMaterial({ map: glowTex, color: 0xe8b860, transparent: true, opacity: 0.55, depthWrite: false })); dollFloor.rotation.x = -Math.PI / 2; dollScene.add(dollFloor);
+function dollMount(host) {
+  if (!doll) { doll = makeChar(gMage, ['2H_Staff', '1H_Wand', 'Mage_Cape'], null, null, 2.7); dollScene.add(doll.o); play(doll, 'Idle'); }
+  const cv3 = dollR.domElement; cv3.className = 'dollC'; host.prepend(cv3); dollOn = true;
+  let drag = null;
+  cv3.onpointerdown = (e) => { drag = { x: e.clientX, yaw: dollYaw }; cv3.setPointerCapture(e.pointerId); };
+  cv3.onpointermove = (e) => { if (drag) dollYaw = drag.yaw + (e.clientX - drag.x) * 0.012; };
+  cv3.onpointerup = cv3.onpointercancel = () => { drag = null; };
+}
+function dollRender(dt) {
+  if (!dollOn || !doll) return; const cv3 = dollR.domElement; if (!cv3.isConnected) { dollOn = false; return; }
+  const w = cv3.clientWidth, h = cv3.clientHeight; if (!w || !h) return;
+  if (cv3.width !== Math.round(w * dollR.getPixelRatio())) { dollR.setSize(w, h, false); dollCam.aspect = w / h; dollCam.updateProjectionMatrix(); }
+  const gk = SLOTS.map((k) => P.eq[k] ? P.eq[k].base : '-').join('|'); if (gk !== dollGk) { dollGk = gk; wearGear(doll); }
+  doll.o.rotation.y = dollYaw; doll.mixer.update(dt); doll.o.updateMatrixWorld(true); followHead(doll);
+  dollCam.position.set(0, 1.55, 7.4); dollCam.lookAt(0, 1.35, 0);
+  dollR.render(dollScene, dollCam);
 }
 
 // ---------- per frame ----------
@@ -533,7 +561,7 @@ function render3d(dt) {
   sprites.end(); rings.end(); discs.end(); arcs.end(); bolts.end(); beams.end(); bits.end();
   if (portal) { portal3.visible = portalGlow.visible = true; portal3.position.set(portal.x * S3, 1.7, portal.y * S3); portal3.rotation.y = T * 0.8; portalGlow.position.copy(portal3.position); portalGlow.scale.setScalar(4.5 + Math.sin(T * 4) * 0.3); FX_L[2].position.copy(portal3.position); FX_L[2].color.set('#a070ff'); FX_L[2].intensity = 35; }
   else portal3.visible = portalGlow.visible = false;
-  R3.render(scene3, cam3);
+  if (state === 'panel') dollRender(dt); else R3.render(scene3, cam3);
 }
 // ===== end of the 3D layer =====
 
@@ -1379,6 +1407,7 @@ $('#px').onclick = closePanel; document.querySelectorAll('#menuBar .btn').forEac
 document.querySelectorAll('.tab').forEach((b) => b.onclick = () => { tab = b.dataset.t; selItem = null; selGem = null; renderPanel(); });
 $('#panel').addEventListener('pointerdown', (e) => { if (e.target.id === 'panel') closePanel(); });
 
+let gearDragged = false;
 function better(it) { if (!it || !P.bag.includes(it)) return false; const a = statsWith(it.slot, P.eq[it.slot]), b2 = statsWith(it.slot, it); let sc = 0; for (const [k] of DELTA) sc += ((b2[k] || 0) - (a[k] || 0)) * (k === 'life' || k === 'mana' ? 0.5 : 1); return sc > 0; }
 function itemCardHTML(it) {
   const col = ['#d8d8d8', '#8f9cff', '#ffef6a', '#ff9a3a'][it.rar], inBag = P.bag.includes(it), cur = P.eq[it.slot];
@@ -1405,13 +1434,26 @@ function renderPanel() {
     const SLOTICON = { weapon: '⚔', armor: '⛑', ring: '◯', amulet: '❖', boots: '👢' };
     const st = [['❤', S.life, '#ff6a6a'], ['💧', S.mana, '#7fa8ff'], ['✦', S.inc_spell + '%', '#d8b8ff'], ['🔥', S.inc_fire + '%', '#ff9a4a'], ['❄', S.inc_cold + '%', '#9fe0ff'], ['⚡', S.inc_light + '%', '#e8f0ff'], ['🗡', S.inc_phys + '%', '#f0e6d0'], ['⏩', S.cast + '%', '#c8e0a0'], ['👟', S.move + '%', '#c8c8c8'], ['🎯', S.crit + '%', '#ffd890']];
     pb.innerHTML = `<div class="gear">
-      <div class="doll"><img class="hero" src="${heroPortrait()}" alt="">${SLOTS.map((k) => `<div class="slot" style="${SLOTPOS[k]}">${cell(P.eq[k], `data-eq="${k}"`, 'big')}<span>${P.eq[k] ? '' : SLOTICON[k]}</span></div>`).join('')}</div>
+      <div class="doll" id="dollHost"><span class="turn">⟲ drag to turn</span>${SLOTS.map((k) => `<div class="slot" style="${SLOTPOS[k]}">${cell(P.eq[k], `data-eq="${k}"`, 'big')}<span>${P.eq[k] ? '' : SLOTICON[k]}</span></div>`).join('')}</div>
       <div class="side"><div class="shards">◆ <b>${P.shards || 0}</b><small>shards</small><span class="bagn">${P.bag.length}/30</span></div>
         <div class="grid">${Array.from({ length: 30 }, (_, i) => cell(P.bag[i], `data-b="${i}"`)).join('')}</div>
         <div class="stats">${st.map(([i, v, c]) => `<span style="color:${c}">${i} ${v}</span>`).join('')}</div></div>
-      ${selItem ? itemCardHTML(selItem) : '<div class="tipcard hint">Tap an item to see it. ▲ = better than what you wear.</div>'}
+      ${selItem ? itemCardHTML(selItem) : `<div class="tipcard hint">${TOUCH ? 'Tap an item to see it · double-tap or drag it onto your hero to wear it' : 'Click an item to see it · double-click, right-click or drag it onto your hero to wear it · double-click a worn item to take it off'} · ▲ = better than what you wear</div>`}
     </div>`;
-    pb.querySelectorAll('[data-b]').forEach((d) => d.onclick = () => { const it = P.bag[+d.dataset.b]; if (it) { selItem = it === selItem ? null : it; renderPanel(); } });
+    dollMount($('#dollHost'));
+    const equipIt = (it) => { if (!it || !P.bag.includes(it)) return; const old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; sfx('rare'); selItem = null; renderPanel(); };
+    const unequip = (k) => { const it = P.eq[k]; if (!it || P.bag.length >= 30) return; P.eq[k] = null; P.bag.push(it); calcStats(); sfx('drop'); selItem = null; renderPanel(); };
+    pb.querySelectorAll('[data-b]').forEach((d) => {
+      const it = P.bag[+d.dataset.b]; if (!it) return;
+      d.onclick = () => { if (gearDragged) return; selItem = it === selItem ? null : it; renderPanel(); };
+      d.ondblclick = () => equipIt(it);
+      d.oncontextmenu = (e) => { e.preventDefault(); equipIt(it); };
+      d.onpointerdown = (e) => { if (e.button !== 0) return; const sx = e.clientX, sy = e.clientY; let ghost = null;
+        const mv = (ev) => { if (!ghost && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return; if (!ghost) { gearDragged = true; ghost = d.querySelector('img').cloneNode(); ghost.id = 'dragGem'; document.body.appendChild(ghost); pb.querySelector(`[data-eq="${it.slot}"]`).classList.add('drop'); } ghost.style.left = ev.clientX + 'px'; ghost.style.top = ev.clientY + 'px'; };
+        const upf = (ev) => { removeEventListener('pointermove', mv); removeEventListener('pointerup', upf); setTimeout(() => { gearDragged = false; }, 30); if (!ghost) return; ghost.remove(); const t = document.elementFromPoint(ev.clientX, ev.clientY); if (t && (t.closest(`[data-eq="${it.slot}"]`) || t.closest('#dollHost'))) equipIt(it); else renderPanel(); };
+        addEventListener('pointermove', mv); addEventListener('pointerup', upf); };
+    });
+    pb.querySelectorAll('[data-eq]').forEach((d) => { d.ondblclick = () => unequip(d.dataset.eq); d.oncontextmenu = (e) => { e.preventDefault(); unequip(d.dataset.eq); }; });
     pb.querySelectorAll('[data-eq]').forEach((d) => d.onclick = () => { const it = P.eq[d.dataset.eq]; if (it) { selItem = it === selItem ? null : it; renderPanel(); } });
     const eb = $('#eqB'); if (eb) eb.onclick = () => { const it = selItem, old = P.eq[it.slot]; P.bag.splice(P.bag.indexOf(it), 1); if (old) P.bag.push(old); P.eq[it.slot] = it; calcStats(); tipDone.equip = 1; sfx('rare'); selItem = null; renderPanel(); };
     const db = $('#drB'); if (db) db.onclick = () => { P.bag.splice(P.bag.indexOf(selItem), 1); selItem = null; renderPanel(); };
