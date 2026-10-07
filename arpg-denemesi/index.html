@@ -359,7 +359,7 @@ function startCast(i, aim) {
   const slot = P.slots[i]; if (!slot.g || pl.cast || pl.dashT > 0) return;
   const cost = manaCost(slot); if (pl.mana < cost) { if (!pl.oomT || T - pl.oomT > 1.2) { pl.oomT = T; floater(pl.x, pl.y - 60, 'Not enough mana', '#7fa8ff', 16); } return; }
   pl.mana -= cost; const sup = supOf(slot); let ct = SKILLS[slot.g].cast / (1 + S.cast / 100); if (sup.includes('faster')) ct *= 0.65;
-  pl.cast = { i, t: 0, dur: ct, aim, gem: slot.g, sup }; pl.face = Math.atan2(aim.y - pl.y, aim.x - pl.x);
+  pl.cast = { i, t: 0, dur: ct, aim, gem: slot.g, sup }; if (!pl.vx && !pl.vy && TOUCH) pl.face = Math.atan2(aim.y - pl.y, aim.x - pl.x);
 }
 function execCast(c, echo) {
   const gem = c.gem, sup = c.sup, has = (k) => sup.includes(k), sk = SKILLS[gem];
