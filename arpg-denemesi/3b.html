@@ -977,13 +977,13 @@ function killMon(m) {
   for (let i = 0; i < 12; i++) { const a = rnd() * TAU, s = 60 + rnd() * 160; fx.push({ k: 'p', x: m.x, y: m.y - 14, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 60, t: 0, life: 0.5, col: m.d.col, s: 3 + rnd() * 3 }); }
   if (m.d.burst || m.aff.some((a) => a.k === 'volatile')) { const x = m.x, y = m.y; fx.push({ k: 'warn', x, y, R: 90, t: 0, life: 0.6 }); delayed.push({ t: 0.6, f: () => { fx.push({ k: 'boom', x, y, r: 10, R: 90, t: 0, life: 0.35, col: '#a87ac8' }); sfx('boom'); if (Math.hypot(pl.x - x, pl.y - y) < 90 + pl.r) hurtPl(m.dmg); } }); }
   // loot
-  const n = m.boss ? 5 : m.rar === 2 ? ri(2, 3) : m.rar === 1 ? (rnd() < 0.8 ? 1 : 0) + (rnd() < 0.2 ? 1 : 0) : (rnd() < 0.2 ? 1 : 0);
+  const n = m.boss ? 4 : m.rar === 2 ? ri(1, 2) : m.rar === 1 ? (rnd() < 0.35 ? 1 : 0) : (rnd() < 0.025 ? 1 : 0);
   for (let i = 0; i < n; i++) dropItem(m.x + (rnd() - 0.5) * 60, m.y + (rnd() - 0.5) * 40, m.boss && i === 0 ? 2 : -1, m.boss);
-  if (rnd() < (m.boss ? 1 : m.rar === 2 ? 0.3 : m.rar ? 0.12 : 0.03)) dropGem(m.x + (rnd() - 0.5) * 50, m.y + (rnd() - 0.5) * 40);
+  if (rnd() < (m.boss ? 1 : m.rar === 2 ? 0.25 : m.rar ? 0.08 : 0.012)) dropGem(m.x + (rnd() - 0.5) * 50, m.y + (rnd() - 0.5) * 40);
   if (m.boss) { portal = { x: m.x, y: m.y + 40, t: 0 }; banner = { t: 0, a: 'THE HOLLOW KING FALLS', b: 'A rift opens: step into it' }; sfx('uni'); shake = 14; }
 }
 function dropItem(x, y, minRar, isBoss) {
-  const roll = rnd(), tb = 0.01 * (P.tier - 1); let rar = roll < 0.02 + tb + (isBoss ? 0.3 : 0) ? 3 : roll < 0.2 + tb * 2 ? 2 : roll < 0.62 ? 1 : 0; if (rar < minRar) rar = minRar;
+  const roll = rnd(), tb = 0.01 * (P.tier - 1); let rar = roll < 0.015 + tb + (isBoss ? 0.2 : 0) ? 3 : roll < 0.22 + tb * 2 ? 2 : roll < 0.8 ? 1 : 0; if (rar < minRar) rar = minRar;
   if (rar === 0 && rnd() < 0.5) return;
   const it = rar === 3 ? mkUnique() : mkItem(pick(SLOTS), rar, P.tier);
   loot.push({ x, y, it, t: 0 }); if (rar >= 2) sfx(rar === 3 ? 'uni' : 'rare');
