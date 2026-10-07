@@ -125,13 +125,14 @@ const glowTex = (() => { const c = document.createElement('canvas'); c.width = c
 
 // ---------- assets ----------
 const loader3 = new GLTFLoader(); const AS = '../3b-deneme/assets/';
-let loaded3 = 0; const TOTAL3 = 25;
+let loaded3 = 0; const TOTAL3 = 26;
 const ld = (u) => new Promise((res, rej) => loader3.load(AS + u, (g) => { loaded3++; const b = document.getElementById('go'); if (b && b.disabled) b.textContent = 'LOADING ' + Math.round(loaded3 / TOTAL3 * 100) + '%'; res(g); }, undefined, rej));
 const DN = ['floor_tile_large', 'floor_tile_large_rocks', 'floor_tile_small_decorated', 'wall', 'wall_cracked', 'wall_arched', 'torch_mounted', 'barrel_large', 'barrel_small', 'crates_stacked', 'candle_triple', 'rubble_large', 'box_small', 'pillar', 'chest_gold', 'banner_patternA_red'];
-const [gMage, gWar, gMin, gRog, gSMage, wpn3, dn3] = await Promise.all([
+const [gMage, gWar, gMin, gRog, gSMage, wpn3, dn3, gKnight] = await Promise.all([
   ld('kk-mage.glb'), ld('kk-skeleton_warrior.glb'), ld('kk-skeleton_minion.glb'), ld('kk-skeleton_rogue.glb'), ld('kk-skeleton_mage.glb'),
   Promise.all(['Skeleton_Blade', 'Skeleton_Axe', 'Skeleton_Staff', 'Skeleton_Shield_Small_A', 'Skeleton_Crossbow'].map((n) => ld('silah/' + n + '.gltf').then((g) => [n, g.scene]))).then(Object.fromEntries),
   Promise.all(DN.map((n) => ld('dungeon/' + n + '.glb').then((g) => [n, g.scene]))).then(Object.fromEntries),
+  ld('kk-knight.glb'),
 ]);
 const GEAR = /Sword|Shield|Staff|Wand|Spellbook|Axe|Mug|Knife|Crossbow|Throwable|Helmet|Hat|Cape|Cloak|Hood/;
 // GLTFLoader strips '.' from node names: 'handslot.r' is 'handslotr' in three.js
@@ -233,6 +234,63 @@ const portalGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, col
 const C3 = (h) => new THREE.Color(h);
 function spr(x, y, h, size, col, op) { const s = sprites.get(); s.position.set(x * S3, h, y * S3); s.scale.setScalar(size); s.material.color.set(col); s.material.opacity = op; return s; }
 
+// ---------- loot on the floor: a small model of the item, a light pillar and a floor glow by rarity ----------
+const RCOL = ['#c8c8c8', '#7f8cff', '#ffef6a', '#ff8a2a'];
+const beamTex = (() => { const c = document.createElement('canvas'); c.width = 8; c.height = 128; const t = c.getContext('2d'); const gr = t.createLinearGradient(0, 128, 0, 0); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); t.fillStyle = gr; t.fillRect(0, 0, 8, 128); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx; })();
+function protoFrom(src, name, size) {
+  src.scene.updateMatrixWorld(true); let f = null; src.scene.traverse((o) => { if (!f && o.isMesh && o.name === name) f = o; }); if (!f) return null;
+  const geo = f.geometry.clone(); if (geo.attributes.skinIndex) { geo.deleteAttribute('skinIndex'); geo.deleteAttribute('skinWeight'); }
+  geo.applyMatrix4(f.matrixWorld); geo.computeBoundingBox();
+  const c = geo.boundingBox.getCenter(new THREE.Vector3()), sz = geo.boundingBox.getSize(new THREE.Vector3()); geo.translate(-c.x, -c.y, -c.z); const k = size / Math.max(sz.x, sz.y, sz.z); geo.scale(k, k, k);
+  const mat = toon(f.material, false);
+  return () => new THREE.Mesh(geo, mat);
+}
+const gold = new THREE.MeshToonMaterial({ color: 0xe8b850, gradientMap: RAMP, emissive: 0x3a2400 });
+const gemMat = (col, k = 0.55) => new THREE.MeshToonMaterial({ color: col, gradientMap: RAMP, emissive: new THREE.Color(col).multiplyScalar(k) });
+const PROTO = {
+  staff: protoFrom(gMage, '2H_Staff', 1.5), wand: protoFrom(gMage, '1H_Wand', 0.9), sword: protoFrom(gKnight, '2H_Sword', 1.5),
+  helmet: protoFrom(gKnight, 'Knight_Helmet', 0.75), hat: protoFrom(gMage, 'Mage_Hat', 0.9),
+  ring: (col) => { const g = new THREE.Group(); const r = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.065, 10, 28), gold); r.rotation.x = Math.PI / 2.4; g.add(r); const s = new THREE.Mesh(new THREE.OctahedronGeometry(0.11), gemMat(col)); s.position.set(0, 0.06, -0.24); g.add(s); return g; },
+  amulet: (col) => { const g = new THREE.Group(); const r = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.025, 6, 32), gold); r.rotation.x = Math.PI / 2.2; g.add(r); const s = new THREE.Mesh(new THREE.OctahedronGeometry(0.17), gemMat(col)); s.scale.y = 1.4; s.position.set(0, 0, 0.33); g.add(s); return g; },
+  boots: (col) => { const g = new THREE.Group(); const m = new THREE.MeshToonMaterial({ color: col, gradientMap: RAMP }); for (const x of [-0.16, 0.16]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.34, 0.2), m); leg.position.set(x, 0.17, 0); const toe = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.13, 0.32), m); toe.position.set(x, 0.065, 0.12); const sole = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.42), gold); sole.position.set(x, 0, 0.07); g.add(leg, toe, sole); } return g; },
+  crystal: (col) => { const g = new THREE.Group(); const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.26), gemMat(col, 0.9)); m.scale.y = 1.7; g.add(m); return g; },
+};
+const BASE3 = { 'Ashwood Staff': ['staff'], 'Rusted Greatsword': ['sword'], 'Bone Wand': ['wand'], 'Tattered Robe': ['hat'], 'Scale Vest': ['helmet'], 'Ruby Ring': ['ring', '#ff3a4a'], 'Sapphire Ring': ['ring', '#3a8aff'], 'Topaz Ring': ['ring', '#ffd23a'], 'Iron Ring': ['ring', '#c8c8d8'], 'Jade Amulet': ['amulet', '#3ad88a'], 'Lapis Amulet': ['amulet', '#3a5aff'], 'Wool Shoes': ['boots', '#b8a890'], 'Leather Boots': ['boots', '#7a4a2a'] };
+const lootObjs = new Map(); let lootFrame = 0;
+function makeLoot(l) {
+  const isGem = !!l.gem, rar = isGem ? 2 : l.it.rar, col = isGem ? (l.gem.g ? SKILLS[l.gem.g].col : '#e8e8f0') : RCOL[rar];
+  const root = new THREE.Group(), spin = new THREE.Group(); root.add(spin);
+  let item = null;
+  if (isGem) item = PROTO.crystal(col);
+  else { const [k, c2] = BASE3[l.it.base] || ['crystal']; const f = PROTO[k]; item = !f ? PROTO.crystal(col) : f.length ? f(c2 || col) : f(); }
+  if (!isGem && l.it.rar === 3) item.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); m.material.emissive = new THREE.Color('#6a3000'); } });
+  spin.add(item);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: glowTex, color: col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  glow.rotation.x = -Math.PI / 2; glow.position.y = 0.05; glow.scale.setScalar([1.2, 1.7, 2.4, 3.2][rar]); root.add(glow);
+  const beams = [];
+  if (rar >= 1) for (const [w, h, op] of rar === 3 ? [[0.34, 9, 0.55], [0.9, 7, 0.22]] : rar === 2 ? [[0.26, 7, 0.45], [0.6, 5, 0.16]] : [[0.16, 3.2, 0.35]]) {
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.6, w, h, 12, 1, true), new THREE.MeshBasicMaterial({ map: beamTex, color: col, transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    b.position.y = h / 2; b.userData.op = op; root.add(b); beams.push(b);
+  }
+  scene3.add(root); return { root, spin, glow, beams, col, rar, seed: Math.random() * 9 };
+}
+function syncLoot(dt) {
+  lootFrame++;
+  for (const l of loot) {
+    let o = lootObjs.get(l); if (!o) { o = makeLoot(l); lootObjs.set(l, o); }
+    o.frame = lootFrame;
+    // pops out of the monster, falls with a little bounce, then bobs and turns slowly
+    const t = l.t, k = Math.min(1, t / 0.45), arc = t < 0.45 ? Math.sin(Math.PI * k) * 1.8 : t < 0.65 ? Math.sin(Math.PI * (t - 0.45) / 0.2) * 0.25 : 0;
+    o.root.position.set(l.x * S3, 0, l.y * S3); o.spin.position.y = 0.6 + arc + (t > 0.65 ? Math.sin(T * 2.2 + o.seed) * 0.06 : 0);
+    o.spin.rotation.y += dt * (t < 0.45 ? 9 : 0.9); o.spin.rotation.z = t < 0.45 ? k * 6 : 0.25;
+    o.spin.scale.setScalar(1.7 * (t < 0.5 ? 0.4 + k * 0.6 : 1));
+    o.glow.material.opacity = Math.min(1, t * 2) * (0.75 + 0.25 * Math.sin(T * 3 + o.seed));
+    for (const b of o.beams) { b.material.opacity = b.userData.op * Math.min(1, Math.max(0, t - 0.35) * 3) * (0.85 + 0.15 * Math.sin(T * 4 + o.seed)); b.rotation.y += dt * 0.6; }
+    if (o.rar >= 2 && t > 0.5) for (let i = 0; i < 2; i++) { const ph = (T * 0.45 + o.seed + i * 0.5) % 1, a = o.seed * 7 + i * 3 + T * 0.3; spr(l.x + Math.cos(a) * 14, l.y + Math.sin(a) * 14, 0.4 + ph * 4, 0.35 * (1 - ph), o.col, 1 - ph); }
+  }
+  for (const [l, o] of lootObjs) if (o.frame !== lootFrame) { scene3.remove(o.root); for (const m of [o.glow, ...o.beams]) { m.geometry.dispose(); m.material.dispose(); } lootObjs.delete(l); }
+}
+
 // ---------- per frame ----------
 let lastCast = null, mixTick = 0, camZoom = 1;
 // mouse wheel zooms the camera between close and far
@@ -304,11 +362,7 @@ function render3d(dt) {
   }
   for (let i = fl; i < 3; i++) FX_L[i].intensity = 0;
   for (const m of mons) if (!m.dead && m.c3 && m.burn > 0 && Math.random() < 0.5) spr(m.x + (rnd() - 0.5) * 20, m.y, 1 + rnd() * 1.5, 0.5, '#ff7a2a', 0.8);
-  for (const l of loot) {
-    const isGem = !!l.gem, rar = isGem ? 2 : l.it.rar, col = isGem ? '#5fe0c0' : ['#d8d8d8', '#8888ff', '#ffff77', '#ff9a3a'][rar];
-    const b = bits.get(); b.position.set(l.x * S3, 0.4 + Math.sin(T * 3 + l.x) * 0.08, l.y * S3); b.rotation.y = T * 2; b.material.color.set(col);
-    if (rar >= 2 || isGem) { const bm = beams.get(); bm.position.set(l.x * S3, 4.5, l.y * S3); bm.material.color.set(col); bm.material.opacity = 0.28 + 0.08 * Math.sin(T * 4 + l.x); spr(l.x, l.y, 0.4, 1.6, col, 0.6); }
-  }
+  syncLoot(dt);
   sprites.end(); rings.end(); discs.end(); arcs.end(); bolts.end(); beams.end(); bits.end();
   if (portal) { portal3.visible = portalGlow.visible = true; portal3.position.set(portal.x * S3, 1.7, portal.y * S3); portal3.rotation.y = T * 0.8; portalGlow.position.copy(portal3.position); portalGlow.scale.setScalar(4.5 + Math.sin(T * 4) * 0.3); FX_L[2].position.copy(portal3.position); FX_L[2].color.set('#a070ff'); FX_L[2].intensity = 35; }
   else portal3.visible = portalGlow.visible = false;
@@ -861,12 +915,18 @@ function draw() {
     else if (m.rar === 1) text(m.aff.map((a) => a.n).join(' '), x, y - 12, 11, '#8888ff', 'center', 'Fredoka', 3);
   }
   for (const l of loot) {
-    const [x, y0, ok] = toScreen(l.x, l.y, 0.9); if (!ok || x < -100 || x > W + 100 || y0 < -40 || y0 > H + 40) continue;
-    const isGem = !!l.gem, rar = isGem ? 2 : l.it.rar, col = isGem ? '#5fe0c0' : ['#d8d8d8', '#8888ff', '#ffff77', '#ff9a3a'][rar];
-    const name = isGem ? (l.gem.g ? SKILLS[l.gem.g].n : SUPPORTS[l.gem.sup].n) + (l.gem.g ? '' : ' Support') : l.it.name;
-    g.font = '600 13px Fredoka'; const w = g.measureText(name).width + 12, y = y0 - 18 - Math.max(0, 0.4 - l.t) * 40;
-    g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(x - w / 2, y - 10, w, 20); if (rar >= 2 || isGem) { g.strokeStyle = col; g.lineWidth = 1.5; g.strokeRect(x - w / 2, y - 10, w, 20); }
-    g.fillStyle = col; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(name, x, y + 1);
+    if (l.t < 0.45) continue;
+    const [x, y0, ok] = toScreen(l.x, l.y, 1.25); if (!ok || x < -120 || x > W + 120 || y0 < -40 || y0 > H + 40) continue;
+    const isGem = !!l.gem, rar = isGem ? 2 : l.it.rar, col = isGem ? '#5fe0c0' : ['#c8c8c8', '#8f9cff', '#ffef6a', '#ff9a3a'][rar];
+    const name = isGem ? (l.gem.g ? SKILLS[l.gem.g].n : SUPPORTS[l.gem.sup].n + ' Support') : l.it.name;
+    const fs = rar === 3 ? 15 : rar === 2 ? 14 : 12, font = rar >= 2 && !isGem ? `700 ${fs}px Cinzel, serif` : `600 ${fs}px Fredoka, sans-serif`;
+    g.font = font; const w = g.measureText(name).width + 18, h = fs + 10, y = y0 - 22, a = Math.min(1, (l.t - 0.45) * 4);
+    g.globalAlpha = a;
+    const gr = g.createLinearGradient(0, y - h / 2, 0, y + h / 2); gr.addColorStop(0, 'rgba(18,12,8,.92)'); gr.addColorStop(1, 'rgba(4,2,2,.92)'); g.fillStyle = gr; rrect(x - w / 2, y - h / 2, w, h, 3); g.fill();
+    if (rar >= 1 || isGem) { g.strokeStyle = col; g.lineWidth = rar === 3 ? 2 : 1.2; rrect(x - w / 2, y - h / 2, w, h, 3); g.stroke(); }
+    if (rar === 3) { g.strokeStyle = 'rgba(255,154,58,.35)'; g.lineWidth = 5; rrect(x - w / 2 - 2, y - h / 2 - 2, w + 4, h + 4, 4); g.stroke(); }
+    g.font = font; g.fillStyle = col; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(name, x, y + 1);
+    g.globalAlpha = 1;
   }
   for (const f of floats) { const [x, y, ok] = toScreen(f.x, f.y, 2.4); if (!ok) continue; g.globalAlpha = Math.min(1, (0.9 - f.t) * 3); text(f.s, x, y, f.size, f.col, 'center', 'Fredoka', 3); } g.globalAlpha = 1;
   if (pl.cast) { const [x, y] = toScreen(pl.x, pl.y, 0.1); const k = pl.cast.t / pl.cast.dur; g.strokeStyle = SKILLS[pl.cast.gem].col; g.lineWidth = 3; g.beginPath(); g.arc(x, y, 30, -Math.PI / 2, -Math.PI / 2 + TAU * k); g.stroke(); }
