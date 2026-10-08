@@ -23,7 +23,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .keys span{border:1px solid #4a3a28;border-radius:8px;padding:4px 8px;background:rgba(0,0,0,.35)}
 #pb{flex:1;overflow:auto;min-height:0}
 #panel{position:fixed;inset:0;display:grid;place-items:center;background:rgba(3,2,6,.78);padding:10px;overflow:auto;touch-action:pan-y}
-.pc{width:min(820px,100%);height:min(640px,94vh);display:flex;flex-direction:column;box-sizing:border-box;position:relative;background:linear-gradient(#1c140e,#120c08);border:1px solid #6a4e2a;border-radius:14px;box-shadow:0 0 40px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,200,120,.08);padding:12px}
+.pc{width:min(1100px,100%);height:min(880px,94vh);display:flex;flex-direction:column;box-sizing:border-box;position:relative;background:linear-gradient(#1c140e,#120c08);border:1px solid #6a4e2a;border-radius:14px;box-shadow:0 0 40px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,200,120,.08);padding:12px}
 .tabs{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
 .tab{font-family:Cinzel,serif;font-weight:800;border:1px solid #4a3a28;background:#160f0a;color:#b8a07a;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:14px}
 .tab[aria-selected="true"]{color:#ffd890;border-color:#c89a50;background:#2a1c10}
@@ -39,6 +39,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .gear>.doll{grid-row:1/span 2}
 .gear>.tipcard:not(.hint){position:static;grid-column:2;grid-row:2;box-shadow:none}
 .gear .grid{grid-template-columns:repeat(8,1fr);gap:4px}
+/* wide panels: hero | bag | item card side by side, so the card never pushes anything down */
+@media (min-width:1000px){.gear{grid-template-columns:minmax(230px,280px) minmax(0,1fr) 330px}.gear>.doll{grid-row:1}.gear>.tipcard:not(.hint),.gear>.tipcard.hint{grid-column:3;grid-row:1;align-self:start}}
 @media (max-width:620px){.gear{grid-template-columns:1fr;height:auto}.gear>.tipcard:not(.hint){position:static;grid-column:1;grid-row:auto}}
 @media (max-height:500px){.doll{min-height:0;height:calc(100% - 4px)}.cell.big{width:44px;height:44px}.grid{grid-template-columns:repeat(8,1fr);gap:3px}.gear{grid-template-columns:minmax(170px,230px) 1fr}}
 .doll{position:relative;border:1px solid #3a2c1e;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,rgba(120,80,40,.25),rgba(0,0,0,.35));min-height:390px}
@@ -174,6 +176,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .jrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.jd{display:flex;align-items:center;gap:5px;font-size:12px;color:#7a6a52}.jd i{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid #4a3a28;font-style:normal;font-size:11px}.jd.done{color:#9ad08a}.jd.done i{background:#2a5a20;border-color:#7be05a;color:#fff}.jd.next{color:#ffd890;font-weight:700}.jd.next i{border-color:#ffd890;box-shadow:0 0 8px #ffd890}
 .jmsg{color:#c8b898;margin:6px 0}
 .credits{font-size:10px;color:#6a5a48;margin:10px 0 0;line-height:1.4}
+.cell .noUse{position:absolute;left:3px;top:0;color:#ff6a5a;font-style:normal;font-size:13px;font-weight:700;text-shadow:0 0 4px #000}
+.clsCard .wts{color:#c8a870;font-size:11px}
 .pad img{width:66%;height:66%;pointer-events:none;filter:drop-shadow(0 1px 2px #000)}
 #pAuto{left:max(14px,env(safe-area-inset-left));bottom:max(80px,calc(env(safe-area-inset-bottom) + 80px));width:56px;height:34px;border-radius:17px;font-size:10px;opacity:.75}#pAuto.on{border-color:#ffd890;color:#ffd890;opacity:1}
 #pDash{right:max(196px,calc(env(safe-area-inset-right) + 196px));bottom:max(16px,env(safe-area-inset-bottom));width:52px;height:52px}
@@ -191,7 +195,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:11px;padding:6px 7px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-C9SN3ZCp.js"></script>
+  <script type="module" crossorigin src="./assets/index-BieHMWsC.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
