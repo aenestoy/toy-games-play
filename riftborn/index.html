@@ -178,6 +178,10 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .credits{font-size:10px;color:#6a5a48;margin:10px 0 0;line-height:1.4}
 .cell .noUse{position:absolute;left:3px;top:0;color:#ff6a5a;font-style:normal;font-size:13px;font-weight:700;text-shadow:0 0 4px #000}
 .clsCard .wts{color:#c8a870;font-size:11px}
+.shopP{display:grid;grid-template-columns:1fr 1fr;gap:10px}.shopP .wide{grid-column:1/-1}.shopHead{grid-column:1/-1;display:flex;gap:18px;align-items:center;font-size:15px;color:#c8b898}.shopHead .gold{color:#ffd23a;font-size:18px}
+.gamb{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px;margin-top:6px}.sgrid .cell .pr{position:absolute;right:3px;bottom:1px;font-style:normal;font-size:10px;color:#ffd23a;text-shadow:0 0 3px #000}
+.sellRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}.sellRow span{color:#9a8a6a;font-size:12px}.lvSel{display:flex;gap:12px;align-items:center;justify-content:center;font-family:Cinzel,serif;color:#e8b860;font-size:18px;margin:6px 0}
+@media (max-width:700px){.shopP{grid-template-columns:1fr}}
 .pad img{width:66%;height:66%;pointer-events:none;filter:drop-shadow(0 1px 2px #000)}
 #pAuto{left:max(14px,env(safe-area-inset-left));bottom:max(80px,calc(env(safe-area-inset-bottom) + 80px));width:56px;height:34px;border-radius:17px;font-size:10px;opacity:.75}#pAuto.on{border-color:#ffd890;color:#ffd890;opacity:1}
 #pDash{right:max(196px,calc(env(safe-area-inset-right) + 196px));bottom:max(16px,env(safe-area-inset-bottom));width:52px;height:52px}
@@ -195,7 +199,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:11px;padding:6px 7px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-BSpVOGbu.js"></script>
+  <script type="module" crossorigin src="./assets/index-BkXKds9l.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -216,7 +220,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p>Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
 <div id="done" class="ov hide"><div class="box"><p class="title">MAP CLEARED</p><p id="doneT"></p><button class="btn" id="next">ENTER THE RIFT</button></div></div>
 <div id="panel" class="hide"><div class="pc">
-  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="btn small x" id="px">✕</button></div>
+  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="tab" data-t="shop" style="display:none">Merchant</button><button class="btn small x" id="px">✕</button></div>
   <div id="pb"></div>
 </div></div>
 <div id="newItem" class="hide"></div>
