@@ -40,11 +40,11 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .heroSt{display:flex;flex-direction:column;gap:2px;font:inherit;background:rgba(0,0,0,.35);border:1px solid #4a3a28;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left}.heroSt:hover{border-color:#c89a50}
 .heroSt .hs{display:flex;align-items:center;gap:8px;font-size:15px;line-height:1.5}.heroSt .hs i{font-style:normal;width:20px;text-align:center}.heroSt .hs em{font-style:normal;color:#b8a888;flex:1}.heroSt .hs b{font-size:16px}
 .heroSt .hsAll{margin-top:4px;color:#ffd890;font-family:Cinzel,serif;font-weight:700;font-size:13px;text-align:right}
-.gear>.tipcard:not(.hint){position:static;grid-column:2;grid-row:2;box-shadow:none}
+.gear>.cards{grid-column:2;grid-row:2;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;min-width:0}.gear>.cards .tipcard{position:static;box-shadow:none}.gear>.cards:not(.pair)>.tipcard{grid-column:2}.gear>.cards>.tipcard.hint{grid-column:1/-1}
 .gear .grid{grid-template-columns:repeat(8,1fr);gap:4px}
 /* wide panels: hero | bag | item card side by side, so the card never pushes anything down */
-@media (min-width:1000px){.gear{grid-template-columns:minmax(230px,280px) minmax(0,1fr) 330px}.gear>.leftcol{grid-row:1}.gear>.tipcard:not(.hint),.gear>.tipcard.hint{grid-column:3;grid-row:1;align-self:start}}
-@media (max-width:620px){.gear{grid-template-columns:1fr;height:auto}.gear>.tipcard:not(.hint){position:static;grid-column:1;grid-row:auto}}
+@media (min-width:1000px){.gear{grid-template-columns:minmax(230px,270px) minmax(0,1fr)}}
+@media (max-width:620px){.gear{grid-template-columns:1fr;height:auto}.gear>.cards{grid-column:1;grid-row:auto;grid-template-columns:1fr}.gear>.cards>.tipcard{grid-column:1!important}}
 @media (max-height:500px){.doll{min-height:0;height:calc(100% - 4px)}.cell.big{width:44px;height:44px}.grid{grid-template-columns:repeat(8,1fr);gap:3px}.gear{grid-template-columns:minmax(170px,230px) 1fr}}
 .doll{position:relative;border:1px solid #3a2c1e;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,rgba(120,80,40,.25),rgba(0,0,0,.35));min-height:300px;flex:1}
 .dollC{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;border-radius:12px}
@@ -79,6 +79,9 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media (max-width:620px){.statsP{grid-template-columns:1fr}}
 .tipcard{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#20160e,#0e0805);border:1px solid #8a6a3a;border-radius:10px;padding:10px 12px;box-shadow:0 -6px 24px rgba(0,0,0,.6);z-index:2}
 .tipcard.hint{position:static;border:0;background:none;box-shadow:none;padding:0;color:#7a6a52;grid-column:1/-1}
+.tipcard .ribbon{display:inline-block;font-family:Cinzel,serif;font-weight:700;font-size:12px;letter-spacing:.5px;padding:2px 10px;border-radius:6px;margin-bottom:6px}.tipcard .ribbon.worn{background:#1e3a16;color:#9ef07a;border:1px solid #5aa040}.tipcard .ribbon.bag{background:#3a2c14;color:#ffd890;border:1px solid #a8803a}
+.tipcard.ro{border-color:#5aa040}.ilv{font-size:13px;color:#d8c8a0;margin-top:2px}.ilv b{color:#ffe0a0}.cmpd{margin-top:6px;font-size:13px;color:#9a8a6a}
+.cell .ilb{position:absolute;left:3px;bottom:1px;font-style:normal;font-size:10px;font-weight:700;color:#e8d8b0;text-shadow:0 0 3px #000,0 0 2px #000}.cell .ilb.no{color:#ff7a6a}
 .tipcard .top{display:flex;gap:10px;align-items:center}.tipcard img{width:58px;height:58px}
 .tipcard h4{margin:0;font-family:Cinzel,serif;font-size:17px}.tipcard .ln{font-size:13px}
 .tipcard .row2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -202,7 +205,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:11px;padding:6px 7px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-DO9tKRjL.js"></script>
+  <script type="module" crossorigin src="./assets/index-9PddmGDx.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -236,6 +239,6 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <button class="pad hide" id="p2">2</button>
 <button class="pad hide" id="p1">1</button>
 <button class="pad hide" id="p0">ATTACK</button>
-
+
 </body>
 </html>
