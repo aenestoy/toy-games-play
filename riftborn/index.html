@@ -34,8 +34,11 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .slotrow{display:flex;align-items:center;gap:8px;border:1px solid #3a2c1e;border-radius:8px;padding:6px 8px;margin-bottom:6px;background:rgba(0,0,0,.25);cursor:pointer;min-height:24px}
 .slotrow em{font-style:normal;color:#7a6a52;font-size:12px;width:58px;flex:0 0 58px;text-transform:uppercase}
 .slotrow span{font-size:14px}
-.gear{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:12px;position:relative;height:100%}
-.gear>.tipcard:not(.hint){grid-column:2;grid-row:1}
+.gear{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:12px;position:relative;align-items:start}
+/* the item card never covers anything: it sits under the bag, the hero's doll spans both rows */
+.gear>.doll{grid-row:1/span 2}
+.gear>.tipcard:not(.hint){position:static;grid-column:2;grid-row:2;box-shadow:none}
+.gear .grid{grid-template-columns:repeat(8,1fr);gap:4px}
 @media (max-width:620px){.gear{grid-template-columns:1fr;height:auto}.gear>.tipcard:not(.hint){position:static;grid-column:1;grid-row:auto}}
 @media (max-height:500px){.doll{min-height:0;height:calc(100% - 4px)}.cell.big{width:44px;height:44px}.grid{grid-template-columns:repeat(8,1fr);gap:3px}.gear{grid-template-columns:minmax(170px,230px) 1fr}}
 .doll{position:relative;border:1px solid #3a2c1e;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,rgba(120,80,40,.25),rgba(0,0,0,.35));min-height:390px}
@@ -188,7 +191,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:11px;padding:6px 7px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-DTEqysiE.js"></script>
+  <script type="module" crossorigin src="./assets/index-C9SN3ZCp.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
