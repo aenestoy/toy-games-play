@@ -1,0 +1,1 @@
+var e=[{url:``+new URL(`th-1-B-VsjMaf.woff2`,import.meta.url).href,range:`U+e01-e02, U+e04, U+e06-e0b, U+e0d-e11, U+e13-e25, U+e27-e2b, U+e2d-e39, U+e40-e44, U+e46-e4d`}];export{e as default};
