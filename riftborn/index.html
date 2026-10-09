@@ -369,8 +369,12 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #menuBar .btn.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890;color:#ffd890;animation:pulseB 0.8s ease-in-out infinite alternate}
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:15px;padding:6px 10px}#menuBar .mt{display:none}}
+
+.zoneImg{display:block;width:min(100%,520px);aspect-ratio:16/9;object-fit:cover;margin:0 auto 10px;border-radius:10px;border:2px solid #6a4a28;box-shadow:0 6px 18px #000}
+.elx{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}.elc{border:1px solid color-mix(in srgb,var(--ec) 45%,#3a2c1e);border-radius:10px;padding:8px 10px;background:linear-gradient(180deg,rgba(30,22,14,.9),rgba(12,8,5,.95));display:flex;flex-direction:column;gap:5px}.elc b{color:var(--ec);font-size:14px}.elc span{color:#cbb894;font-size:12px}.elc i{color:var(--ec);font-style:normal;font-weight:700;font-size:12px}.elc.on{box-shadow:0 0 12px color-mix(in srgb,var(--ec) 45%,transparent)}
+.jgems{display:flex;flex-direction:column;gap:6px}.jg{display:flex;align-items:center;gap:10px;border:1px solid color-mix(in srgb,var(--gc) 40%,#3a2c1e);border-radius:10px;padding:6px 10px;background:rgba(14,10,6,.85)}.jg img{width:40px;height:40px}.jg div{flex:1;display:flex;flex-direction:column}.jg b{color:var(--gc);font-size:14px}.jg span{color:#cbb894;font-size:11px}.jg i{color:#ffe08a;font-style:normal}
 </style>
-  <script type="module" crossorigin src="./assets/index-CtgS4y_5.js"></script>
+  <script type="module" crossorigin src="./assets/index-DvDzG64b.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -391,7 +395,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p>Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
 <div id="done" class="ov hide"><div class="box"><p class="title">MAP CLEARED</p><p id="doneT"></p><button class="btn" id="next">ENTER THE RIFT</button></div></div>
 <div id="panel" class="hide"><div class="pc">
-  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="tab" data-t="shop" style="display:none">Merchant</button><button class="btn small x" id="px">✕</button></div>
+  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="tab" data-t="shop" style="display:none">Merchant</button><button class="tab" data-t="alch" style="display:none">Alchemist</button><button class="tab" data-t="jewel" style="display:none">Jeweler</button><button class="btn small x" id="px">✕</button></div>
   <div id="pb"></div>
 </div></div>
 <div id="newItem" class="hide"></div>
