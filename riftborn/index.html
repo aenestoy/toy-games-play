@@ -244,6 +244,23 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .tpLater{margin-top:16px;font:inherit;font-size:13px;color:#a89878;background:none;border:1px solid #4a3a28;border-radius:16px;padding:5px 16px;cursor:pointer}
 @media (max-width:760px){.trow{grid-template-columns:1fr}.tlv{flex-direction:row;gap:8px;justify-content:flex-start}.tlv span{width:34px;height:34px;font-size:16px}.tcards{grid-template-columns:1fr}.tcard{min-height:0}
   .tpCards{grid-template-columns:1fr;gap:10px}.tcard.pop{flex-direction:row;text-align:left;min-height:0;padding:12px;gap:12px}.tcard.pop .tglyph{width:60px;height:60px;flex:0 0 60px;margin:0}.tcard.pop b{font-size:16px;display:block}.tcard.pop small{font-size:12px}#talPop{align-items:start;overflow:auto;padding:24px 0}}
+
+/* skill grid: three element columns, five rows (owner 2026-10-09) */
+.gtree{position:relative;height:clamp(470px,calc(min(880px,94vh) - 110px),760px);border-radius:16px;background:radial-gradient(ellipse at 50% 60%,#1c1610,#080604 75%);border:1px solid #3a2c1e;overflow:hidden;box-shadow:inset 0 0 40px #000}
+.gtree svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.gtree .vb{fill:none;stroke:#000;stroke-opacity:.7;stroke-width:10;vector-effect:non-scaling-stroke}.gtree .vi{fill:none;stroke:#3a2c1e;stroke-width:4;vector-effect:non-scaling-stroke}.gtree .vi.open{stroke:color-mix(in srgb,var(--pc) 50%,#3a2c1e);filter:drop-shadow(0 0 4px var(--pc))}
+.gcol{position:absolute;top:6px;bottom:6px;width:31.6%;border-radius:12px;background-size:cover;background-position:center;border:2px solid color-mix(in srgb,var(--pc) 45%,#3a2c1e);box-shadow:inset 0 0 0 1px #000,inset 0 0 50px rgba(0,0,0,.7)}
+.ghead{text-align:center;padding-top:8px}.ghead b{display:block;font-family:Cinzel,serif;font-size:20px;color:var(--pc);text-shadow:0 0 12px color-mix(in srgb,var(--pc) 70%,transparent),0 2px 3px #000;letter-spacing:1px}.ghead small{font-size:11px;font-weight:700;color:#e8dcc8;text-shadow:0 1px 2px #000}
+.grow{position:absolute;left:4px;transform:translateY(-50%);z-index:5;font-family:Cinzel,serif;font-size:10px;font-weight:700;color:#8a7a62;background:rgba(10,6,3,.85);border:1px solid #4a3a28;border-radius:6px;padding:2px 6px;writing-mode:vertical-rl;transform:translateY(-50%) rotate(180deg)}
+.grow small{display:none}.grow.open{color:#ffd890;border-color:#8a6a3a}
+.pnode{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;padding:0;border:0;background:none;cursor:pointer;z-index:4}
+.pnode i{position:absolute;inset:3px;transform:rotate(45deg);background:linear-gradient(135deg,#6a4a22,#e8c070,#6a4a22);box-shadow:0 2px 6px #000}
+.pnode i::after{content:'';position:absolute;inset:3px;background:#0a0604}
+.pnode.got i::after{background:var(--pc);box-shadow:0 0 8px var(--pc)}.pnode.lock i{filter:grayscale(1) brightness(.5)}
+.pnode.can i{animation:mPulse 1.5s infinite}
+.pnode span{position:absolute;top:24px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:#d8c8a8;text-shadow:0 1px 2px #000;white-space:nowrap}
+.gtree .mnode{width:58px;height:58px}.gtree .mnode.ult{width:70px;height:70px}.gtree .mname{transform:translate(-50%,36px);font-size:12px}.gtree .mname.ult{transform:translate(-50%,42px)}
+@media (max-width:760px){.gtree{height:640px}.gtree .mnode{width:48px;height:48px}.gtree .mnode.ult{width:58px;height:58px}.gtree .mname{font-size:9px;transform:translate(-50%,30px)}.ghead b{font-size:14px}.ghead small{font-size:9px}}
 /* skill tree, painted tablets (owner 2026-10-09) */
 .skP3{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;height:100%;min-height:0}
 .sk3main{min-width:0}.sk3side{display:flex;flex-direction:column;gap:8px;min-width:0;overflow:auto}
@@ -328,7 +345,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:15px;padding:6px 10px}#menuBar .mt{display:none}}
 </style>
-  <script type="module" crossorigin src="./assets/index-8u3kKtGa.js"></script>
+  <script type="module" crossorigin src="./assets/index-Cgg4OtaN.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
