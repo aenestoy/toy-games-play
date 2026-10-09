@@ -140,10 +140,11 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #treeC{width:100%;max-width:min(560px,100%);aspect-ratio:1;display:block;margin:0 auto;touch-action:manipulation}
 .pad{position:fixed;border-radius:50%;border:2px solid rgba(255,220,160,.5);color:#fff;font:inherit;font-weight:700;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,rgba(90,60,30,.9),rgba(30,18,10,.9));text-shadow:0 1px 2px #000;font-size:12px;touch-action:none;padding:0}
 #p0{right:max(18px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));width:96px;height:96px;font-size:14px}
-#p1{right:max(126px,calc(env(safe-area-inset-right) + 126px));bottom:max(16px,env(safe-area-inset-bottom));width:62px;height:62px}
-#p2{right:max(122px,calc(env(safe-area-inset-right) + 122px));bottom:max(88px,calc(env(safe-area-inset-bottom) + 88px));width:62px;height:62px}
-#p3{right:max(70px,calc(env(safe-area-inset-right) + 70px));bottom:max(138px,calc(env(safe-area-inset-bottom) + 138px));width:62px;height:62px}
-#p4{right:max(6px,env(safe-area-inset-right));bottom:max(128px,calc(env(safe-area-inset-bottom) + 128px));width:62px;height:62px}
+#p1{right:calc(env(safe-area-inset-right) + 155px);bottom:calc(env(safe-area-inset-bottom) + 30px);width:62px;height:62px}
+#p2{right:calc(env(safe-area-inset-right) + 139px);bottom:calc(env(safe-area-inset-bottom) + 96px);width:62px;height:62px}
+#p3{right:calc(env(safe-area-inset-right) + 95px);bottom:calc(env(safe-area-inset-bottom) + 143px);width:62px;height:62px}
+#p4{right:calc(env(safe-area-inset-right) + 30px);bottom:calc(env(safe-area-inset-bottom) + 160px);width:62px;height:62px}
+#p5{right:calc(env(safe-area-inset-right) + 172px);bottom:calc(env(safe-area-inset-bottom) + 176px);width:56px;height:56px}
 .skP .tipcard{position:static;box-shadow:none}.skP .tipcard.hint{min-height:0;color:#9a8a6a}
 .skP{display:flex;flex-direction:column;gap:8px}.skHead{display:flex;align-items:center;justify-content:space-between}.skHead .hasPts{color:#7be05a}
 .sbarRow{display:flex;gap:8px;justify-content:center}
@@ -246,7 +247,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 /* skill tree, painted tablets (owner 2026-10-09) */
 .skP3{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;height:100%;min-height:0}
 .sk3main{min-width:0}.sk3side{display:flex;flex-direction:column;gap:8px;min-width:0;overflow:auto}
-.sk3side .sbarRow{gap:5px}.sk3side .sbar{width:50px;height:50px}
+.sk3side .sbarRow{gap:4px}.sk3side .sbar{width:44px;height:44px}
 .ptree{position:relative;height:clamp(430px,calc(min(880px,94vh) - 118px),700px);border-radius:16px;background:radial-gradient(ellipse at 50% 60%,#1c1610,#080604 75%);border:1px solid #3a2c1e;overflow:hidden;box-shadow:inset 0 0 40px #000}
 .ptree svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .ptab{position:absolute;top:8px;bottom:8px;width:39%;border-radius:14px;background-size:cover;background-position:center;overflow:hidden;border:2px solid color-mix(in srgb,var(--pc) 35%,#3a2c1e);box-shadow:inset 0 0 0 1px #000,inset 0 0 50px rgba(0,0,0,.75),0 0 0 1px #000;filter:saturate(.75) brightness(.8);transition:filter .3s}
@@ -312,7 +313,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media (max-width:760px){.skP3{grid-template-columns:1fr;height:auto}.sk3side{overflow:visible}.ptree{height:600px}.ptab{width:40%}.phead{padding:8px 8px 2px;gap:6px}.pem{flex-basis:26px;height:26px}.phead b{font-size:12px;letter-spacing:0}.pbar{margin:4px 8px 0}.pspent{margin:9px 8px 0;font-size:9px}.phead small{display:none}.mnode{width:56px;height:56px}.mnode.ult{width:68px;height:68px}.mname{font-size:11px;transform:translate(-50%,38px)}.mname.ult{transform:translate(-50%,44px)}.ptier{font-size:10px;padding:1px 6px}.ptier small{display:none}}
 .pad img{width:66%;height:66%;pointer-events:none;filter:drop-shadow(0 1px 2px #000)}
 #pAuto{left:max(14px,env(safe-area-inset-left));bottom:max(80px,calc(env(safe-area-inset-bottom) + 80px));width:56px;height:34px;border-radius:17px;font-size:10px;opacity:.75}#pAuto.on{border-color:#ffd890;color:#ffd890;opacity:1}
-#pDash{right:max(196px,calc(env(safe-area-inset-right) + 196px));bottom:max(16px,env(safe-area-inset-bottom));width:52px;height:52px}
+#pDash{right:calc(env(safe-area-inset-right) + 232px);bottom:calc(env(safe-area-inset-bottom) + 24px);width:52px;height:52px}
 #pFlask{left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:52px;height:52px;background:radial-gradient(circle at 40% 35%,#c83a3a,#4a0a0a)}
 #newItem{position:fixed;right:max(14px,env(safe-area-inset-right));top:30%;width:min(270px,70vw);background:linear-gradient(#1c140e,#100a06);border:1px solid #6a4e2a;border-radius:12px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.7);font-size:13px;z-index:4}
 #newItem h4{margin:0 0 2px;font-family:Cinzel,serif;font-size:16px}
@@ -325,9 +326,9 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #menuBar .btn{font-size:13px;padding:7px 11px;white-space:nowrap}
 #menuBar .btn.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890;color:#ffd890;animation:pulseB 0.8s ease-in-out infinite alternate}
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
-@media (max-width:560px){#menuBar .btn{font-size:11px;padding:6px 7px}}
+@media (max-width:560px){#menuBar .btn{font-size:15px;padding:6px 10px}#menuBar .mt{display:none}}
 </style>
-  <script type="module" crossorigin src="./assets/index-BG047Q7P.js"></script>
+  <script type="module" crossorigin src="./assets/index-B418-I_a.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -352,10 +353,11 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
   <div id="pb"></div>
 </div></div>
 <div id="newItem" class="hide"></div>
-<div id="menuBar"><button class="btn small" id="charBtn" data-t="gear">🎒 GEAR</button><button class="btn small" id="gemBtn" data-t="gems">📖 SKILLS</button><button class="btn small" id="treeBtn" data-t="tree">✦ PASSIVES</button><button class="btn small" id="questBtn" data-t="quests">📜 QUESTS</button><button class="btn small" id="tpBtn" title="Portal to town (B)">🌀 TOWN</button><button class="btn small" id="sndBtn" title="Sound on / off (M)">🔊</button><button class="btn small" id="musBtn" title="Music on / off (N)">🎵</button></div>
+<div id="menuBar"><button class="btn small" id="charBtn" data-t="gear">🎒<span class="mt"> GEAR</span></button><button class="btn small" id="gemBtn" data-t="gems">📖<span class="mt"> SKILLS</span></button><button class="btn small" id="treeBtn" data-t="tree">✦<span class="mt"> TALENTS</span></button><button class="btn small" id="questBtn" data-t="quests">📜<span class="mt"> QUESTS</span></button><button class="btn small" id="tpBtn" title="Portal to town (T)">🌀<span class="mt"> TOWN</span></button><button class="btn small" id="sndBtn" title="Sound on / off (M)">🔊</button><button class="btn small" id="musBtn" title="Music on / off (N)">🎵</button></div>
 <button class="pad hide" id="pFlask">FLASK</button>
 <button class="pad hide" id="pAuto">AUTO</button>
 <button class="pad hide" id="pDash">DASH</button>
+<button class="pad hide" id="p5">5</button>
 <button class="pad hide" id="p4">4</button>
 <button class="pad hide" id="p3">3</button>
 <button class="pad hide" id="p2">2</button>
