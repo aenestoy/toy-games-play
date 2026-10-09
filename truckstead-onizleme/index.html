@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#7cc4f5" />
+    <title>Truckstead</title>
+    <!-- Error capture for the studio panel's error reports (src/services/stats.ts sends them where statistics are on; never
+         in the Yandex / Playgama packages): the page's first errors and unhandled rejections wait here until that module
+         is ready. It only listens: every error still reaches the browser and a portal's own listeners as before. -->
+    <script>
+      (function () {
+        var q = [], sink = null, t0 = Date.now();
+        function state() { try { return window.__tsErrState ? window.__tsErrState() : 'boot'; } catch (e) { return 'boot'; } }
+        function put(r) { try { r.t = (Date.now() - t0) / 1000; r.state = state(); if (sink) sink(r); else if (q.length < 10) q.push(r); } catch (e) { /* never */ } }
+        function text(v) { try { return String(v); } catch (e) { return typeof v; } }
+        function named(x) { return x && typeof x === 'object' && typeof x.message === 'string' ? (x.name || 'Error') + ': ' + x.message : null; }
+        window.addEventListener('error', function (e) {
+          if (!e || (e.target && e.target !== window)) return;
+          var x = e.error;
+          if (!x && /^ResizeObserver loop/.test(e.message || '')) return;
+          put({ kind: 'error', msg: named(x) || text(e.message || 'Script error.'), src: (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0), stack: x && typeof x.stack === 'string' ? x.stack : '' });
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          var r = e && e.reason, m = named(r);
+          if (!m) m = typeof r === 'string' ? r : 'non-Error rejection: ' + (r === null ? 'null' : typeof r);
+          put({ kind: 'rejection', msg: m, src: '', stack: r && typeof r.stack === 'string' ? r.stack : '' });
+        });
+        window.__tsErr = {
+          report: function (kind, x) { put({ kind: kind, msg: named(x) || text(x), src: '', stack: x && typeof x.stack === 'string' ? x.stack : '' }); },
+          take: function (fn) { sink = fn; var l = q; q = []; for (var i = 0; i < l.length; i++) { try { fn(l[i]); } catch (e) { /* never */ } } },
+        };
+      })();
+    </script>
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #9fd6f7; }
+      body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+      #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+        background: linear-gradient(#7cc4f5, #cdeefa 60%, #8fd06a 60.2%, #6fb84f); color: #1d2a44; font: 900 22px system-ui, sans-serif; z-index: 50; }
+      #loading .bar { width: 180px; height: 10px; border-radius: 6px; background: rgba(29, 42, 68, 0.2); overflow: hidden; }
+      #loading .bar i { display: block; height: 100%; width: 30%; background: #ffc83d; border-radius: 6px; animation: load 1s ease-in-out infinite alternate; }
+      @keyframes load { to { width: 100%; } }
+    </style>
+    <script type="module" crossorigin src="./assets/index-DT1ebXY4.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-5GTgl-I7.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="loading"><div>TRUCKSTEAD</div><div class="bar"><i></i></div></div>
+  </body>
+</html>
