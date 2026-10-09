@@ -245,6 +245,30 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media (max-width:760px){.trow{grid-template-columns:1fr}.tlv{flex-direction:row;gap:8px;justify-content:flex-start}.tlv span{width:34px;height:34px;font-size:16px}.tcards{grid-template-columns:1fr}.tcard{min-height:0}
   .tpCards{grid-template-columns:1fr;gap:10px}.tcard.pop{flex-direction:row;text-align:left;min-height:0;padding:12px;gap:12px}.tcard.pop .tglyph{width:60px;height:60px;flex:0 0 60px;margin:0}.tcard.pop b{font-size:16px;display:block}.tcard.pop small{font-size:12px}#talPop{align-items:start;overflow:auto;padding:24px 0}}
 
+
+/* Diablo 4 shaped tree */
+.d4tree{position:relative;height:clamp(470px,calc(min(880px,94vh) - 110px),760px);overflow-y:auto;overflow-x:hidden;border-radius:16px;border:1px solid #3a2c1e;box-shadow:inset 0 0 40px #000;background:radial-gradient(ellipse at 10% 30%,rgba(255,120,40,.10),transparent 45%),radial-gradient(ellipse at 90% 30%,rgba(120,160,255,.10),transparent 45%),radial-gradient(ellipse at 50% 70%,rgba(140,200,255,.06),transparent 55%),url(ui/tree-storm.webp) center/cover,#0a0705;background-blend-mode:normal,normal,normal,soft-light,normal;scrollbar-width:thin}
+.d4in{position:relative}
+.d4in svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.d4in .tk{fill:none;stroke:#120a05;stroke-width:22;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.d4in .tki{fill:none;stroke:#5a4024;stroke-width:12;vector-effect:non-scaling-stroke;stroke-linecap:round}.d4in .tki.on{stroke:#c89048;filter:drop-shadow(0 0 6px #ffb050)}
+.d4in .br{fill:none;stroke:#3a2c1e;stroke-width:5;vector-effect:non-scaling-stroke;stroke-linecap:round}.d4in .br.open{stroke:color-mix(in srgb,var(--pc) 40%,#3a2c1e)}.d4in .br.on{stroke:var(--pc);filter:drop-shadow(0 0 5px var(--pc))}
+.d4in .tw{fill:none;stroke:#2e2418;stroke-width:3;vector-effect:non-scaling-stroke}.d4in .tw.on{stroke:var(--pc);filter:drop-shadow(0 0 4px var(--pc))}
+.hub{position:absolute;left:50%;transform:translate(-50%,-50%);width:92px;height:92px;border-radius:50%;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#2a1e12,#0a0604 75%);border:3px solid #5a4428;box-shadow:0 0 0 3px #0a0604,0 6px 14px #000}
+.hub .hr{position:absolute;inset:-18px;background:#c89048;-webkit-mask:url(fx/magic_02.png) center/contain no-repeat;mask:url(fx/magic_02.png) center/contain no-repeat;opacity:.18;animation:rspin 30s linear infinite;pointer-events:none}
+.hub.open{border-color:#e8c070;box-shadow:0 0 0 3px #0a0604,0 0 22px rgba(255,190,90,.45),0 6px 14px #000}.hub.open .hr{opacity:.55}
+.hub b{font-family:Cinzel,serif;font-size:13px;color:#a89878;letter-spacing:1px}.hub.open b{color:#ffe0a0;text-shadow:0 0 8px rgba(255,190,90,.6)}
+.hub small{font-size:10px;font-weight:700;color:#8a7a62}.hub.open small{color:#e8c890}
+.d4in .mnode{width:60px;height:60px;z-index:4}.d4in .mnode.ult{width:72px;height:72px}
+.d4in .mname{transform:translate(-50%,38px);font-size:12px;z-index:4}
+.dnode{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;background:none;cursor:pointer;z-index:4}
+.dnode i{position:absolute;inset:3px;transform:rotate(45deg);background:#0a0604;border:2px solid #5a4428;box-shadow:0 2px 5px #000}
+.dnode.ready i{border-color:#ffd890;animation:mPulse 1.5s infinite}.dnode.got i{background:var(--pc);border-color:#fff;box-shadow:0 0 10px var(--pc)}
+.pnode2{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;padding:0;border:0;background:none;cursor:pointer;z-index:4}
+.pnode2 i{position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2a2018,#0a0604);border:3px solid #6a5030;box-shadow:0 2px 6px #000}
+.pnode2.got i{background:radial-gradient(circle at 40% 35%,#fff,var(--pc) 45%,#0a0604);border-color:var(--pc);box-shadow:0 0 10px var(--pc)}.pnode2.lock i{filter:grayscale(1) brightness(.5)}.pnode2.can i{animation:mPulse 1.5s infinite}
+.pnode2 span{position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:#d8c8a8;text-shadow:0 1px 2px #000}
+@media (max-width:760px){.d4tree{height:620px}.d4in .mnode{width:50px;height:50px}.d4in .mnode.ult{width:60px;height:60px}.d4in .mname{font-size:10px;transform:translate(-50%,32px)}.hub{width:70px;height:70px}.hub b{font-size:10px}}
 /* skill grid: three element columns, five rows (owner 2026-10-09) */
 .gtree{position:relative;height:clamp(470px,calc(min(880px,94vh) - 110px),760px);border-radius:16px;background:radial-gradient(ellipse at 50% 60%,#1c1610,#080604 75%);border:1px solid #3a2c1e;overflow:hidden;box-shadow:inset 0 0 40px #000}
 .gtree svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
@@ -345,7 +369,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
 @media (max-width:560px){#menuBar .btn{font-size:15px;padding:6px 10px}#menuBar .mt{display:none}}
 </style>
-  <script type="module" crossorigin src="./assets/index-Cgg4OtaN.js"></script>
+  <script type="module" crossorigin src="./assets/index-Dxs4RhbN.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
