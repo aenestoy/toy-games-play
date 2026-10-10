@@ -375,6 +375,13 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #pAuto{left:max(14px,env(safe-area-inset-left));bottom:max(80px,calc(env(safe-area-inset-bottom) + 80px));width:56px;height:34px;border-radius:17px;font-size:10px;opacity:.75}#pAuto.on{border-color:#ffd890;color:#ffd890;opacity:1}
 #pDash{right:calc(env(safe-area-inset-right) + 232px);bottom:calc(env(safe-area-inset-bottom) + 24px);width:52px;height:52px}
 #pFlask{left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:52px;height:52px;background:radial-gradient(circle at 40% 35%,#c83a3a,#4a0a0a)}
+/* batch B: dash cooldown, flask charges, too little mana, ready / refused / refilled flashes */
+.pad .cdn{z-index:1}.pad span{pointer-events:none;position:relative}.pad.cool span{opacity:0}
+#pFlask{align-content:center;gap:0;line-height:1}#pFlask small{font-size:9px;letter-spacing:.5px;pointer-events:none}#pFlask b{font-size:19px;pointer-events:none}#pFlask.empty{filter:grayscale(.85) brightness(.65)}
+.pad.oom::after{content:'';position:absolute;inset:0;background:rgba(20,40,120,.55);pointer-events:none}.pad.oom img{filter:saturate(.5) brightness(.75)}
+.pad.rdy{animation:padRdy .45s ease-out}@keyframes padRdy{0%{box-shadow:0 0 0 4px #fff4d0,0 0 18px 6px rgba(255,244,208,.9),inset 0 0 0 60px rgba(255,255,255,.35)}100%{box-shadow:0 0 0 0 rgba(255,244,208,0),0 0 0 0 rgba(255,244,208,0),inset 0 0 0 60px rgba(255,255,255,0)}}
+.pad.deny{animation:padNo .4s ease-out}@keyframes padNo{0%{transform:translateX(0);box-shadow:0 0 0 4px #ff4a3a,inset 0 0 0 60px rgba(220,30,20,.5)}20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}100%{transform:translateX(0);box-shadow:0 0 0 0 rgba(255,74,58,0),inset 0 0 0 60px rgba(220,30,20,0)}}
+.pad.gain{animation:padGain .8s ease-out}@keyframes padGain{0%{box-shadow:0 0 0 4px #ffb08a,0 0 20px 8px rgba(255,138,106,.9)}100%{box-shadow:0 0 0 0 rgba(255,176,138,0),0 0 0 0 rgba(255,138,106,0)}}
 #newItem{position:fixed;right:max(14px,env(safe-area-inset-right));top:30%;width:min(270px,70vw);background:linear-gradient(#1c140e,#100a06);border:1px solid #6a4e2a;border-radius:12px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.7);font-size:13px;z-index:4}
 #newItem h4{margin:0 0 2px;font-family:Cinzel,serif;font-size:16px}
 #newItem .up{color:#7be05a}#newItem .down{color:#ff7a6a}#newItem .sub{color:#7a6a52;font-size:12px;margin-bottom:6px}
@@ -431,7 +438,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .nmOcc{border-color:#6a3a9a}.nmMake{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px}.nmMake .hint{margin:0;font-size:12px}
 @media (max-width:620px){.seal{grid-template-columns:52px minmax(0,1fr) auto}.seal img{width:52px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-BwfPZB9Y.js"></script>
+  <script type="module" crossorigin src="./assets/index-BdiecGOy.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
