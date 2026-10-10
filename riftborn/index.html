@@ -380,9 +380,11 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .jd.rp{font:inherit;font-size:12px;background:rgba(40,60,30,.55);border:1px solid #5a8a3a;border-radius:12px;padding:2px 8px 2px 3px;cursor:pointer;color:#bfe8a8}.jd.rp:hover{background:rgba(70,110,50,.7);color:#fff}.jd.rp i{border-color:#7be05a;color:#7be05a}
 
 .matB{display:inline-flex;align-items:center;gap:3px;padding:2px 7px 2px 4px;margin:2px;border:1px solid color-mix(in srgb,var(--mc) 45%,#3a2c1e);border-radius:10px;background:rgba(14,10,6,.85)}.matB i{font-style:normal;font-size:15px}.matB b{color:var(--mc);font-size:12px}.matRow2{margin-bottom:6px}
+.smithP{grid-template-columns:minmax(200px,280px) 1fr;align-items:start}.smithR{display:grid;gap:10px}.smithList{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px}.smithList .ilb{position:absolute;left:3px;bottom:1px;font-style:normal;font-size:11px;color:#ffd890;text-shadow:0 0 3px #000}.elc.off{opacity:.45}.mwRow{display:flex;gap:4px;align-items:center;margin:4px 0 8px}.mwRow b{margin-left:6px;color:#ffd890}.mwp{width:18px;height:18px;border:1px solid #6a5030;border-radius:4px;background:rgba(0,0,0,.4);font-size:11px;display:inline-flex;align-items:center;justify-content:center;color:#ffb040}.mwp.on{background:linear-gradient(180deg,#ffd890,#c88a30);border-color:#ffd890;color:#3a2008}.mwp.crit{border-color:#ffb040}
+.encRow{display:flex;flex-direction:column;gap:4px;align-items:flex-start}.encRow .btn{text-align:left;text-transform:none;font-family:Fredoka,sans-serif;letter-spacing:0}.encRow .lock{border-color:#c89aff;color:#e0c8ff}.encPick{display:flex;flex-direction:column;gap:4px;align-items:flex-start;margin-top:8px;padding:8px;border:1px dashed #8a5ac8;border-radius:8px}.encPick .btn{text-transform:none;font-family:Fredoka,sans-serif;letter-spacing:0}
 .mc{display:inline-block;margin-left:2px;font-weight:700}.mc.no{color:#ff7a6a}.tl{color:#ffd890;font-size:.8em}
 </style>
-  <script type="module" crossorigin src="./assets/index-C1VeCcoh.js"></script>
+  <script type="module" crossorigin src="./assets/index-CSvpBuna.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -403,7 +405,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p>Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
 <div id="done" class="ov hide"><div class="box"><p class="title">MAP CLEARED</p><p id="doneT"></p><button class="btn" id="next">ENTER THE RIFT</button></div></div>
 <div id="panel" class="hide"><div class="pc">
-  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="tab" data-t="shop" style="display:none">Merchant</button><button class="tab" data-t="alch" style="display:none">Alchemist</button><button class="tab" data-t="jewel" style="display:none">Jeweler</button><button class="btn small x" id="px">✕</button></div>
+  <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="tab" data-t="shop" style="display:none">Merchant</button><button class="tab" data-t="alch" style="display:none">Alchemist</button><button class="tab" data-t="smith" style="display:none">Blacksmith</button><button class="tab" data-t="occult" style="display:none">Occultist</button><button class="tab" data-t="jewel" style="display:none">Jeweler</button><button class="btn small x" id="px">✕</button></div>
   <div id="pb"></div>
 </div></div>
 <div id="newItem" class="hide"></div>
@@ -417,6 +419,6 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <button class="pad hide" id="p2">2</button>
 <button class="pad hide" id="p1">1</button>
 <button class="pad hide" id="p0">ATTACK</button>
-
+
 </body>
 </html>
