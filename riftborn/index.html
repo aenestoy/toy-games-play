@@ -397,8 +397,23 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .smithP{grid-template-columns:minmax(200px,280px) 1fr;align-items:start}.smithR{display:grid;gap:10px}.smithList{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px}.smithList .ilb{position:absolute;left:3px;bottom:1px;font-style:normal;font-size:11px;color:#ffd890;text-shadow:0 0 3px #000}.elc.off{opacity:.45}.mwRow{display:flex;gap:4px;align-items:center;margin:4px 0 8px}.mwRow b{margin-left:6px;color:#ffd890}.mwp{width:18px;height:18px;border:1px solid #6a5030;border-radius:4px;background:rgba(0,0,0,.4);font-size:11px;display:inline-flex;align-items:center;justify-content:center;color:#ffb040}.mwp.on{background:linear-gradient(180deg,#ffd890,#c88a30);border-color:#ffd890;color:#3a2008}.mwp.crit{border-color:#ffb040}
 .encRow{display:flex;flex-direction:column;gap:4px;align-items:flex-start}.encRow .btn{text-align:left;text-transform:none;font-family:Fredoka,sans-serif;letter-spacing:0}.encRow .lock{border-color:#c89aff;color:#e0c8ff}.encPick{display:flex;flex-direction:column;gap:4px;align-items:flex-start;margin-top:8px;padding:8px;border:1px dashed #8a5ac8;border-radius:8px}.encPick .btn{text-transform:none;font-family:Fredoka,sans-serif;letter-spacing:0}
 .mc{display:inline-block;margin-left:2px;font-weight:700}.mc.no{color:#ff7a6a}.tl{color:#ffd890;font-size:.8em}
+/* the Dungeon Gate: boss summoning and Nightmare Seals (2026-10-10) */
+.gSec{margin:14px 0 6px;padding:10px;border:1px solid #4a3a28;border-radius:12px;background:linear-gradient(#1a120c,#0c0805);box-shadow:0 6px 18px #000;text-align:left}.gSec h4 i{font-style:normal;font-family:sans-serif}
+.gSec h4{margin:0 0 4px;font-family:Cinzel,serif;font-size:17px;color:#ffd890;text-align:center}.gSec h4 small{font-family:Fredoka,sans-serif;font-weight:400;color:#9a8a6a;font-size:12px;margin-left:6px}
+.gSec .jmsg.small{font-size:13px;text-align:center;margin:2px 0 6px}.gSec .lvSel{font-size:15px;margin:4px 0}
+.sumRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}@media (max-width:620px){.sumRow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sumC{display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;color:#e8e0d0;background:linear-gradient(#1c140e,#0e0805);border:2px solid var(--zc);border-radius:10px;padding:6px 4px;cursor:pointer;min-width:0;text-align:center}
+.sumC i{font-style:normal;font-size:22px;line-height:1.1}.sumC b{font-family:Cinzel,serif;font-size:13px;color:var(--zc);line-height:1.15}.sumC small{color:#9a8a6a;font-size:11px;line-height:1.2}.sumC u{text-decoration:none;font-weight:700;color:#7be05a;font-size:13px}.sumC u.no{color:#ff7a6a}
+.sumC[disabled]{opacity:.55;cursor:default}.sumC.lock{opacity:.45;cursor:default;border-style:dashed}.sumC:not([disabled]):not(.lock):hover{box-shadow:0 0 14px color-mix(in srgb,var(--zc) 45%,transparent)}
+.gJump{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:4px 0}.gJump .btn{font-family:Fredoka,sans-serif}
+.nmSec{border-color:#6a3a9a;background:linear-gradient(#1e0c2c,#0a0410)}
+.sealList{display:grid;gap:6px}.seal{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid color-mix(in srgb,var(--zc) 55%,#3a2c1e);border-left:4px solid var(--zc);border-radius:10px;padding:5px 6px;background:rgba(14,8,20,.85)}
+.seal img{width:72px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;filter:saturate(.8) hue-rotate(-20deg) brightness(.85)}
+.sealT{display:flex;flex-direction:column;gap:1px;min-width:0}.sealT b{font-family:Cinzel,serif;font-size:14px;color:var(--zc)}.sealT em{font-style:normal;color:#ff9a7a;font-size:12px;line-height:1.25}.sealT i{font-style:normal;color:#d0a0ff;font-size:12px;line-height:1.25}.sealT i small{color:#ffd890;font-size:11px}
+.nmOcc{border-color:#6a3a9a}.nmMake{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px}.nmMake .hint{margin:0;font-size:12px}
+@media (max-width:620px){.seal{grid-template-columns:52px minmax(0,1fr) auto}.seal img{width:52px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-Bm0GI-Rg.js"></script>
+  <script type="module" crossorigin src="./assets/index-D47BD3CV.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -416,7 +431,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
     <p class="credits">Music: North Fantasy Music (CC BY 4.0) · Sounds: Little Robot Sound Factory, littlerobotsoundfactory.com (CC BY 3.0), artisticdude, Kenney, rubberduck (CC0), spell sounds by p0ss, opengameart.org (CC BY-SA 3.0) · Effects: Kenney (CC0) · Models: Kay Lousberg (CC0) · Skill icons: J. W. Bjerk (eleazzaar), jwbjerk.com/art (CC BY 3.0)</p>
   </div>
 </div>
-<div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p>Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
+<div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p id="deadT">Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
 <div id="done" class="ov hide"><div class="box"><p class="title">MAP CLEARED</p><p id="doneT"></p><button class="btn" id="next">ENTER THE RIFT</button></div></div>
 <div id="panel" class="hide"><div class="pc">
   <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="tab" data-t="shop" style="display:none">Merchant</button><button class="tab" data-t="alch" style="display:none">Alchemist</button><button class="tab" data-t="smith" style="display:none">Blacksmith</button><button class="tab" data-t="occult" style="display:none">Occultist</button><button class="tab" data-t="jewel" style="display:none">Jeweler</button><button class="tab" data-t="board" style="display:none">Board</button><button class="btn small x" id="px">✕</button></div>
