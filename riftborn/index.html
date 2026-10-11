@@ -465,8 +465,15 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .sealT{display:flex;flex-direction:column;gap:1px;min-width:0}.sealT b{font-family:Cinzel,serif;font-size:14px;color:var(--zc)}.sealT em{font-style:normal;color:#ff9a7a;font-size:12px;line-height:1.25}.sealT i{font-style:normal;color:#d0a0ff;font-size:12px;line-height:1.25}.sealT i small{color:#ffd890;font-size:11px}
 .nmOcc{border-color:#6a3a9a}.nmMake{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px}.nmMake .hint{margin:0;font-size:12px}
 @media (max-width:620px){.seal{grid-template-columns:52px minmax(0,1fr) auto}.seal img{width:52px}}
+/* the skill info card (Diablo 4 skill tooltip): pointing at a skill bar slot, a long press on a phone button, a skill in the Skills panel */
+#skTip{position:fixed;left:0;top:0;z-index:45;width:300px;max-width:calc(100vw - 16px);box-sizing:border-box;pointer-events:none;background:linear-gradient(#20160e,#0e0805);border:1px solid #8a6a3a;border-radius:10px;padding:10px 12px;box-shadow:0 8px 28px rgba(0,0,0,.75),inset 0 0 0 1px rgba(255,216,144,.06);color:#e8e0d0;font-size:13px;line-height:1.35;display:flex;flex-direction:column;gap:4px}
+#skTip .skc-top{display:flex;gap:10px;align-items:center;padding-bottom:6px;margin-bottom:2px;border-bottom:1px solid #3a2c1e}#skTip img{width:46px;height:46px;flex:none;border-radius:8px;border:1px solid #5a4428}#skTip h4{margin:0;font-family:Cinzel,serif;font-size:17px;line-height:1.15}
+#skTip .skc-ty{font-size:12px;color:#a89878;margin-top:2px}#skTip .skc-res{font-weight:700;color:#ffd890}#skTip .skc-res.gen{color:#9ef07a}#skTip .skc-res.free{color:#cbb894;font-weight:600}#skTip .skc-sub{font-size:11px;color:#9a8a6a;margin-top:-3px}
+#skTip .skc-cd{font-weight:700;color:#9fd0ff}#skTip .skc-left{color:#cfe4ff;font-weight:600}#skTip .skc-dmg{color:#d8c8a8}#skTip .skc-dmg b{color:#ffd890}#skTip .skc-rng{color:#c8b8ff;font-size:12px}
+#skTip p{margin:2px 0;color:#d8c8a8;font-size:12.5px}#skTip .skc-rk{font-size:11px;color:#9a8a6a}#skTip .skc-up{font-size:12px;color:#b8f0a0}#skTip .skc-up b{color:#7be05a}#skTip .skc-up.wait{color:#ffd23a}
+@media (max-height:500px),(max-width:620px){#skTip{width:280px;padding:7px 9px;font-size:11.5px;gap:2px}#skTip img{width:34px;height:34px}#skTip h4{font-size:14px}#skTip .skc-top{padding-bottom:4px}#skTip p{font-size:11px;margin:1px 0}#skTip .skc-ty,#skTip .skc-rng,#skTip .skc-up{font-size:11px}#skTip .skc-sub,#skTip .skc-rk{font-size:10px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-CDE0ejI9.js"></script>
+  <script type="module" crossorigin src="./assets/index-NnByzOC7.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -503,6 +510,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <button class="pad hide" id="p2">2</button>
 <button class="pad hide" id="p1">1</button>
 <button class="pad hide" id="p0">ATTACK</button>
-
+
+<div id="skTip" class="hide"></div>
 </body>
 </html>
