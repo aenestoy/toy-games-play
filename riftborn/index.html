@@ -66,7 +66,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .cell img{width:100%;height:100%;object-fit:contain;pointer-events:none}
 .cell.empty{border-color:#2a2016;background:rgba(0,0,0,.3);cursor:default}
 .cell.big{width:60px;height:60px}
-.shards #salvAll{margin-left:6px;font-size:11px;padding:4px 6px}
+.shards #salvAll{margin-left:6px;font-size:11px;padding:4px 6px}.shards #salvAll.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890;color:#ffd890;animation:pulseB 0.8s ease-in-out infinite alternate}
 .cell.sel{outline:3px solid #ffd890;outline-offset:1px}
 .cell .upg{position:absolute;right:2px;top:0;color:#7be05a;font-style:normal;font-size:13px;text-shadow:0 0 4px #000}
 .side{display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -420,6 +420,17 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .rnGate{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:8px 0}.rnGate>em{font-style:normal;font-family:Cinzel,serif;color:#9a8a6a;font-size:12px}
 .rnC{display:flex;flex-direction:column;gap:2px;border:1px solid color-mix(in srgb,var(--zc) 50%,#3a2c1e);border-radius:8px;padding:3px 8px;background:rgba(0,0,0,.35);min-width:92px}.rnC b{font-family:Cinzel,serif;color:var(--zc);font-size:11px;white-space:nowrap}.rnC i{font-style:normal;color:var(--zc);font-size:10px;letter-spacing:1px}.rnC u{display:block;height:3px;background:#2a2016;border-radius:2px;overflow:hidden}.rnC u s{display:block;height:100%;background:var(--zc)}
 .rift small.rnS{color:var(--zc);letter-spacing:.5px}
+/* rewarded offers (src/portal.js): a play mark says an ad comes first */
+.adI{display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:4px;border-radius:50%;background:#ffd890;color:#2a1806;font-style:normal;font-size:.62em;vertical-align:.12em;font-family:Fredoka,sans-serif}
+.btn.adB{border-color:#d8a848;color:#ffe6a8;background:linear-gradient(#5a3c12,#2a1a08)}
+.deadBtns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:flex-start;margin-top:10px}
+#riseW{display:flex;flex-direction:column;align-items:center;gap:4px}#riseW small{color:#cbb894;font-size:12px}
+#dbl{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 54px);transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;font-size:16px;padding:7px 16px;animation:pulseB .8s ease-in-out infinite alternate}
+#dbl small{font-family:Fredoka,sans-serif;font-weight:500;font-size:11px;letter-spacing:0;color:#e8d0a0;margin-top:1px}
+#dbl.hide{display:none!important}
+.bbt .adB{margin-top:6px}
+/* phones: under the boss banner (drawn at the top there), above the hero */
+@media (max-height:500px){#dbl{top:calc(max(6px,env(safe-area-inset-top)) + 104px);font-size:14px;padding:5px 12px}}
 #menuBar{position:fixed;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
 #menuBar .btn{font-size:13px;padding:7px 11px;white-space:nowrap}
 #menuBar .btn.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890;color:#ffd890;animation:pulseB 0.8s ease-in-out infinite alternate}
@@ -455,7 +466,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .nmOcc{border-color:#6a3a9a}.nmMake{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px}.nmMake .hint{margin:0;font-size:12px}
 @media (max-width:620px){.seal{grid-template-columns:52px minmax(0,1fr) auto}.seal img{width:52px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-BAlt63PK.js"></script>
+  <script type="module" crossorigin src="./assets/index-npIGh-Ni.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
@@ -473,13 +484,14 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
     <p class="credits">Music: North Fantasy Music (CC BY 4.0) · Sounds: Little Robot Sound Factory, littlerobotsoundfactory.com (CC BY 3.0), artisticdude, Kenney, rubberduck (CC0), spell sounds by p0ss, opengameart.org (CC BY-SA 3.0) · Effects: Kenney (CC0) · Models: Kay Lousberg (CC0) · Skill icons: J. W. Bjerk (eleazzaar), jwbjerk.com/art (CC BY 3.0)</p>
   </div>
 </div>
-<div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p id="deadT">Your gear, gems and passives are kept.</p><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div>
+<div id="dead" class="ov hide"><div class="box"><p class="title" style="color:#c83a3a">YOU DIED</p><p id="deadT">Your gear, gems and passives are kept.</p><div class="deadBtns"><span id="riseW" class="hide"><button class="btn adB" id="rise"><i class="adI">▶</i> RISE HERE</button><small>Watch an ad: full life, right where you fell</small></span><button class="btn" id="rez">RESURRECT AT THE ENTRANCE</button></div></div></div>
 <div id="done" class="ov hide"><div class="box"><p class="title">MAP CLEARED</p><p id="doneT"></p><button class="btn" id="next">ENTER THE RIFT</button></div></div>
 <div id="panel" class="hide"><div class="pc">
   <div class="tabs"><button class="tab" data-t="gear">Gear</button><button class="tab" data-t="stats">Stats</button><button class="tab" data-t="gems">Skills</button><button class="tab" data-t="tree">Passives</button><button class="tab" data-t="quests">Quests</button><button class="tab" data-t="shop" style="display:none">Merchant</button><button class="tab" data-t="alch" style="display:none">Alchemist</button><button class="tab" data-t="smith" style="display:none">Blacksmith</button><button class="tab" data-t="occult" style="display:none">Occultist</button><button class="tab" data-t="jewel" style="display:none">Jeweler</button><button class="tab" data-t="board" style="display:none">Board</button><button class="btn small x" id="px">✕</button></div>
   <div id="pb"></div>
 </div></div>
 <div id="newItem" class="hide"></div>
+<button class="btn adB hide" id="dbl"><span><i class="adI">▶</i> DOUBLE LOOT</span><small>Watch an ad: the boss drops its treasure again</small></button>
 <div id="unlk" class="hide"></div>
 <div id="menuBar"><button class="btn small" id="charBtn" data-t="gear">🎒<span class="mt"> GEAR</span></button><button class="btn small" id="gemBtn" data-t="gems">📖<span class="mt"> SKILLS</span></button><button class="btn small" id="treeBtn" data-t="tree">✦<span class="mt"> TALENTS</span></button><button class="btn small" id="questBtn" data-t="quests">📜<span class="mt"> QUESTS</span></button><button class="btn small" id="tpBtn" title="Portal to town (T)">🌀<span class="mt"> TOWN</span></button><button class="btn small" id="sndBtn" title="Sound on / off (M)">🔊</button><button class="btn small" id="musBtn" title="Music on / off (N)">🎵</button></div>
 <button class="pad hide" id="pFlask">FLASK</button>
