@@ -241,6 +241,48 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #unlk{position:fixed;left:50%;top:58px;transform:translateX(-50%);z-index:40;pointer-events:none;width:min(440px,86vw);padding:12px 20px 14px;text-align:center;background:linear-gradient(180deg,rgba(24,14,6,.94),rgba(8,4,2,.94));border:1px solid var(--uc,#ffd890);border-radius:12px;box-shadow:0 0 28px rgba(0,0,0,.7),0 0 18px color-mix(in srgb,var(--uc,#ffd890) 35%,transparent);animation:unlIn 3s ease both}
 #unlk.hide{display:none}
 /* the town stations: the explainer at the top of a station page, its ? button, the town quest line and highlight */
+.stSw{position:sticky;top:0;z-index:6;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 10px;padding:0 0 6px;background:linear-gradient(#1a120c 80%,rgba(26,18,12,0))}
+.stSwB{height:38px;border:1px solid #4a3a28;border-radius:9px;background:#160f0a;color:#b8a07a;font:800 14px Cinzel,serif;letter-spacing:.05em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;white-space:nowrap;overflow:hidden}
+.stSwB.on{color:#ffd890;border-color:#c89a50;background:#2a1c10}
+.stS{color:#ffc84a;font-size:12px;letter-spacing:1px}.stS em{font-style:normal;color:#4a3a28}
+.stSwB .stRdy{color:#7be05a;font-size:13px}
+.stUp{display:flex;flex-direction:column;gap:10px}
+.stUpH{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.stUpH>b{font:800 22px Cinzel,serif;color:var(--sc)}
+.stUpH .stS{font-size:18px;letter-spacing:2px}.stUpH{padding-right:40px}
+.stUpH>small{color:#9a8a6a;font-size:13px}
+.stUpH .gold{margin-left:auto;color:#ffd23a;font-size:16px}
+.stUpC{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stUp .ln{color:#d8ccb4;font-size:14px;line-height:1.45}
+.stUp .ln.nx{color:#c8f0a0}
+.stNext{border-color:color-mix(in srgb,var(--sc) 55%,#4a3a28)}
+.stCost{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stC{display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 5px;border:1px solid color-mix(in srgb,var(--cc) 45%,#3a2c1e);border-radius:10px;background:rgba(14,10,6,.85)}
+.stC i{font-style:normal;font-size:15px;color:var(--cc)}
+.stC b{color:#e8dcc4;font-size:13px}
+.stC small{color:#9a8a6a;font-size:11px}
+.stC.no{border-color:#a84a3a}
+.stC.no b{color:#ff7a6a}
+.stUpB{width:100%;margin-top:4px}
+.stWhy{margin-top:6px;color:#e0a080;font-size:13px}
+.stAll .stLvR{display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:baseline;padding:5px 0;border-top:1px solid #2e2216;color:#8a7a62;font-size:13px}
+.stAll .stLvR em{font-style:normal;color:#6a5a42;letter-spacing:1px}
+.stAll .stLvR.on{color:#d8ccb4}
+.stAll .stLvR.on em{color:#ffc84a}
+.stAll .stLvR.nx{color:#c8f0a0}
+.stAll .stLvR small{color:#9a8a6a;text-align:right}
+.lockL{color:#c8a070!important}
+.mwp.lock{opacity:.35;border-style:dashed}
+.mwPick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.shelf{display:flex;flex-direction:column;gap:6px}
+.shI{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center}
+.shT{display:flex;flex-direction:column;min-width:0}
+.shT b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shT small{color:#9a8a6a;font-size:12px}
+.shLines{margin-top:8px;padding-top:6px;border-top:1px solid #2e2216}
+.sealZ,.unsock{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.sealZ .btn.on{border-color:#ffd890;box-shadow:0 0 0 1px #ffd890}
+@media (max-width:760px),(max-height:500px){.stUpC{grid-template-columns:1fr}.stSwB{height:34px;font-size:13px}.stUpH>b{font-size:18px}.stAll .stLvR{grid-template-columns:56px 1fr;}.stAll .stLvR small{grid-column:2;text-align:left}}
 .stIntro{display:flex;flex-direction:column;gap:6px;margin:0 0 10px}
 .stIntro .stI{position:relative;display:flex;flex-direction:column;gap:3px;padding:10px 110px 10px 14px;border:1px solid var(--sc,#e8b860);border-radius:10px;background:linear-gradient(180deg,rgba(40,26,12,.94),rgba(18,11,5,.94));box-shadow:0 0 14px color-mix(in srgb,var(--sc,#e8b860) 22%,transparent);text-align:left}
 .stIntro .stI b{font:700 17px Cinzel,serif;color:var(--sc,#e8b860)}
@@ -493,7 +535,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #skTip p{margin:2px 0;color:#d8c8a8;font-size:12.5px}#skTip .skc-rk{font-size:11px;color:#9a8a6a}#skTip .skc-up{font-size:12px;color:#b8f0a0}#skTip .skc-up b{color:#7be05a}#skTip .skc-up.wait{color:#ffd23a}
 @media (max-height:500px),(max-width:620px){#skTip{width:280px;padding:7px 9px;font-size:11.5px;gap:2px}#skTip img{width:34px;height:34px}#skTip h4{font-size:14px}#skTip .skc-top{padding-bottom:4px}#skTip p{font-size:11px;margin:1px 0}#skTip .skc-ty,#skTip .skc-rng,#skTip .skc-up{font-size:11px}#skTip .skc-sub,#skTip .skc-rk{font-size:10px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-CIQlwS6t.js"></script>
+  <script type="module" crossorigin src="./assets/index-ChiqgvA4.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
