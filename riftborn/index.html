@@ -238,13 +238,27 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .tglyph i{width:80%;height:80%;background:radial-gradient(circle,#fff 30%,color-mix(in srgb,var(--tc) 60%,#fff));-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;filter:drop-shadow(0 0 4px var(--tc)) drop-shadow(0 0 8px var(--tc))}
 .tcard.on .tglyph{box-shadow:0 0 0 2px #0a0604,0 0 0 4px var(--tc),0 0 18px var(--tc)}
 #talPop{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 45%,rgba(40,24,8,.9),rgba(0,0,0,.96));-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:tpFade .3s ease-out}
-#unlk{position:fixed;left:50%;top:36%;transform:translateX(-50%);z-index:40;pointer-events:none;width:min(440px,86vw);padding:12px 20px 14px;text-align:center;background:linear-gradient(180deg,rgba(24,14,6,.94),rgba(8,4,2,.94));border:1px solid var(--uc,#ffd890);border-radius:12px;box-shadow:0 0 28px rgba(0,0,0,.7),0 0 18px color-mix(in srgb,var(--uc,#ffd890) 35%,transparent);animation:unlIn 3s ease both}
+#unlk{position:fixed;left:50%;top:58px;transform:translateX(-50%);z-index:40;pointer-events:none;width:min(440px,86vw);padding:12px 20px 14px;text-align:center;background:linear-gradient(180deg,rgba(24,14,6,.94),rgba(8,4,2,.94));border:1px solid var(--uc,#ffd890);border-radius:12px;box-shadow:0 0 28px rgba(0,0,0,.7),0 0 18px color-mix(in srgb,var(--uc,#ffd890) 35%,transparent);animation:unlIn 3s ease both}
 #unlk.hide{display:none}
+/* the town stations: the explainer at the top of a station page, its ? button, the town quest line and highlight */
+.stIntro{display:flex;flex-direction:column;gap:6px;margin:0 0 10px}
+.stIntro .stI{position:relative;display:flex;flex-direction:column;gap:3px;padding:10px 110px 10px 14px;border:1px solid var(--sc,#e8b860);border-radius:10px;background:linear-gradient(180deg,rgba(40,26,12,.94),rgba(18,11,5,.94));box-shadow:0 0 14px color-mix(in srgb,var(--sc,#e8b860) 22%,transparent);text-align:left}
+.stIntro .stI b{font:700 17px Cinzel,serif;color:var(--sc,#e8b860)}
+.stIntro .stI span{font:500 14px Fredoka,sans-serif;color:#e8dcc4;line-height:1.35}
+.stIntro .stX{position:absolute;right:10px;top:50%;transform:translateY(-50%)}
+.stIntro.mini{height:0;margin:0;position:relative;z-index:2}
+.stIntro .stQ{position:absolute;right:2px;top:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--sc,#e8b860);background:rgba(20,12,6,.92);color:var(--sc,#e8b860);font:700 16px Fredoka,sans-serif;cursor:pointer;padding:0}
+.stIntro.mq{flex-direction:row;align-items:center}.stIntro.mq .stQl{flex:1}.stIntro.mq .stQ{position:static;flex:none}
+.stIntro .stQl{padding:7px 12px;border-radius:8px;background:rgba(255,216,144,.1);border:1px dashed #ffd890;color:#ffe9a8;font:600 14px Fredoka,sans-serif;text-align:left}
+.tqHot{animation:tqPulse 1.1s ease-in-out infinite;box-shadow:0 0 0 2px #ffd890}
+@keyframes tqPulse{50%{box-shadow:0 0 0 3px rgba(255,216,144,.4),0 0 18px rgba(255,216,144,.55)}}
+.tqRew{color:#ffe9a8;font:600 15px Fredoka,sans-serif;margin:0 0 8px}
+@media (max-width:700px),(max-height:500px){.stIntro .stI{padding:8px 12px}.stIntro .stI b{font-size:15px}.stIntro .stI span{font-size:12.5px}.stIntro .stX{position:static;transform:none;align-self:flex-end;margin-top:4px}}
 #unlk small{display:block;font:700 11px Fredoka,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#b8a07a}
 #unlk b{display:block;margin:2px 0 4px;font:700 26px Cinzel,serif;color:var(--uc,#ffd890);text-shadow:0 2px 3px #000,0 0 16px color-mix(in srgb,var(--uc,#ffd890) 50%,transparent)}
 #unlk span{display:block;font:500 14px Fredoka,sans-serif;color:#e8dcc4;line-height:1.3}
 @keyframes unlIn{0%{opacity:0;transform:translate(-50%,10px) scale(.96)}10%{opacity:1;transform:translate(-50%,0) scale(1)}85%{opacity:1}100%{opacity:0}}
-@media (max-height:500px){#unlk{top:24%;width:min(380px,58vw);padding:8px 14px 10px}#unlk b{font-size:20px}#unlk span{font-size:12px}}
+@media (max-height:500px){#unlk{top:50px;width:min(380px,50vw);padding:6px 12px 8px}#unlk b{font-size:18px;margin:0 0 2px}#unlk span{font-size:12px}}
 #talPop.hide{display:none}@keyframes tpFade{from{opacity:0}}
 .tpIn{width:min(980px,94vw);text-align:center;padding:0 12px}
 .tpLv{display:inline-block;font-family:Cinzel,serif;font-size:14px;font-weight:700;letter-spacing:3px;color:#1a1008;background:linear-gradient(#f4d890,#c89848);padding:3px 16px;border-radius:14px;box-shadow:0 0 18px rgba(232,192,112,.5)}
@@ -479,7 +493,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 #skTip p{margin:2px 0;color:#d8c8a8;font-size:12.5px}#skTip .skc-rk{font-size:11px;color:#9a8a6a}#skTip .skc-up{font-size:12px;color:#b8f0a0}#skTip .skc-up b{color:#7be05a}#skTip .skc-up.wait{color:#ffd23a}
 @media (max-height:500px),(max-width:620px){#skTip{width:280px;padding:7px 9px;font-size:11.5px;gap:2px}#skTip img{width:34px;height:34px}#skTip h4{font-size:14px}#skTip .skc-top{padding-bottom:4px}#skTip p{font-size:11px;margin:1px 0}#skTip .skc-ty,#skTip .skc-rng,#skTip .skc-up{font-size:11px}#skTip .skc-sub,#skTip .skc-rk{font-size:10px}}
 </style>
-  <script type="module" crossorigin src="./assets/index-_sbDVlg2.js"></script>
+  <script type="module" crossorigin src="./assets/index-CIQlwS6t.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BnRKGoEO.css">
 </head>
 <body>
