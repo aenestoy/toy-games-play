@@ -18,5 +18,15 @@
     "seed": 17,
     "digest": "ea8bf743c13bf593ad24789aeef8dfa065689de16786f6110de31d8cb8facd7c",
     "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-start-v2/"
+  },
+  {
+    "id": "2026-10-14-boss-v3",
+    "title": "V3 · küçük boss işaretleri",
+    "createdAt": "2026-10-14T08:03:20.967Z",
+    "sourceCommit": "6266a4c26ed90dbe13e39134bbc11f6bebf1a54b",
+    "previewCommit": "c8027d289262a92b8f6a854469b4dfab791ca39e",
+    "seed": 17,
+    "digest": "d754ff8cb9b4e8e51403a939c10d6e287ab4f6f838535c789ca6668b2f2d0ecd",
+    "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-boss-v3/"
   }
 ]
