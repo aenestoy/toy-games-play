@@ -38,5 +38,15 @@
     "seed": 17,
     "digest": "985c0ae46d980ed05c4c7f40a88e1541b7fc209cec919638c811f62240395d2c",
     "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-content-v4/"
+  },
+  {
+    "id": "2026-10-14-locate-v5",
+    "title": "V5 · karttan konum gösterme",
+    "createdAt": "2026-10-14T09:54:54.267Z",
+    "sourceCommit": "9b97fb433cc8448b2fbd3458cd43818008747213",
+    "previewCommit": "4a675d27c87d957bee8d54998d10570e184c1b5c",
+    "seed": 17,
+    "digest": "27dd71099cd44a1f75d07cf3118da294a1446823c40f90fc31d28f89023290f2",
+    "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-locate-v5/"
   }
 ]
