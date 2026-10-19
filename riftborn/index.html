@@ -541,16 +541,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 /* phones: under the boss banner (drawn at the top there), above the hero */
 @media (max-height:500px){#dbl{top:calc(max(6px,env(safe-area-inset-top)) + 104px);font-size:14px;padding:5px 12px}}
 #menuBar{position:fixed;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
-#menuBar .btn{font-size:13px;padding:7px 11px;white-space:nowrap}
-/* the menu bar in the station windows' dark gold (design B); each icon is a small 3D render (public/icons/menu, scripts/mat-icons-3d.mjs --menu) drawn larger than its box, the box keeps the old emoji's width so no button moves */
-#menuBar .btn{border-color:#7d5c32;border-radius:6px;color:#f1dfb6;background:linear-gradient(#3a2b1b,#1d140c);text-shadow:0 1px 0 #000;box-shadow:inset 0 1px 0 rgba(255,226,170,.2),inset 0 -2px 0 rgba(0,0,0,.35),0 2px 0 #000,0 3px 6px rgba(0,0,0,.4)}
-#menuBar .btn:hover{border-color:#e2bd72;color:#fff3d6;background:linear-gradient(#4a3720,#251a0f)}
-#menuBar .mi{position:relative;visibility:hidden;font-style:normal;text-shadow:none}#menuBar .mi img{visibility:visible;position:absolute;left:50%;top:50%;width:1.75em;height:1.75em;transform:translate(-50%,-50%);object-fit:contain;pointer-events:none;-webkit-user-drag:none}
-/* (the hidden emoji under each icon keeps the button's old box exactly; the two narrow glyphs lean their icon left, away from the label) */
-#treeBtn .mi img,#settingsBtn .mi img{transform:translate(-68%,-50%)}
-#menuBar .btn.new{box-shadow:0 0 14px #ffd890;border-color:#ffd890;color:#ffd890;animation:pulseB 0.8s ease-in-out infinite alternate}
+/* the menu bar's look: src/menu-bar.css */
 @keyframes pulseB{to{box-shadow:0 0 22px #ffd890}}
-@media (max-width:560px){#menuBar .btn{font-size:15px;padding:6px 10px}#menuBar .mt{display:none}#treeBtn .mi img,#settingsBtn .mi img{transform:translate(-50%,-50%)}}
 
 .zoneImg{display:block;width:min(100%,520px);aspect-ratio:16/9;object-fit:cover;margin:0 auto 10px;border-radius:10px;border:2px solid #6a4a28;box-shadow:0 6px 18px #000}
 .ov:has(.storyCards){background:#100b0a}.ov:has(.storyCards) .box{max-width:1080px}.ov:has(.storyCards) .title{font-size:clamp(26px,4vw,38px)}.ov:has(.storyCards) #doneT>.jmsg:first-child{max-width:calc(100% - 48px);margin:4px auto 9px;line-height:1.35;overflow-wrap:break-word}
@@ -619,8 +611,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media(max-width:700px){.artisanCost{grid-template-columns:minmax(0,1fr)}}
 .averageGear{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #665238;border-radius:7px;background:#211b14;padding:8px 10px;margin-bottom:6px;color:#dbc69f}.averageGear div{display:flex;flex-direction:column;gap:2px}.averageGear span{font-size:13px}.averageGear small{font-size:10px;color:#ad9f88}.averageGear>b{font-size:23px;color:#f1d399;font-variant-numeric:tabular-nums}
 .companionPanel{margin:0 0 12px;padding:10px 12px;background:linear-gradient(#25291f,#141810);border:1px solid #817345;border-radius:9px;color:#e3d9bc}.companionPanel summary{cursor:pointer;font-weight:700;color:#e6d29d;min-height:24px}.companionPanel p{font-size:12px;line-height:1.4;color:#bfb9a3;margin:8px 0}.companionChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.companionChoices button{white-space:normal;min-width:0;padding:9px}.companionChoices small{display:block;font-size:10px;margin-top:5px}.companionChoices .selected{border-color:#d7bc76;background:#4b4326}.companionProgress{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;margin:12px 0}.companionSkills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.companionSkills>div{background:#090e0955;border:1px solid #576048;padding:8px;border-radius:6px}.companionSkills b{font-size:12px}.companionSkills small{display:block;color:#c9b57c;font-size:10px;margin-top:3px}.companionSkills .locked{opacity:.55}@media(max-width:560px){.companionSkills{grid-template-columns:1fr}.companionChoices button{padding:7px 3px;font-size:11px}}</style>
-  <script type="module" crossorigin src="./assets/index-DU6PyjVc.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-E1id8VZT.css">
+  <script type="module" crossorigin src="./assets/index-BgXFTWT5.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BtneUsql.css">
 </head>
 <body>
 <canvas id="c3"></canvas>
@@ -646,7 +638,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 <div id="newItem" class="hide"></div>
 <button class="btn adB hide" id="dbl"><span><i class="adI">▶</i> DOUBLE LOOT</span><small>Watch an ad: the boss drops its treasure again</small></button>
 <div id="unlk" class="hide"></div>
-<div id="menuBar"><button class="btn small" id="charBtn" data-t="gear"><i class="mi">🎒<img src="icons/menu/gear.webp" alt="" draggable="false"></i><span class="mt"> GEAR</span></button><button class="btn small" id="gemBtn" data-t="gems"><i class="mi">📖<img src="icons/menu/skills.webp" alt="" draggable="false"></i><span class="mt"> SKILLS</span></button><button class="btn small" id="treeBtn" data-t="tree"><i class="mi">✦<img src="icons/menu/talents.webp" alt="" draggable="false"></i><span class="mt"> TALENTS</span></button><button class="btn small" id="questBtn" data-t="quests"><i class="mi">📜<img src="icons/menu/quests.webp" alt="" draggable="false"></i><span class="mt"> QUESTS</span></button><button class="btn small" id="tpBtn" title="Portal to town (T)"><i class="mi">🌀<img src="icons/menu/town.webp" alt="" draggable="false"></i><span class="mt"> TOWN</span></button><button class="btn small" id="sndBtn" title="Sound on / off (M)"><i class="mi">🔊<img src="icons/menu/snd.webp" alt="" draggable="false"></i></button><button class="btn small" id="musBtn" title="Music on / off (N)"><i class="mi">🎵<img src="icons/menu/music.webp" alt="" draggable="false"></i></button></div>
+<div id="menuBar"><button class="btn small" id="charBtn" data-t="gear"><span class="md"></span><img class="mim" src="icons/menu/gear.webp" alt="" draggable="false"><span class="mt">GEAR</span></button><button class="btn small" id="gemBtn" data-t="gems"><span class="md"></span><img class="mim" src="icons/menu/skills.webp" alt="" draggable="false"><span class="mt">SKILLS</span></button><button class="btn small" id="treeBtn" data-t="tree"><span class="md"></span><img class="mim" src="icons/menu/talents.webp" alt="" draggable="false"><span class="mt">TALENTS</span></button><button class="btn small" id="questBtn" data-t="quests"><span class="md"></span><img class="mim" src="icons/menu/quests.webp" alt="" draggable="false"><span class="mt">QUESTS</span></button><button class="btn small" id="tpBtn" title="Portal to town (T)"><span class="md"></span><img class="mim" src="icons/menu/town.webp" alt="" draggable="false"><span class="mt">TOWN</span></button></div>
 <button class="pad hide" id="pFlask">FLASK</button>
 <button class="pad hide" id="pAuto">AUTO</button>
 <button class="pad hide" id="pDash">DASH</button>
