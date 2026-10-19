@@ -1,0 +1,1 @@
+var e=[{family:`Cinzel`,url:new URL(``+new URL(`ar-1-DGp58lwk.woff2`,import.meta.url).href,``+import.meta.url).href,range:`U+60c, U+61b, U+61f, U+621-63a, U+640-651`},{family:`Fredoka`,url:new URL(``+new URL(`ar-1-DGp58lwk.woff2`,import.meta.url).href,``+import.meta.url).href,range:`U+60c, U+61b, U+61f, U+621-63a, U+640-651`}];export{e as default};
