@@ -40,11 +40,45 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .heroSt{display:flex;flex-direction:column;gap:2px;font:inherit;background:rgba(0,0,0,.35);border:1px solid #4a3a28;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left}.heroSt:hover{border-color:#c89a50}
 .heroSt .hs{display:flex;align-items:center;gap:8px;font-size:15px;line-height:1.5}.heroSt .hs i{font-style:normal;width:20px;text-align:center}.heroSt .hs em{font-style:normal;color:#b8a888;flex:1}.heroSt .hs b{font-size:16px}
 .heroSt .hsAll{margin-top:4px;color:#ffd890;font-family:Cinzel,serif;font-weight:700;font-size:13px;text-align:right}
-.gear>.cards{grid-column:2;grid-row:2;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;min-width:0}.gear>.cards .tipcard{position:static;box-shadow:none}.gear>.cards:not(.pair)>.tipcard{grid-column:2}.gear>.cards>.tipcard.hint{grid-column:1/-1}
+/* the item cards (owner 2026-10-19, Diablo 4): one fixed size whether a comparison is shown or not; the bag card always sits in
+   the right slot, the worn one beside it at the same size; longer content scrolls inside the card, the window never changes */
+.gear{--cardH:clamp(240px,40vh,360px)}
+.gear>.cards{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:var(--cardH);gap:10px;align-items:stretch;min-width:0;height:var(--cardH)}
+.gear>.cards .tipcard{position:static;box-shadow:none;min-width:0;height:100%;box-sizing:border-box;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.gear>.cards:not(.pair)>.tipcard{grid-column:2}.gear>.cards>.tipcard.hint{grid-column:1/-1;height:auto;overflow:visible}
+.tipcard .cmpL{display:flex;flex-direction:column;gap:1px;margin-top:2px}.tipcard .cmpR{font-size:13px}.tipcard .cmpR b{font-weight:700}.tipcard .cmpR.up{color:#7be05a}.tipcard .cmpR.down{color:#ff7a6a}
 .gear .grid{grid-template-columns:repeat(8,1fr);gap:4px}
 /* wide panels: hero | bag | item card side by side, so the card never pushes anything down */
 @media (min-width:1000px){.gear{grid-template-columns:minmax(230px,270px) minmax(0,1fr)}}
-@media (max-width:620px){.gear{grid-template-columns:1fr;height:auto}.gear>.cards{grid-column:1;grid-row:auto;grid-template-columns:1fr}.gear>.cards>.tipcard{grid-column:1!important}}
+@media (max-width:620px){.gear{grid-template-columns:1fr;height:auto;--cardH:340px}.gear>.cards{grid-column:1;grid-row:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-auto-rows:var(--cardH);height:auto}.gear>.cards>.tipcard{grid-column:1!important}}
+/* PC (owner 2026-10-19): the whole Gear window on one screen, no panel scroll: hero column and bag on the top row, the two item
+   cards take the rest of the height (the same for every selection); materials are one compact row that opens over the cards */
+@media (min-width:621px) and (min-height:501px){
+.gear{height:100%;box-sizing:border-box;grid-template-rows:auto minmax(0,1fr);align-items:stretch;gap:8px 12px}
+.gear>.leftcol{min-height:0;gap:6px}.gear .averageGear{margin-bottom:0;padding:5px 10px}.gear .doll{min-height:0;flex:1}
+#panel .gear .heroSt{padding:4px 12px}.gear .heroSt .hs{font-size:14px;line-height:1.38}.gear .heroSt .hsAll{margin-top:2px}
+.gear .side{gap:5px}.gear .bagValuables{margin:0;gap:6px}.gear .bagValuables>span{grid-template-columns:18px auto 1fr;align-items:center;padding:3px 8px}.gear .bagValuables i{grid-row:auto}.gear .bagValuables b{text-align:right}
+.gear .shards{font-size:14px;margin-top:-2px}
+.gear .bagMaterials{position:relative;margin:0}.gear .bagMaterials summary{padding:4px 9px}
+.gear .bagMaterials[open]>.bagMatGrid{position:absolute;left:-1px;right:-1px;top:100%;z-index:6;max-height:240px;background:#191611;border:1px solid #51412d;border-radius:0 0 6px 6px;box-shadow:0 8px 20px rgba(0,0,0,.7)}
+.gear>.cards{height:auto;min-height:0;grid-template-rows:minmax(0,1fr)}
+}
+/* phone Gear window mockup (?gear2=1, main.js gear2Render): fixed regions, the bag scrolls, the item sheet has one fixed size */
+.g2{position:relative;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);gap:6px;overflow:hidden}
+.g2 .g2hero{display:flex;flex-direction:column;gap:4px}.g2 .doll{min-height:0;height:228px;flex:none}.g2 .doll .cell.big{width:42px;height:42px}
+.g2 .g2sum{display:flex;justify-content:space-between;gap:6px;padding:4px 8px;border:1px solid #4a3a28;border-radius:8px;background:rgba(0,0,0,.35);font-size:13px}.g2 .g2sum em{font-style:normal;color:#b8a888}.g2 .g2sum b{color:#ffd890}
+.g2 .g2main{display:flex;flex-direction:column;min-height:0;gap:4px}
+.g2 .g2tabs{display:flex;align-items:center;gap:4px}.g2 .g2t{font:inherit;font-size:13px;padding:7px 14px;border-radius:7px 7px 0 0;border:1px solid #4a3a28;border-bottom:0;background:#191611;color:#b8a888}.g2 .g2t.on{background:#2a2016;color:#ffd890;border-color:#a27b45}.g2 .g2tabs .bagn{margin-left:auto;color:#9a8a6a;font-size:13px}
+.g2 .g2body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px}
+.g2 .g2grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.g2 .g2mats{max-height:none;padding:0}
+.g2.sheetOn .g2body>*{margin-bottom:52vh}
+.g2 .g2sheet{position:absolute;left:0;right:0;bottom:0;height:52vh;display:flex;flex-direction:column;gap:6px;padding:8px;box-sizing:border-box;background:linear-gradient(#22180f,#100a06);border:1px solid #8a6a3a;border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.75);z-index:5}
+.g2 .g2cmp{display:flex;flex-wrap:nowrap;gap:4px;overflow:hidden;white-space:nowrap;font-size:13px}.g2 .g2cmp .cmpR.up{color:#7be05a}.g2 .g2cmp .cmpR.down{color:#ff7a6a}.g2 .g2dot{font-style:normal;color:#6a5a42}
+.g2 .g2card{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}.g2 .g2card .tipcard{position:static;box-shadow:none;margin:0}
+.g2 .g2btns{display:flex;gap:6px}.g2 .g2btns .btn{flex:1;min-height:46px;font-size:15px}#panel .g2 .g2btns .btn.on{border-color:#ffd890;color:#ffd890;box-shadow:inset 0 0 0 2px rgba(255,216,144,.55)}.g2 .g2btns .g2x{flex:0 0 46px}
+.g2.land{grid-template-rows:none;grid-template-columns:minmax(0,40%) minmax(0,1fr)}.g2.land .doll{height:calc(100% - 34px)}.g2.land .g2hero{min-height:0}
+.g2.land .g2grid{grid-template-columns:repeat(8,minmax(0,1fr))}.g2.land.sheetOn .g2body>*{margin-bottom:0}
+.g2.land .g2sheet{left:auto;top:0;width:58%;height:auto;border-radius:14px 0 0 14px;box-shadow:-10px 0 30px rgba(0,0,0,.75)}
 @media (max-height:500px){.gear .doll{min-height:0;height:calc(94vh - 76px);flex:none}.doll .cell.big{width:44px;height:44px}.grid{grid-template-columns:repeat(8,1fr);gap:3px}.gear{grid-template-columns:minmax(170px,230px) 1fr}}
 .doll{position:relative;border:1px solid #3a2c1e;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,rgba(120,80,40,.25),rgba(0,0,0,.35));min-height:300px;flex:1}
 .dollC{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;border-radius:12px}
@@ -611,7 +645,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media(max-width:700px){.artisanCost{grid-template-columns:minmax(0,1fr)}}
 .averageGear{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #665238;border-radius:7px;background:#211b14;padding:8px 10px;margin-bottom:6px;color:#dbc69f}.averageGear div{display:flex;flex-direction:column;gap:2px}.averageGear span{font-size:13px}.averageGear small{font-size:10px;color:#ad9f88}.averageGear>b{font-size:23px;color:#f1d399;font-variant-numeric:tabular-nums}
 .companionPanel{margin:0 0 12px;padding:10px 12px;background:linear-gradient(#25291f,#141810);border:1px solid #817345;border-radius:9px;color:#e3d9bc}.companionPanel summary{cursor:pointer;font-weight:700;color:#e6d29d;min-height:24px}.companionPanel p{font-size:12px;line-height:1.4;color:#bfb9a3;margin:8px 0}.companionChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.companionChoices button{white-space:normal;min-width:0;padding:9px}.companionChoices small{display:block;font-size:10px;margin-top:5px}.companionChoices .selected{border-color:#d7bc76;background:#4b4326}.companionProgress{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;margin:12px 0}.companionSkills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.companionSkills>div{background:#090e0955;border:1px solid #576048;padding:8px;border-radius:6px}.companionSkills b{font-size:12px}.companionSkills small{display:block;color:#c9b57c;font-size:10px;margin-top:3px}.companionSkills .locked{opacity:.55}@media(max-width:560px){.companionSkills{grid-template-columns:1fr}.companionChoices button{padding:7px 3px;font-size:11px}}</style>
-  <script type="module" crossorigin src="./assets/index-BgXFTWT5.js"></script>
+  <script type="module" crossorigin src="./assets/index-DMt216Kp.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BtneUsql.css">
 </head>
 <body>
