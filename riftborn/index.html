@@ -47,6 +47,21 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .gear>.cards .tipcard{position:static;box-shadow:none;min-width:0;height:100%;box-sizing:border-box;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .gear>.cards:not(.pair)>.tipcard{grid-column:2}.gear>.cards>.tipcard.hint{grid-column:1/-1;height:auto;overflow:visible}
 .tipcard .cmpL{display:flex;flex-direction:column;gap:1px;margin-top:2px}.tipcard .cmpR{font-size:13px}.tipcard .cmpR b{font-weight:700}.tipcard .cmpR.up{color:#7be05a}.tipcard .cmpR.down{color:#ff7a6a}
+/* PC hover item cards (owner 2026-10-19, Diablo 4; main.js hcShow): beside the item, never off screen, the worn card at the
+   same size next to the hovered one (row-reverse when it opens to the left, so the hovered card stays next to the item) */
+#hoverCard{position:fixed;left:0;top:0;z-index:9000;display:flex;gap:8px;align-items:stretch;pointer-events:none;max-height:calc(100vh - 16px)}
+#hoverCard.hide{display:none}#hoverCard.flip{flex-direction:row-reverse}
+#hoverCard>div{width:300px;display:flex;min-height:0}
+#hoverCard .tipcard{position:static;width:100%;box-sizing:border-box;max-height:calc(100vh - 16px);overflow:hidden;box-shadow:0 0 0 1px #000,0 12px 32px rgba(0,0,0,.8)}
+#hoverCard .hcMain .tipcard.ro{border-color:color-mix(in srgb,var(--rc) 70%,#000)}
+#hoverCard .hcKey{margin-top:6px;color:#7a6a52;font-size:11.5px}#hoverCard .hcR{font-style:normal;color:#a8946a;font-size:11.5px;white-space:nowrap}
+/* PC Gear window without the fixed card area: hero | bag, one fixed bar under the bag for the picked item (sockets, buttons) */
+.gear.hc{grid-template-rows:minmax(0,1fr) auto}
+.gear.hc>.selBar{grid-column:2;grid-row:2;height:84px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 10px;border:1px solid #4a3a28;border-radius:8px;background:rgba(0,0,0,.3);overflow-y:auto;scrollbar-width:thin;font-size:13px;color:#9a8a6a;min-width:0}
+.gear.hc>.selBar.hint{display:block;line-height:1.45;color:#7a6a52}
+.selBar .sbIt{display:flex;align-items:center;gap:8px;min-width:0}.selBar .sbIt img{width:40px;height:40px;border:1px solid var(--rc);border-radius:6px;background:rgba(0,0,0,.4)}.selBar .sbIt b{font-family:Cinzel,serif;font-size:15px}
+.selBar .socks,.selBar .sockAsk,.selBar .unsock{margin:0}.selBar .row2{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+@media (max-width:620px){.gear.hc>.selBar{grid-column:1;grid-row:auto}}
 .gear .grid{grid-template-columns:repeat(8,1fr);gap:4px}
 /* wide panels: hero | bag | item card side by side, so the card never pushes anything down */
 @media (min-width:1000px){.gear{grid-template-columns:minmax(230px,270px) minmax(0,1fr)}}
@@ -645,7 +660,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media(max-width:700px){.artisanCost{grid-template-columns:minmax(0,1fr)}}
 .averageGear{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #665238;border-radius:7px;background:#211b14;padding:8px 10px;margin-bottom:6px;color:#dbc69f}.averageGear div{display:flex;flex-direction:column;gap:2px}.averageGear span{font-size:13px}.averageGear small{font-size:10px;color:#ad9f88}.averageGear>b{font-size:23px;color:#f1d399;font-variant-numeric:tabular-nums}
 .companionPanel{margin:0 0 12px;padding:10px 12px;background:linear-gradient(#25291f,#141810);border:1px solid #817345;border-radius:9px;color:#e3d9bc}.companionPanel summary{cursor:pointer;font-weight:700;color:#e6d29d;min-height:24px}.companionPanel p{font-size:12px;line-height:1.4;color:#bfb9a3;margin:8px 0}.companionChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.companionChoices button{white-space:normal;min-width:0;padding:9px}.companionChoices small{display:block;font-size:10px;margin-top:5px}.companionChoices .selected{border-color:#d7bc76;background:#4b4326}.companionProgress{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;margin:12px 0}.companionSkills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.companionSkills>div{background:#090e0955;border:1px solid #576048;padding:8px;border-radius:6px}.companionSkills b{font-size:12px}.companionSkills small{display:block;color:#c9b57c;font-size:10px;margin-top:3px}.companionSkills .locked{opacity:.55}@media(max-width:560px){.companionSkills{grid-template-columns:1fr}.companionChoices button{padding:7px 3px;font-size:11px}}</style>
-  <script type="module" crossorigin src="./assets/index-DEC-_8Yt.js"></script>
+  <script type="module" crossorigin src="./assets/index-BPkqpqsN.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-Dl2rId5R.css">
 </head>
 <body>
