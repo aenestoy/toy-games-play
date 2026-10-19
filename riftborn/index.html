@@ -488,6 +488,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .pad img{width:66%;height:66%;pointer-events:none;filter:drop-shadow(0 1px 2px #000)}
 .pad{overflow:hidden}.pad .cdo{position:absolute;left:0;right:0;top:0;height:calc(var(--cd,0) * 100%);background:rgba(8,6,4,.7);box-shadow:0 2px 0 var(--cc,#ffd890);pointer-events:none}.pad .cdn{position:absolute;inset:0;display:grid;place-items:center;font-family:Fredoka,sans-serif;font-size:22px;font-weight:700;color:#fff;text-shadow:0 2px 3px #000,0 0 6px #000;pointer-events:none}
 #pAuto{left:max(14px,env(safe-area-inset-left));bottom:max(80px,calc(env(safe-area-inset-bottom) + 80px));width:56px;height:34px;border-radius:17px;font-size:10px;opacity:.75}#pAuto.on{border-color:#ffd890;color:#ffd890;opacity:1}
+/* a hold tip is about this button (main.js holdCoach, owner 2026-10-19): it glows until the tip goes */
+.pad.coach{opacity:1!important;border-color:#ffe9a8!important;color:#ffe9a8;animation:padCoach 1s ease-in-out infinite}@keyframes padCoach{0%,100%{box-shadow:0 0 6px 2px rgba(255,216,144,.45)}50%{box-shadow:0 0 20px 8px rgba(255,216,144,.9)}}
 #pDash{right:calc(env(safe-area-inset-right) + 232px);bottom:calc(env(safe-area-inset-bottom) + 24px);width:52px;height:52px}
 #pFlask{left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:52px;height:52px;background:radial-gradient(circle at 40% 35%,#c83a3a,#4a0a0a)}
 /* batch B: dash cooldown, flask charges, too little mana, ready / refused / refilled flashes */
@@ -617,7 +619,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media(max-width:700px){.artisanCost{grid-template-columns:minmax(0,1fr)}}
 .averageGear{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #665238;border-radius:7px;background:#211b14;padding:8px 10px;margin-bottom:6px;color:#dbc69f}.averageGear div{display:flex;flex-direction:column;gap:2px}.averageGear span{font-size:13px}.averageGear small{font-size:10px;color:#ad9f88}.averageGear>b{font-size:23px;color:#f1d399;font-variant-numeric:tabular-nums}
 .companionPanel{margin:0 0 12px;padding:10px 12px;background:linear-gradient(#25291f,#141810);border:1px solid #817345;border-radius:9px;color:#e3d9bc}.companionPanel summary{cursor:pointer;font-weight:700;color:#e6d29d;min-height:24px}.companionPanel p{font-size:12px;line-height:1.4;color:#bfb9a3;margin:8px 0}.companionChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.companionChoices button{white-space:normal;min-width:0;padding:9px}.companionChoices small{display:block;font-size:10px;margin-top:5px}.companionChoices .selected{border-color:#d7bc76;background:#4b4326}.companionProgress{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;margin:12px 0}.companionSkills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.companionSkills>div{background:#090e0955;border:1px solid #576048;padding:8px;border-radius:6px}.companionSkills b{font-size:12px}.companionSkills small{display:block;color:#c9b57c;font-size:10px;margin-top:3px}.companionSkills .locked{opacity:.55}@media(max-width:560px){.companionSkills{grid-template-columns:1fr}.companionChoices button{padding:7px 3px;font-size:11px}}</style>
-  <script type="module" crossorigin src="./assets/index-CCv1cx5o.js"></script>
+  <script type="module" crossorigin src="./assets/index-DU6PyjVc.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-E1id8VZT.css">
 </head>
 <body>
