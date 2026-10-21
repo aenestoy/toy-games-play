@@ -337,6 +337,12 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .jrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.jd{display:flex;align-items:center;gap:5px;font-size:12px;color:#7a6a52}.jd i{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid #4a3a28;font-style:normal;font-size:11px}.jd.done{color:#9ad08a}.jd.done i{background:#2a5a20;border-color:#7be05a;color:#fff}.jd.next{color:#ffd890;font-weight:700}.jd.next i{border-color:#ffd890;box-shadow:0 0 8px #ffd890}
 .jmsg{color:#c8b898;margin:6px 0}
 .credits{font-size:10px;color:#6a5a48;margin:10px 0 0;line-height:1.4}
+/* the loading bar under LOADING n% (main.js ldShow): it moves from the first paint, so the start never looks frozen */
+#ldBar{width:min(260px,70%);height:6px;margin:10px auto 0;border-radius:3px;background:rgba(0,0,0,.45);border:1px solid #4a3a28;overflow:hidden;position:relative}
+#ldBar i{position:absolute;left:0;top:0;bottom:0;width:4%;background:linear-gradient(90deg,#8a5a20,#e8b860);transition:width .3s ease-out}
+#ldBar:not(.on) i{width:30%;animation:ldSlide 1.4s ease-in-out infinite}
+@keyframes ldSlide{0%{left:-30%}100%{left:100%}}
+#go:not([disabled])~#ldBar,#go.hide~#ldBar{display:none}
 .cell .noUse{position:absolute;left:3px;top:0;color:#ff5a4a;font-style:normal;font-size:14px;line-height:14px;font-weight:800;text-shadow:0 0 3px #000,0 0 2px #000}
 .shopP{display:grid;grid-template-columns:1fr 1fr;gap:10px}.shopP .wide{grid-column:1/-1}.shopHead{grid-column:1/-1;display:flex;gap:18px;align-items:center;font-size:15px;color:#c8b898}.shopHead .gold{color:#ffd23a;font-size:18px}
 .gamb{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px;margin-top:6px}.sgrid .cell .pr{position:absolute;right:3px;bottom:1px;font-style:normal;font-size:10px;color:#ffd23a;text-shadow:0 0 3px #000}
@@ -737,7 +743,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media(max-width:700px){.artisanCost{grid-template-columns:minmax(0,1fr)}}
 .averageGear{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #665238;border-radius:7px;background:#211b14;padding:8px 10px;margin-bottom:6px;color:#dbc69f}.averageGear div{display:flex;flex-direction:column;gap:2px}.averageGear span{font-size:13px}.averageGear small{font-size:10px;color:#ad9f88}.averageGear>b{font-size:23px;color:#f1d399;font-variant-numeric:tabular-nums}
 .companionPanel{margin:0 0 12px;padding:10px 12px;background:linear-gradient(#25291f,#141810);border:1px solid #817345;border-radius:9px;color:#e3d9bc}.companionPanel summary{cursor:pointer;font-weight:700;color:#e6d29d;min-height:24px}.companionPanel p{font-size:12px;line-height:1.4;color:#bfb9a3;margin:8px 0}.companionChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.companionChoices button{white-space:normal;min-width:0;padding:9px}.companionChoices small{display:block;font-size:10px;margin-top:5px}.companionChoices .selected{border-color:#d7bc76;background:#4b4326}.companionProgress{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;margin:12px 0}.companionSkills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.companionSkills>div{background:#090e0955;border:1px solid #576048;padding:8px;border-radius:6px}.companionSkills b{font-size:12px}.companionSkills small{display:block;color:#c9b57c;font-size:10px;margin-top:3px}.companionSkills .locked{opacity:.55}.sk3side .companionPanel{margin:0;padding:5px 10px;flex:none}.sk3side .companionPanel summary{font-size:12px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sk3side .companionChoices,.sk3side .companionSkills{grid-template-columns:1fr}@media(max-width:560px){.companionSkills{grid-template-columns:1fr}.companionChoices button{padding:7px 3px;font-size:11px}}</style>
-  <script type="module" crossorigin src="./assets/index-DN-VQnd7.js"></script>
+  <script type="module" crossorigin src="./assets/index-Dm8iuRr6.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-BSobmN87.css">
 </head>
 <body>
@@ -751,6 +757,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
     <div class="keys" id="keys"></div>
     <div id="clsPick" class="hide"></div>
     <button class="btn" id="go" disabled>LOADING…</button>
+    <div id="ldBar"><i></i></div>
     <div><button class="btn small hide" id="wipe" style="margin-top:12px;opacity:.75">NEW CHARACTER</button></div>
     <p class="credits">Music: North Fantasy Music (CC BY 4.0) · Sounds: Little Robot Sound Factory, littlerobotsoundfactory.com (CC BY 3.0), artisticdude, Kenney, rubberduck (CC0), spell sounds by p0ss, opengameart.org (CC BY-SA 3.0) · Effects: Kenney (CC0) · Models and material icons: Kay Lousberg (CC0) · The Gravekeeper: "[Animated] Boss" by CoinCoin, opengameart.org (CC BY 4.0) · The Veiled Priest: "Lord Infandum: Arch Lector Of The Necropolis" by Alexander Plettinx, sketchfab.com (CC BY 4.0) · The Void Knight: "Undead Grave- Knight-male" by milakpro, sketchfab.com (CC BY 4.0) · The Heart of the Rift: "Living Flesh Blob" by Yury Misiyuk, sketchfab.com (CC BY 4.0)</p>
   </div>
