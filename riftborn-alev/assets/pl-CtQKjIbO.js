@@ -1,0 +1,1 @@
+var e=[{family:`Fredoka`,url:new URL(``+new URL(`pl-1-DVVOojQ2.woff2`,import.meta.url).href,``+import.meta.url).href,range:`U+104-107, U+118-119, U+143-144, U+15a-15b, U+179-17c`}];export{e as default};
