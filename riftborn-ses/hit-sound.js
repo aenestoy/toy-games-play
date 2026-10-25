@@ -28,20 +28,37 @@ export const HX_GAIN = 1;
 // RX_MAP: the kinds that play a real recording instead - the synthetic or arcade pack kinds (p0ss zap / crack / freeze /
 // warp / riser / shield, the magic and spell tones) and the designed impacts that have a real counterpart. The game's
 // synthesized whoosh / thump / tones / bow twang play recordings too in this set (src/main.js REAL).
-export const RX_KINDS = { rice: 5, rcrunch: 5, rholy: 5, rven: 8, rmeat: 2, rsnap: 5, rmetal: 5, rstone: 2, rswish: 11 };
-export const rxFiles = (k) => (RX_KINDS[k] ? Array.from({ length: RX_KINDS[k] }, (_, i) => 's4/' + k + '-' + (i + 1)) : null);
+// (third round, the same day: owner "Evet, 416 MB'lik 17 Sonniss paketini indir") the real recordings the CC0 packs lacked, cut from
+// 17 Sonniss #GameAudioGDC packs (public/sfx/s5/, docs/ASSET-LOG.md; raw files in ozel/sounds/sonniss, licence: royalty-free in
+// games, no attribution, never offered as sound effects - so they are only in the game, never on the public test page):
+// real fire (Pole Position Burning House, The Sound Keeper Small Fire, Gregor Quendel Designed Fire), electric arcs (Hear and Now
+// High Voltage Electricity), thunder (Soundrangers), ice cracking (Mattia Cellotto Glacier Ice, Articulated Sounds Thin Ice),
+// blade into flesh and gore (PMSFX BLOODBATH, Articulated Sounds Bones & Blood), armour (Double Trouble Medieval Armor), leather
+// smacks (Rock The Speakerbox Melee), rock and debris (Tatak, PMSFX Rocky Impacts), acid sizzle (Alexander Kopeikin Dry Ice),
+// monster voices (Gamemaster Troll, Sounds Great Orc, Articulated Sounds Yeti)
+export const SX_KINDS = { sfire: 6, sfireL: 3, sfireT: 4, szap: 6, sthunder: 4, sice: 6, siceL: 3, sstab: 6, sgore: 4, sbone: 5, sarmor: 3, sflesh: 4, srock: 6, srockL: 3, sacid: 5, sorc: 5, stroll: 5, syeti: 4 };
+export const RX_KINDS = { rice: 5, rcrunch: 5, rholy: 5, rven: 8, rmeat: 2, rsnap: 5, rmetal: 5, rstone: 2, rswish: 11, ...SX_KINDS };
+// the CC0 stand-in of each Sonniss kind (the public test page cannot carry Sonniss sounds; null: silent there)
+export const SX_CC0 = { sfire: 'hfire', sfireL: 'hfireL', sfireT: 'fireT', szap: 'hzap', sthunder: 'hzapL', sice: 'rice', siceL: 'rice', sstab: 'rmeat', sgore: 'rven', sbone: 'hbone', sarmor: 'rmetal', sflesh: 'rmeat', srock: 'rock', srockL: 'rstone', sacid: null, sorc: 'goblin', stroll: 'ogre', syeti: 'giant' };
+export const rxFiles = (k) => (RX_KINDS[k] ? Array.from({ length: RX_KINDS[k] }, (_, i) => (SX_KINDS[k] ? 's5/' : 's4/') + k + '-' + (i + 1)) : null);
 export const RX_S2 = ['bow', 'xbow'];
 export const RX_MAP = {
-  hice: 'rice', hiceL: 'rice', iceS: 'rice', iceL: 'rice', icast: 'rcrunch', iceT: 'rcrunch',
+  hfire: 'sfire', fireS: 'sfire', fboom: 'sfire', hfireL: 'sfireL', fireL: 'sfireL', bigboom: 'sfireL', fireT: 'sfireT', flames: 'sfireT',
+  hzap: 'szap', zapS: 'szap', zap: 'szap', hzapL: 'sthunder', zapL: 'sthunder', thunder: 'sthunder',
+  hice: 'sice', iceS: 'sice', hiceL: 'siceL', iceL: 'siceL', icast: 'rcrunch', iceT: 'rcrunch',
   hholy: 'rholy', holyS: 'rholy', holyL: 'rholy',
-  hvenom: 'rven', venom: 'rven', rot: 'rven', blood: 'rven',
-  zap: 'hzap', crack: 'rsnap', freeze: 'rcrunch', warp: 'rswish', ultrise: 'rswish', mshield: 'rmetal', magic: 'clothh', spell: 'clothh',
+  hvenom: 'rven', venom: 'rven', rot: 'rven', blood: 'rven', slime: 'rven',
+  hbone: 'sbone', boneS: 'sbone', boneL: 'sbone', bone: 'sbone',
+  rock: 'srock', rstone: 'srockL', rmeat: 'sflesh', metal: 'sarmor', mshield: 'sarmor',
+  crack: 'rsnap', freeze: 'rcrunch', warp: 'rswish', ultrise: 'rswish', magic: 'clothh', spell: 'clothh',
   riseF: 'rswish', riseL: 'rswish', riseI: 'rswish', riseH: 'rswish', riseD: 'rswish',
+  // monster voices: the cartoonish goblin is an orc, the ogre a troll, the bosses' giant a yeti (src/monster-audio.js)
+  goblin: 'sorc', ogre: 'stroll', giant: 'syeti',
 };
 // the real layers added under an element's hit / kill in the realistic set
 const RX_ADD = {
-  fire: (v) => [['rswish', v * 0.35, 0, 1.15]], light: (v) => [['rsnap', v * 0.45, 0, 1.4]], cold: (v) => [['rcrunch', v * 0.35, 0.01]],
-  phys: (v) => [['rmeat', v * 0.45, 0.005]], holy: (v) => [['rholy', v * 0.25, 0.02, 1.5]],
+  fire: (v) => [['rswish', v * 0.3, 0, 1.15]], light: (v) => [['rsnap', v * 0.3, 0, 1.4]], cold: (v) => [['rcrunch', v * 0.35, 0.01]],
+  pois: (v) => [['sacid', v * 0.45, 0.02]], phys: (v) => [['sstab', v * 0.6, 0.005]], holy: (v) => [['rholy', v * 0.25, 0.02, 1.5]],
 };
 
 const L = (...a) => a;
@@ -74,7 +91,7 @@ export function hxHit(cls, el, crit, real) {
 }
 // a kill: the element's bigger layer
 export function hxKill(cls, el, real) {
-  const l = hxKill0(cls, el); if (l && real && (!el || el === 'phys') && cls !== 'necro') l.push(['rven', 0.3, 0.02, 0.8]); return l;
+  const l = hxKill0(cls, el); if (l && real && (!el || el === 'phys') && cls !== 'necro') l.push(['sgore', 0.4, 0.02]); return l;
 }
 function hxKill0(cls, el) {
   switch (el && el !== 'phys' ? el : cls === 'necro' ? 'bone' : cls) {

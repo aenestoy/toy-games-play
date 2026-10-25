@@ -130,6 +130,6 @@ go.onclick = async () => {
   try {
   const files = await (await fetch('files.json')).json(); let done = 0, ok = 0; const bad = []; window.__bad = bad;
   await start(async (get) => { const q = files.slice(); const w = async () => { while (q.length) { const f = q.shift(); try { await get(f); ok++; } catch (e) { bad.push(f); } done++; go.textContent = 'Yükleniyor… ' + Math.round((100 * done) / files.length) + '%'; } }; await Promise.all([w(), w(), w(), w(), w(), w()]); });
-  window.__loaded = [ok, files.length]; const st = document.createElement('p'); st.textContent = ok + ' / ' + files.length + ' ses yüklendi' + (bad.length ? ' — yüklenemeyen: ' + bad.length : ''); app.before(st); go.remove(); render();
+  window.__loaded = [ok, files.length]; const st = document.createElement('p'); st.textContent = ok + ' / ' + files.length + ' ses yüklendi' + (bad.length ? ' — yüklenemeyen: ' + bad.length : ''); const sx = files.some((f) => f.startsWith('s5/')); const nt = document.createElement('div'); nt.className = 'note'; nt.textContent = sx ? 'Bu YEREL sayfa: Gerçekçi sütununda Sonniss kayıtları da çalıyor (gerçek ateş, elektrik ve gök gürültüsü, buz çatlaması, ete giren bıçak, zırh, taş, asit cızırtısı). Lisansları yüzünden bu sayfa internete konmaz.' : 'Herkese açık sayfa: Gerçekçi sütunu yalnız ücretsiz CC0 kayıtlarla. Sonniss kayıtlı tam hâli yalnız yerel sayfada ve oyunun içinde.'; app.before(nt); app.before(st); go.remove(); render();
   } catch (e) { go.disabled = false; go.textContent = 'Yüklenemedi, tekrar dene (' + (e && e.message || e) + ')'; }
 };
