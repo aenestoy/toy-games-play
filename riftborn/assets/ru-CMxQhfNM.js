@@ -1,1 +1,0 @@
-var e=[{family:`Cinzel`,url:new URL(``+new URL(`ru-1-B0HrNfsu.woff2`,import.meta.url).href,``+import.meta.url).href,range:`U+401, U+410-44f, U+451`},{family:`Fredoka`,url:new URL(``+new URL(`ru-2-D5MnyW3Q.woff2`,import.meta.url).href,``+import.meta.url).href,range:`U+401, U+410-44f, U+451`}];export{e as default};

@@ -1,0 +1,1 @@
+var e=[{family:`Alegreya SC`,url:new URL(``+new URL(`ar-1-BGGd0BuO.woff2`,import.meta.url).href,``+import.meta.url).href,range:`U+60c, U+61b, U+61f, U+621-63a, U+640-651, U+66a`},{family:`Alegreya Sans`,url:new URL(``+new URL(`ar-1-BGGd0BuO.woff2`,import.meta.url).href,``+import.meta.url).href,range:`U+60c, U+61b, U+61f, U+621-63a, U+640-651, U+66a`}];export{e as default};
