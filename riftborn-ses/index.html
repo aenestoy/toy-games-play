@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:," />
+<title>Riftborn Vuruş Sesleri</title>
+<style>
+  :root { --bg: #14110f; --card: #201b17; --line: #3a3029; --text: #efe6da; --dim: #a8998a; --old: #8a6f5a; --new: #d9a13b; --newt: #1a1206; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 22px; margin: 4px 0 6px; }
+  p { color: var(--dim); margin: 6px 0; }
+  #go { font: 600 17px system-ui; background: var(--new); color: var(--newt); border: 0; border-radius: 10px; padding: 12px 20px; margin: 10px 0; cursor: pointer; }
+  #go:disabled { opacity: .6; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 2; }
+  .tabs button { font: 600 14px system-ui; background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .tabs button.on { background: var(--new); color: var(--newt); border-color: var(--new); }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+  .nm b { display: block; }
+  .nm span { color: var(--dim); font-size: 13px; }
+  .bt { display: grid; grid-template-columns: repeat(2, auto); gap: 6px; }
+  .bt div { display: flex; gap: 6px; align-items: center; }
+  .bt i { font-style: normal; color: var(--dim); font-size: 12px; width: 44px; text-align: right; }
+  .bt button { font: 600 13px system-ui; border-radius: 8px; padding: 7px 10px; cursor: pointer; border: 1px solid var(--old); background: transparent; color: var(--text); min-width: 58px; }
+  .bt button.n { background: var(--new); color: var(--newt); border-color: var(--new); }
+  .sec { margin: 18px 0 4px; color: var(--new); font-weight: 700; }
+  .note { background: var(--card); border-left: 3px solid var(--new); padding: 8px 12px; border-radius: 6px; margin: 10px 0; color: var(--dim); }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } .bt { grid-template-columns: 1fr 1fr; } .bt i { width: auto; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Riftborn — vuruş sesleri</h1>
+  <p>Her yeteneğin <b>atış</b> (büyü çıkarken) ve <b>vuruş</b> (canavara değince) sesi. Soldaki düğme <b>eski</b>, sarı düğme <b>yeni</b>.</p>
+  <p>Yenide büyü vuruşlarında davul/gümleme yok: ateş hışırtı ve çıtırtı, buz çatırtı, şimşek çıtırtı, zehir şapırtı, kemik çatırtı, kutsal çınlama. Silah vuruşları silahın kendi sesi.</p>
+  <button id="go">Sesleri yükle ve başla</button>
+  <div id="app"></div>
+</main>
+<script>/* until page.js takes over: a tap says so instead of doing nothing (e.g. the unbuilt source copy) */document.getElementById("go").onclick=function(){this.textContent="Sayfa yüklenemedi — yenileyip tekrar dene";};</script>
+<script type="module" src="page.js"></script>
+</body>
+</html>
