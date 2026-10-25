@@ -92,7 +92,8 @@ const KILL_EL = { mage: ['fire', 'cold', 'light'], necro: ['phys', 'pois'], knig
 
 const app = document.getElementById('app'), go = document.getElementById('go');
 const btn = (t, nw, f) => { const b = document.createElement('button'); b.textContent = t; if (nw) b.className = 'n'; b.onclick = f; return b; };
-const pair = (label, f) => { const d = document.createElement('div'), i = document.createElement('i'); i.textContent = label; d.append(i, btn('Eski', false, () => f(false)), btn('Yeni', true, () => f(true))); return d; };
+// three sets: eski (the old hits), şimdi (the element hits of the first round), gerçekçi (real recorded foley)
+const pair = (label, f) => { const d = document.createElement('div'), i = document.createElement('i'); i.textContent = label; d.append(i, btn('Eski', false, () => f('eski')), btn('Şimdi', false, () => f('simdi')), btn('Gerçekçi', true, () => f('gercek'))); return d; };
 let cur = 'mage';
 function render() {
   app.innerHTML = '';

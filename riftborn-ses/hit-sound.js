@@ -8,7 +8,7 @@
 //   bone / shadow hbone (bone crack) + a low swish (w3)       holy   hholy (chime)
 //   physical: the weapon - sword steel (clash), dagger (slice, dclash), arrow (harrow: a blade biting wood), axe (barbarian:
 //   his own set, unchanged)
-// The default game plays these; ?vurus=eski plays the old hits (src/main.js HX). A layer is [kind, volume, delay s, rate];
+// ?vurus=simdi plays these, ?vurus=eski the old hits, the default the realistic set below (src/main.js VM / HX / REAL). A layer is [kind, volume, delay s, rate];
 // a kind is one of HX_KINDS, a src/sound2.js kind or an old SFILES kind.
 
 export const HX_KINDS = { hfire: 5, hfireL: 3, hice: 5, hiceL: 3, hzap: 5, hzapL: 3, hvenom: 5, hholy: 5, hbone: 5, harrow: 4 };
@@ -20,6 +20,29 @@ export const HX_REMAP = { fboom: 'hfire', bigboom: 'hfireL', flames: 'fireT' };
 // (levels: every element's hit ~-24 LUFS, measured offline on the mixed layers; the old mage fire hit was -22 LUFS with 65%
 // of its energy under 200 Hz, the new one has 7%)
 export const HX_GAIN = 1;
+
+// ---- the realistic set (2026-10-25 second round, owner: "realistic, some sound like laser beams or a kids' game"). Real
+// recorded foley from the logged CC0 packs (public/sfx/s4/): real glass breaking (Kenney Impact Sounds impactGlass_heavy),
+// snow crunch (footstep_snow), a struck bell (impactBell_heavy), wet splats (Independent.nu), meat impacts, stone and wood
+// impacts (qubodup Impact), plank snaps (impactPlank_medium), heavy metal (impactMetal_heavy), bamboo swishes (qubodup).
+// RX_MAP: the kinds that play a real recording instead - the synthetic or arcade pack kinds (p0ss zap / crack / freeze /
+// warp / riser / shield, the magic and spell tones) and the designed impacts that have a real counterpart. The game's
+// synthesized whoosh / thump / tones / bow twang play recordings too in this set (src/main.js REAL).
+export const RX_KINDS = { rice: 5, rcrunch: 5, rholy: 5, rven: 8, rmeat: 2, rsnap: 5, rmetal: 5, rstone: 2, rswish: 11 };
+export const rxFiles = (k) => (RX_KINDS[k] ? Array.from({ length: RX_KINDS[k] }, (_, i) => 's4/' + k + '-' + (i + 1)) : null);
+export const RX_S2 = ['bow', 'xbow'];
+export const RX_MAP = {
+  hice: 'rice', hiceL: 'rice', iceS: 'rice', iceL: 'rice', icast: 'rcrunch', iceT: 'rcrunch',
+  hholy: 'rholy', holyS: 'rholy', holyL: 'rholy',
+  hvenom: 'rven', venom: 'rven', rot: 'rven', blood: 'rven',
+  zap: 'hzap', crack: 'rsnap', freeze: 'rcrunch', warp: 'rswish', ultrise: 'rswish', mshield: 'rmetal', magic: 'clothh', spell: 'clothh',
+  riseF: 'rswish', riseL: 'rswish', riseI: 'rswish', riseH: 'rswish', riseD: 'rswish',
+};
+// the real layers added under an element's hit / kill in the realistic set
+const RX_ADD = {
+  fire: (v) => [['rswish', v * 0.35, 0, 1.15]], light: (v) => [['rsnap', v * 0.45, 0, 1.4]], cold: (v) => [['rcrunch', v * 0.35, 0.01]],
+  phys: (v) => [['rmeat', v * 0.45, 0.005]], holy: (v) => [['rholy', v * 0.25, 0.02, 1.5]],
+};
 
 const L = (...a) => a;
 // one hit of an element (v: its volume)
@@ -41,15 +64,19 @@ const WPN = {
   mage: (v) => EL.fire(v),
 };
 // a hit landing (el: the hit's main type; holy: the knight's light is holy)
-export function hxHit(cls, el, crit) {
+export function hxHit(cls, el, crit, real) {
   const v = 0.55, f = el && el !== 'phys' ? EL[el] : WPN[cls];
   if (!f) return null;
   const out = f(v);
+  if (real) { const t = el && el !== 'phys' ? el : cls === 'knight' || cls === 'rogue' || cls === 'ranger' ? 'phys' : null, a = t && RX_ADD[t]; if (a) out.push(...a(v)); }
   if (crit) { const k = out[0][0]; out.push([k, v * 0.5, 0.02, 1.15]); if (!el || el === 'phys') out.push(['ring', 0.16, 0.01, 1.4]); }
   return out;
 }
 // a kill: the element's bigger layer
-export function hxKill(cls, el) {
+export function hxKill(cls, el, real) {
+  const l = hxKill0(cls, el); if (l && real && (!el || el === 'phys') && cls !== 'necro') l.push(['rven', 0.3, 0.02, 0.8]); return l;
+}
+function hxKill0(cls, el) {
   switch (el && el !== 'phys' ? el : cls === 'necro' ? 'bone' : cls) {
     case 'fire': case 'mage': return L(['hfireL', 0.5], ['fireT', 0.22, 0.05]);
     case 'cold': return L(['hiceL', 0.55], ['glass', 0.18, 0.03, 1.3]);

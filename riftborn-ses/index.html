@@ -21,21 +21,21 @@
   .row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
   .nm b { display: block; }
   .nm span { color: var(--dim); font-size: 13px; }
-  .bt { display: grid; grid-template-columns: repeat(2, auto); gap: 6px; }
+  .bt { display: grid; grid-template-columns: auto; gap: 6px; }
   .bt div { display: flex; gap: 6px; align-items: center; }
   .bt i { font-style: normal; color: var(--dim); font-size: 12px; width: 44px; text-align: right; }
   .bt button { font: 600 13px system-ui; border-radius: 8px; padding: 7px 10px; cursor: pointer; border: 1px solid var(--old); background: transparent; color: var(--text); min-width: 58px; }
   .bt button.n { background: var(--new); color: var(--newt); border-color: var(--new); }
   .sec { margin: 18px 0 4px; color: var(--new); font-weight: 700; }
   .note { background: var(--card); border-left: 3px solid var(--new); padding: 8px 12px; border-radius: 6px; margin: 10px 0; color: var(--dim); }
-  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } .bt { grid-template-columns: 1fr 1fr; } .bt i { width: auto; } }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } .bt i { width: 40px; } .bt button { min-width: 0; flex: 1; padding: 8px 4px; } .bt div { width: 100%; } }
 </style>
 </head>
 <body>
 <main>
   <h1>Riftborn — vuruş sesleri</h1>
-  <p>Her yeteneğin <b>atış</b> (büyü çıkarken) ve <b>vuruş</b> (canavara değince) sesi. Soldaki düğme <b>eski</b>, sarı düğme <b>yeni</b>.</p>
-  <p>Yenide büyü vuruşlarında davul/gümleme yok: ateş hışırtı ve çıtırtı, buz çatırtı, şimşek çıtırtı, zehir şapırtı, kemik çatırtı, kutsal çınlama. Silah vuruşları silahın kendi sesi.</p>
+  <p>Her yeteneğin <b>atış</b> (büyü çıkarken) ve <b>vuruş</b> (canavara değince) sesi, üç hâliyle: <b>Eski</b> (oyundaki), <b>Şimdi</b> (ilk düzeltme, davulsuz), sarı <b>Gerçekçi</b> (gerçek kayıtlar).</p>
+  <p>Gerçekçide bilgisayarla üretilen hiçbir ses yok: lazer/bip gibi sesler, sentez fısıltı ve gümleme yerine gerçek kayıt — buz için gerçek cam kırılması ve kar çıtırtısı, kutsal için gerçek çan, zehir ve kan için gerçek ıslak şapırtı, silah vuruşunda gerçek et darbesi, yay için gerçek yay atışı, savurma için gerçek bambu ve kılıç havası.</p>
   <button id="go">Sesleri yükle ve başla</button>
   <div id="app"></div>
 </main>
