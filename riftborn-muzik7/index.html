@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Riftborn Zindan 5–9 Müzik, 6. tur</title>
+<style>
+  :root { --bg:#14110f; --card:#201b17; --line:#3a2f27; --text:#eadfcf; --dim:#a8998a; --acc:#c9a35b; --cur:#6f8fa8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:26px; margin:0 0 4px; color:var(--acc); }
+  h2 { font-size:20px; margin:34px 0 2px; color:var(--acc); }
+  h2 small { font-size:15px; color:var(--dim); font-weight:normal; }
+  p.lead { color:var(--dim); margin:0 0 8px; }
+  p.story { color:var(--dim); margin:0 0 12px; font-style:italic; }
+  nav { display:flex; flex-wrap:wrap; gap:6px 10px; margin:14px 0 0; }
+  nav a { color:var(--acc); font-size:15px; text-decoration:none; border:1px solid var(--line); border-radius:6px; padding:3px 9px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:0 0 12px; }
+  .card.cur { border-left:4px solid var(--cur); }
+  .card.cand { border-left:4px solid var(--acc); }
+  .top { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 12px; }
+  .name { font-size:19px; font-weight:bold; }
+  .tag { font-size:13px; color:var(--bg); background:var(--acc); border-radius:4px; padding:1px 7px; }
+  .cur .tag { background:var(--cur); }
+  .meta { font-size:14px; color:var(--dim); margin:4px 0 6px; overflow-wrap:anywhere; }
+  .meta a { color:var(--acc); }
+  .note { margin:0 0 10px; }
+  audio { width:100%; }
+  button { margin-top:8px; background:transparent; color:var(--acc); border:1px solid var(--acc); border-radius:6px; padding:6px 12px; font:inherit; font-size:14px; cursor:pointer; }
+  button:hover { background:#2c241d; }
+  .like { font-size:14px; color:#9fb6c8; margin:0 0 6px; }
+  a.go { display:inline-block; margin-top:4px; color:var(--bg); background:var(--acc); border-radius:6px; padding:8px 14px; text-decoration:none; font-size:15px; }
+  footer { margin-top:36px; font-size:13px; color:var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Riftborn — Zindan 5–9 için müzik, 6. tur</h1>
+  <p class="lead">Bu turdaki parçalar üç Japon sitesinden: Amacha (甘茶の音楽工房), Maou Damashii (魔王魂) ve MusMus. Üçü de parçaların oyunda ticari olarak kullanılmasına izin veriyor, ama dosyaların başka bir yere konmasını yasaklıyor. Bu yüzden sesler bu sayfada yok: her parçanın yanındaki <b>“Sitesinde dinle”</b> düğmesi, parçayı kendi sitesinde çalınabildiği sayfada açar.</p>
+  <p class="lead">Ölçü yine aynı: mistik, ürkütücü, ezgili ve ritmi belirgin; şarkı sözü ya da koro yok. Her parçanın altında hangi beğendiğiniz parçaya benzediği ve ritmi yazıyor. Ritmi kendi bilgisayarımda ölçtüm: “belirgin”, beğendiğiniz Moonlit Lullaby kadar ya da ondan güçlü bir vuruş demek. Siteler Japonca; açılan sayfada oynat (▶) ya da 試聴 (dinle) düğmesine basmanız yeter.</p>
+  <nav id="nav"></nav>
+  <div id="list"></div>
+  <h2>Beğendikleriniz <small>— karşılaştırma için (bunlar bu sitedeki kendi dosyalarımız)</small></h2>
+  <div id="cur"></div>
+  <footer>Kullanım şartları: Amacha — “商用利用、個人利用問わず利用できます” (ticari ya da kişisel, serbest), isim yazmak isteğe bağlı, “音楽だけを販売したり、2次配布することは禁止” (müziği tek başına satmak ya da yeniden dağıtmak yasak). Maou Damashii — her türlü içerikte ticari kullanım serbest, isim zorunlu (“音楽：魔王魂”), oyunla birlikte dağıtılırsa isim ve sitesine link şart, tek parçayı yeniden dağıtmak yasak. MusMus — ticari kullanım serbest (BGM olarak), isim zorunlu (“BGM:MusMus”), yeniden dağıtmak yasak. Seçilen parça oyuna konursa isim satırı başlangıç ekranına eklenir.</footer>
+</main>
+<script>
+const SITE = {
+  am: { by: 'Amacha (甘茶の音楽工房)', lic: 'oyunda serbest, isim isteğe bağlı' },
+  mo: { by: 'Maou Damashii (魔王魂)', lic: 'oyunda serbest, isim + link şart' },
+  mm: { by: 'MusMus', lic: 'oyunda serbest, isim şart' },
+};
+const L = { GP: 'Ghost Processional (3)', ML: 'Moonlit Lullaby (4)', DJ: 'Dark Journey (2)', DM: 'Dark and Mysterious (1)', SG: 'Sacred Guardians' };
+const AM = 'https://amachamusic.chagasi.com/music_';
+const D = [
+  { n: 5, title: 'Mausoleum Row', story: 'Mermer mezarlar, yas tutan peçeli dul, örümcekler.', c: [
+    { s: 'am', name: '雨に捨てられた人形', tr: 'Yağmurda bırakılmış oyuncak bebek', link: AM + 'amenisuteraretaningyou.html', like: L.GP, rhythm: 'yavaş (60 vuruş/dk), çok belirgin',
+      note: 'Yalnız el çanlarıyla çalınan ürkütücü, masalsı bir ezgi; terk edilmiş, yaslı bir yer.' },
+    { s: 'am', name: '月と私（ヴァイオリン編）', tr: 'Ay ve ben (keman)', link: AM + 'tsukitowatashi_violin.html', like: L.ML, rhythm: 'orta (115 vuruş/dk), orta',
+      note: 'Keman, yaylılar ve nefesliler: hüzünlü, içli bir fantastik ezgi.' },
+    { s: 'am', name: '月明かりの庭園', tr: 'Ay ışığında bahçe', link: AM + 'tsukiakarinoteien.html', like: L.ML, rhythm: 'akıcı (144 vuruş/dk), belirgin',
+      note: 'Yaylılar ve nefesliler: ay ışığında, büyülü ve biraz hüzünlü bir bahçe; mermer mezarların arası gibi.' },
+  ]},
+  { n: 6, title: "The Gravekeeper's Yard", story: 'Çanlar, fener, darağacı; yavaş, kasvetli.', c: [
+    { s: 'am', name: '死神の行進', tr: 'Ölüm meleğinin yürüyüşü', link: AM + 'shinigaminokoushin.html', like: L.GP, rhythm: 'yürüyüş (105 vuruş/dk), orta',
+      note: 'Yaylılar, nefesliler, bakır ve vurmalılarla sinsi, ağır adımlı bir tören yürüyüşü.' },
+    { s: 'am', name: '死神とワルツ', tr: 'Ölüm meleğiyle vals', link: AM + 'shinigamitowaltz.html', like: L.GP, rhythm: 'ağır vals, belirgin',
+      note: 'Ürkütücü bir fantastik vals: orkestra, mezarlıkta dans eden ölüler gibi.' },
+    { s: 'mm', name: 'heaven', tr: 'Cennet (şeytanın orgu)', link: 'https://musmus.main.jp/music_game_08.html#BGM-023', like: L.DM, rhythm: 'orta tempo, belirgin',
+      note: 'Bestecinin tarifi: “cennette çınlayan şeytanın orgu, çalan çanlar”; zindan müziği. Org ve çanlar.' },
+  ]},
+  { n: 7, title: 'Ember Tunnels', story: 'Yanan maden tünellerinde zincirli köleler; sıcak, tehdit.', c: [
+    { s: 'mo', name: 'ファンタジー09', tr: 'Fantezi 09', link: 'https://maou.audio/bgm_fantasy09/', like: L.SG, rhythm: 'yavaş (58 vuruş/dk), belirgin',
+      note: 'Sitenin etiketleri: korku, ürkütücü, terk edilmiş maden, yer altı, kötülerin yeri, zindan. Hazır döngü dosyası da var.' },
+    { s: 'am', name: '重い足取り', tr: 'Ağır adımlar', link: AM + 'omoiashidori.html', like: L.DJ, rhythm: 'yürüyüş (91 vuruş/dk), belirgin',
+      note: 'Yaylılar, nefesliler ve vurmalılar: karanlık, ağır ağır ilerleyen adımlar; zincirle yürüyen köleler gibi.' },
+    { s: 'am', name: '暗く長いトンネル', tr: 'Karanlık, uzun tünel', link: AM + 'kurakunagaitunnel.html', like: L.DM, rhythm: 'ağır, hafif',
+      note: 'Ürkütücü, sinematik bir tünel müziği. Ritmi Sacred Guardians kadar hafif; diğer ikisinden daha süzülen.' },
+  ]},
+  { n: 8, title: 'Frozen Halls', story: 'Buzun içinde donmuş yüz şövalye, Buz Cadısı; soğuk, cam gibi.', c: [
+    { s: 'mm', name: '氷龍の夢', tr: 'Buz ejderinin rüyası', link: 'https://musmus.main.jp/bgm_04.html#BGM-159', like: L.SG, rhythm: 'orta tempo, belirgin',
+      note: 'Orkestra, flüt, gitar ve piyano: eski bir efsane gibi görkemli ama hüzünlü bir buz ejderi teması.' },
+    { s: 'am', name: '冬の夜の嵐', tr: 'Kış gecesi fırtınası', link: AM + 'fuyunoyonoarashi.html', like: L.DJ, rhythm: 'ağır (62 vuruş/dk), belirgin',
+      note: 'Yaylılar, nefesliler, bakır ve vurmalılar: ciddi, soğuk, fırtınalı bir fantastik parça.' },
+    { s: 'am', name: '雪の舞う浜辺', tr: 'Kar yağan kıyı', link: AM + 'yukinomauhamabe.html', like: L.ML, rhythm: 'akıcı (120 vuruş/dk), orta',
+      note: 'Yaylılar, nefesliler ve arp: hüzünlü, sessiz, karla kaplı bir yer.' },
+  ]},
+  { n: 9, title: 'Forge of the Colossus', story: 'Cüce demirhanesi, dev yapı; ağır ritim, eski ama endüstriyel.', c: [
+    { s: 'am', name: '機械工場', tr: 'Makine fabrikası', link: AM + 'kikaikoujou.html', like: L.SG, rhythm: 'düzenli (92 vuruş/dk), çok belirgin',
+      note: 'Yaylılar, nefesliler ve vurmalılar: ciddi, makine gibi işleyen bir orkestra; dev bir atölyenin içi.' },
+    { s: 'mo', name: 'オーケストラ10', tr: 'Orkestra 10', link: 'https://maou.audio/bgm_orchestra10/', like: L.SG, rhythm: 'ağır, orta',
+      note: 'Sitenin etiketleri: tam orkestra, klasik müzik havası, kötülerin efendisi. Büyük ve karanlık.' },
+    { s: 'mo', name: 'ファンタジー07', tr: 'Fantezi 07', link: 'https://maou.audio/bgm_fantasy07/', like: L.DM, rhythm: 'hızlı (136 vuruş/dk), çok belirgin',
+      note: 'Sitenin etiketleri: yer altı, zindan, keşif. Hazır döngü dosyası da var.' },
+  ]},
+];
+const OGA = 'https://opengameart.org/content/', NFM = 'North Fantasy Music', PACK = OGA + 'fantasy-music-and-drum-loops-pack', KM = 'Kevin MacLeod (incompetech.com)';
+const CUR = [
+  { src: '../riftborn-muzik5/music/secilen_Sacred_Guardians.mp3', name: 'Sacred Guardians', by: NFM, lic: 'CC-BY 4.0', tag: 'Beğenildi', note: 'Şimdilik 9. zindanda çalıyor.' },
+  { src: '../riftborn-muzik3/music/secilen_Moonlit_Lullaby_for_the_Lost.mp3', name: 'Moonlit Lullaby for the Lost', by: 'Tsorthan Grove', lic: 'CC0', tag: 'Zindan 4', note: '4. zindan için seçtiğiniz parça.' },
+  { src: '../riftborn-muzik2/music/simdi_Ghost_Processional.mp3', name: 'Ghost Processional', by: KM, lic: 'CC-BY 4.0', tag: 'Zindan 3', note: '3. zindan için seçtiğiniz parça.' },
+  { src: '../riftborn-muzik/music/Dark_Journey.mp3', name: 'Dark Journey', by: NFM, lic: 'CC-BY 4.0', tag: 'Zindan 2', note: '2. zindan için seçtiğiniz parça.' },
+  { src: '../riftborn-muzik/music/Dark_and_Mysterious.mp3', name: 'Dark and Mysterious', by: NFM, lic: 'CC-BY 4.0', tag: 'Zindan 1', note: '1. zindanın parçası.' },
+];
+function cand(t, tag) {
+  const d = document.createElement('div'); d.className = 'card cand';
+  d.innerHTML = '<div class="top"><span class="tag"></span><span class="name"></span></div><div class="meta"><span class="tr"></span> · <span class="by"></span> · <span class="lic"></span></div>' +
+    '<div class="like"></div><p class="note"></p><a class="go" target="_blank" rel="noopener">▶ Sitesinde dinle</a>';
+  d.querySelector('.tag').textContent = tag; d.querySelector('.name').textContent = t.name; d.querySelector('.tr').textContent = '“' + t.tr + '”';
+  d.querySelector('.by').textContent = SITE[t.s].by; d.querySelector('.lic').textContent = SITE[t.s].lic;
+  d.querySelector('.like').textContent = 'Benzediği: ' + t.like + ' · Ritim: ' + t.rhythm; d.querySelector('.note').textContent = t.note; d.querySelector('.go').href = t.link;
+  return d;
+}
+function cur(t) {
+  const d = document.createElement('div'); d.className = 'card cur';
+  d.innerHTML = '<div class="top"><span class="tag"></span><span class="name"></span></div><div class="meta"><span class="by"></span> · <span class="lic"></span></div><p class="note"></p><audio controls preload="metadata" loop></audio>';
+  d.querySelector('.tag').textContent = t.tag; d.querySelector('.name').textContent = t.name; d.querySelector('.by').textContent = t.by; d.querySelector('.lic').textContent = t.lic;
+  d.querySelector('.note').textContent = t.note; d.querySelector('audio').src = t.src; return d;
+}
+const list = document.getElementById('list'), nav = document.getElementById('nav');
+D.forEach((z) => {
+  const id = 'z' + z.n;
+  const a = document.createElement('a'); a.href = '#' + id; a.textContent = z.n + '. ' + z.title; nav.appendChild(a);
+  const h = document.createElement('h2'); h.id = id; h.textContent = 'Zindan ' + z.n + ' — ' + z.title; list.appendChild(h);
+  const p = document.createElement('p'); p.className = 'story'; p.textContent = z.story; list.appendChild(p);
+  z.c.forEach((t, k) => list.appendChild(cand(t, 'Aday ' + String.fromCharCode(65 + k))));
+});
+CUR.forEach((t) => document.getElementById('cur').appendChild(cur(t)));
+document.addEventListener('play', (e) => { document.querySelectorAll('audio').forEach((a) => { if (a !== e.target) a.pause(); }); }, true);
+</script>
+</body>
+</html>
