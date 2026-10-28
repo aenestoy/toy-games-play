@@ -29,15 +29,24 @@
 </head>
 <body>
 <main>
-  <h1>Riftborn — Mausoleum Row için kendi müziğimiz</h1>
-  <p class="lead">5. zindan için baştan bestelenmiş bir parça (composed for Riftborn). Re minör, üç zamanlı, ağır ama düzenli bir nabızla ilerliyor (dakikada 78 vuruş): derinden yumuşak bir davul kalp atışı gibi vuruyor, çellolar parmakla çekilen (pizzicato) bir tekrarla, arp sekizliklerle ritmi taşıyor. Üstünde gizemli renkler: yüksekte ürkütücü, birbirine sürtünen keman sesleri, uzaktan bir koro “aaa”sı, çan parçaları ve her bölümün başına tersten çalınan, emerek yükselen zil sesi. Mermer mezarlar, peçeli yaslı dul, mumlar ve ağlar. Aynı beste, iki farklı çalgı düzeniyle; birini seçmeniz yeterli.</p>
-  <p class="lead">Parça 1 dakika 42 saniye ve sonu başına ekli: oyunda durmadan döner. “Döngü yerini dinle” son 8 saniyeye atlar, oradan başa geçişi dinleyebilirsiniz. Ses seviyesi oyundaki öteki parçalarla aynı.</p>
+  <h1>Riftborn — Mausoleum Row için kendi müziğimiz (2. tur)</h1>
+  <p class="lead">5. zindan için baştan bestelenmiş parça (composed for Riftborn), 2. tur. İsteğiniz üzerine ezgiyi artık çellolar çalıyor ve parça daha korkutucu. Beğendiğiniz düzenli nabız duruyor: her ölçüde derin bir kalp atışı (güm-güm), kontrbasın parmakla çektiği tok vuruşlar ve alçak bir arp.</p>
+  <p class="lead">Korku için: altta hiç kesilmeyen derin bir Re sesi, kemanların köprüye yakın titrek, cam gibi kabaran sesleri, yayın tahtasıyla tıkırtılar, uzaktan birbirine sürtünen koro, ortada yarım yarım aşağı inen bir bas, ve birden gelen sessizlikler, ardından yeniden kabaran ses. Müzik kutusu sesi ve flüt çıkarıldı.</p>
+  <p class="lead">Her iki parça 1 dakika 50 saniye, sonu başına ekli; oyun dosyası boşluksuz döner. “Döngü yerini dinle” son 8 saniyeye atlar.</p>
   <div id="list"></div>
+  <h2>1. tur (önceki deneme, karşılaştırma için)</h2>
+  <div id="old"></div>
   <h2>Karşılaştırma için beğendikleriniz</h2>
   <div id="cur"></div>
-  <footer>Beste ve kayıt bize ait. Çalgı sesleri VSCO 2 Community Edition (Versilian Studios) örnek kütüphanesinden; lisansı CC0, yani kamuya bağışlanmış, ticari kullanım serbest, isim yazma zorunluluğu yok. Koro benzeri ses kodla üretildi.</footer>
+  <footer>Beste ve kayıt bize ait. Çalgı sesleri VSCO 2 Community Edition (Versilian Studios) örnek kütüphanesinden; lisansı CC0, yani kamuya bağışlanmış, ticari kullanım serbest, isim yazma zorunluluğu yok. Koro benzeri ses kodla üretildi. Çalgı kütüphanesinde tek çello olmadığı için ezgiyi çello grubu çalıyor.</footer>
 </main>
 <script>
+const N = [
+  { tag: 'Seçenek C', name: 'Çello ve kalp atışı', src: 'music/mausoleum_row_C.mp3',
+    note: 'Ölçülü korkutucu. Ezgiyi çellolar önde çalıyor; ezgi geri döndüğünde bir oktav aşağıdan ikinci bir çello grubu eşlik ediyor. Kemanlar yalnız yüksekte ürkütücü dokular yapıyor. Altta derin Re sesi giriş ve bitişte; ortada yarım yarım inen bas ve tıkırtılar, bir ölçülük ani sessizlik.' },
+  { tag: 'Seçenek D', name: 'Çello, daha karanlık', src: 'music/mausoleum_row_D.mp3',
+    note: 'Daha korkutucu. Derin Re sesi ezginin altında da sürüyor ve akorlara sürtünüyor; ezgi son dönüşte yarım ses aşağı bükülüyor. Koroda ve kemanlarda daha çok sürtünen aralık, daha çok tıkırtı ve bir cırcır sesi, üç yerde ani sessizlik ve kalp atışında tekleme.' },
+];
 const T = [
   { tag: 'Seçenek A', name: 'Yaylılar ve koro', src: 'music/mausoleum_row_A.mp3',
     note: 'Ezgiyi keman grubu söylüyor; altında yumuşak viyola ve koro benzeri bir “ooo” dolgusu, derinde çello ve kontrbas. Ortadaki bölümde ezgi alçak çellolara geçiyor, kemanlar üstte ince bir hale gibi kalıyor. Ortada ezgisiz bir ara bölüm var: yalnız nabız, kemanların tıkırdayan pizzicato’su ve çanın çaldığı ezgi parçaları. Derin bir piyano “çan vuruşu” başta ve ezginin dönüşünde.' },
@@ -62,7 +71,8 @@ function card(t, kind) {
   };
   return d;
 }
-T.forEach((t) => document.getElementById('list').appendChild(card(t, 'cand')));
+N.forEach((t) => document.getElementById('list').appendChild(card(t, 'cand')));
+T.forEach((t) => document.getElementById('old').appendChild(card(t, 'cur')));
 CUR.forEach((t) => document.getElementById('cur').appendChild(card(t, 'cur')));
 document.addEventListener('play', (e) => { document.querySelectorAll('audio').forEach((a) => { if (a !== e.target) a.pause(); }); }, true);
 </script>
