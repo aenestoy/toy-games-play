@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mausoleum Row Müziği</title>
+<style>
+  :root { --bg:#14110f; --card:#201b17; --line:#3a2f27; --text:#eadfcf; --dim:#a8998a; --acc:#c9a35b; --cur:#6f8fa8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:26px; margin:0 0 4px; color:var(--acc); }
+  h2 { font-size:20px; margin:30px 0 8px; color:var(--acc); }
+  p.lead { color:var(--dim); margin:0 0 8px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:0 0 12px; border-left:4px solid var(--acc); }
+  .card.cur { border-left-color:var(--cur); }
+  .top { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 12px; }
+  .name { font-size:19px; font-weight:bold; }
+  .tag { font-size:13px; color:var(--bg); background:var(--acc); border-radius:4px; padding:1px 7px; }
+  .cur .tag { background:var(--cur); }
+  .meta { font-size:14px; color:var(--dim); margin:4px 0 6px; }
+  .note { margin:0 0 10px; }
+  audio { width:100%; }
+  button { margin-top:8px; background:transparent; color:var(--acc); border:1px solid var(--acc); border-radius:6px; padding:6px 12px; font:inherit; font-size:14px; cursor:pointer; }
+  button:hover { background:#2c241d; }
+  footer { margin-top:36px; font-size:13px; color:var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Riftborn — Mausoleum Row için kendi müziğimiz</h1>
+  <p class="lead">5. zindan için baştan bestelenmiş bir parça (composed for Riftborn). Re minör, yavaş üç zamanlı bir ninni gibi: mermer mezarlar, peçeli yaslı dul, mumlar ve ağlar. Aynı beste, iki farklı çalgı düzeniyle; birini seçmeniz yeterli.</p>
+  <p class="lead">Parça 1 dakika 48 saniye ve sonu başına ekli: oyunda durmadan döner. “Döngü yerini dinle” son 8 saniyeye atlar, oradan başa geçişi dinleyebilirsiniz. Ses seviyesi oyundaki öteki parçalarla aynı.</p>
+  <div id="list"></div>
+  <h2>Karşılaştırma için beğendikleriniz</h2>
+  <div id="cur"></div>
+  <footer>Beste ve kayıt bize ait. Çalgı sesleri VSCO 2 Community Edition (Versilian Studios) örnek kütüphanesinden; lisansı CC0, yani kamuya bağışlanmış, ticari kullanım serbest, isim yazma zorunluluğu yok. Koro benzeri ses kodla üretildi.</footer>
+</main>
+<script>
+const T = [
+  { tag: 'Seçenek A', name: 'Yaylılar ve koro', src: 'music/mausoleum_row_A.mp3',
+    note: 'Ezgiyi keman grubu söylüyor; altında yumuşak viyola ve koro benzeri bir “ooo” dolgusu, derinde çello ve kontrbas. Ortadaki bölümde ezgi alçak çellolara geçiyor, kemanlar üstte ince bir hale gibi kalıyor. Arp girişte ve ortada, çan (glockenspiel) yalnız cümle sonlarında, derin bir piyano “çan vuruşu” başta ve ezginin dönüşünde.' },
+  { tag: 'Seçenek B', name: 'Piyano ve arp', src: 'music/mausoleum_row_B.mp3',
+    note: 'Ezgiyi yumuşak bir piyano çalıyor; baştan sona usul bir arp arpeji, altında yaylı dolgusu. Ortadaki bölümde ezgiyi kemanlar alıyor, uzaktan bir flüt eşlik ediyor; son dönüşte piyano bir oktav yukarıda, müzik kutusu gibi. Daha ince ve kırılgan, A’dan biraz daha sade.' },
+];
+const CUR = [
+  { tag: 'Zindan 4', name: 'Moonlit Lullaby for the Lost', src: '../riftborn-muzik3/music/secilen_Moonlit_Lullaby_for_the_Lost.mp3', note: 'Tsorthan Grove — 4. zindan için seçtiğiniz parça.' },
+  { tag: 'Zindan 3', name: 'Ghost Processional', src: '../riftborn-muzik2/music/simdi_Ghost_Processional.mp3', note: 'Kevin MacLeod — 3. zindan için seçtiğiniz parça.' },
+];
+function card(t, kind) {
+  const d = document.createElement('div'); d.className = 'card ' + kind;
+  d.innerHTML = '<div class="top"><span class="tag"></span><span class="name"></span></div><p class="note"></p>' +
+    '<audio controls preload="metadata" loop></audio><button type="button">Döngü yerini dinle</button>';
+  d.querySelector('.tag').textContent = t.tag;
+  d.querySelector('.name').textContent = t.name;
+  d.querySelector('.note').textContent = t.note;
+  const au = d.querySelector('audio'); au.src = t.src;
+  d.querySelector('button').onclick = () => {
+    const go = () => { au.currentTime = Math.max(0, au.duration - 8); au.play(); };
+    if (isFinite(au.duration)) go(); else au.addEventListener('loadedmetadata', go, { once: true });
+  };
+  return d;
+}
+T.forEach((t) => document.getElementById('list').appendChild(card(t, 'cand')));
+CUR.forEach((t) => document.getElementById('cur').appendChild(card(t, 'cur')));
+document.addEventListener('play', (e) => { document.querySelectorAll('audio').forEach((a) => { if (a !== e.target) a.pause(); }); }, true);
+</script>
+</body>
+</html>
