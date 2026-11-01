@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Swollen Dead · Hareket düzenleyici</title>  <script type="module" crossorigin src="./assets/index-BXZnLBES.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-hesLnjAk.css">
+</head>
+<body>
+<main>
+<header><div><h1>Hareketi kendin düzenle</h1><p id="sourceLabel">Gerçek model yükleniyor…</p></div><span id="dirty">Taslak</span></header>
+<p class="lesson"><b>1.</b> Hareketi seç, istediğin karede dur. <b>2.</b> Eklemi seçip açıları değiştir. <b>3.</b> Oynatıp bak, yeni sürüm kaydet.</p>
+<div class="toolbar"><label>Hareket <select id="clip" disabled></select></label><button id="play" disabled>Oynat</button><label class="check"><input id="loop" type="checkbox" checked>Tekrarla</label><label>İzleme <select id="slow"><option value="1">Normal hız</option><option value="0.5">Yarı hız</option><option value="0.25">Çeyrek hız</option></select></label><label class="check"><input id="compare" type="checkbox">Aslıyla karşılaştır</label></div>
+<div id="stage" aria-label="Gerçek Swollen Dead 3B hareketi"><div id="stageLabels" hidden><span>Asıl hareket</span><span>Senin düzenlemen</span></div><div class="camera"><button data-view="front">Ön</button><button data-view="side">Yan</button><button data-view="back">Arka</button></div></div>
+<div class="timeline"><button id="prev" aria-label="Önceki kare">◀</button><input id="time" type="range" min="0" max="1" step="1" value="0" aria-label="Hareket karesi"><button id="next" aria-label="Sonraki kare">▶</button><label>Kare <input id="frame" type="number" min="0" max="1" value="0"></label><output id="timeText">0,00 sn</output></div>
+<section class="pose"><div><label>Düzelteceğin eklem <select id="joint"></select></label><p class="hint">Açıyı değiştirince bu kareye bir poz eklenir. Aradaki kareler yumuşak geçer; asıl model dosyası korunur.</p><div id="angles"></div><div class="buttons"><button id="addKey">Bu kareye poz ekle</button><button id="zeroKey">Bu karede asıl poza dön</button><button id="undo">Geri al</button><button id="redo">Yinele</button></div></div>
+<div><h2>Bu eklemin kayıtlı pozları</h2><div id="keys" class="keys"></div><p class="hint">Bir poza tıkla; yeni kareye gidip “Seçili pozu buraya taşı” ile zamanını değiştir.</p><div class="buttons"><button id="moveKey">Seçili pozu buraya taşı</button><button id="copyPose">Pozu kopyala</button><button id="pastePose">Buraya yapıştır</button></div><label>Hareketin hızı <input id="speed" type="number" min="0.25" max="3" step="0.05" value="1"> ×</label><p class="hint">Bu hız düzenlediğin hareketin parçasıdır; “İzleme” yalnız bakarken yavaşlatır.</p></div></section>
+<section class="save"><h2>Sürümler ve dosyalar</h2><div class="buttons"><input id="versionName" maxlength="60" placeholder="Sürüm adı (ör. Kol vuruşu 1)" aria-label="Sürüm adı"><button id="saveVersion">Yeni sürüm kaydet</button><select id="versions" aria-label="Kaydedilmiş sürüm"><option value="">Kaydedilmiş sürüm seç</option></select></div><div class="buttons"><button id="exportJson">Düzenleme dosyasını indir (JSON)</button><label class="fileButton">Düzenleme dosyası aç<input id="importJson" type="file" accept=".json,application/json" hidden></label><button id="exportGlb">Hareketli modeli indir (GLB)</button><button id="resetClip">Bu hareketi aslına döndür</button></div><p class="hint">Sürümler <b>bu tarayıcıda</b> saklanır. Tarayıcı verileri silinirse kaybolabilir; JSON dosyası tüm sürümlerinin yedeğidir. İndirdiğin GLB gerçek model ve hareketleri içerir. Düzenlemeler oyuna otomatik uygulanmaz.</p></section>
+<p id="status" role="status">Model yükleniyor…</p>
+</main>
+</body></html>

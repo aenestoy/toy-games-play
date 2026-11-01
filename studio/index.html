@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>Stüdyo Paneli</title>
+<!-- as a phone app (docs/STUDYO-PANELI.md "Uygulama ve bildirimler"). The manifest is fetched with the Cloudflare
+     Access cookie (use-credentials), otherwise Access would answer it with its sign-in page. -->
+<link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+<meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Panel">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="style.css?v=outfit-detail-v3">
+</head>
+<body>
+<!-- Studio panel (docs/STUDYO-PANELI.md). Static page: it holds no data. Everything shown comes from the studio
+     Supabase project after an email-code sign-in, and only for users listed in st_admins. Source: studio/panel/. -->
+<header class="top">
+  <div class="brand"><span class="dot" aria-hidden="true"></span><b>Stüdyo</b></div>
+  <!-- the studio page, then one page per game (filled after sign-in from st_games) -->
+  <nav class="tabs" id="tabs" aria-label="Sayfalar" hidden></nav>
+  <div class="tools">
+    <button type="button" class="ghost" data-act="theme" id="themeBtn" title="Görünüm: otomatik / açık / koyu" aria-label="Görünümü değiştir">◐</button>
+    <button type="button" class="ghost" data-act="logout" id="logoutBtn" hidden>Çıkış</button>
+  </div>
+</header>
+<main id="main" aria-live="polite">
+  <p class="muted center pad">Yükleniyor…</p>
+</main>
+<div id="ptr" class="ptr" hidden></div>
+<div id="tip" class="tip" role="tooltip" hidden></div>
+<dialog id="dlg" aria-labelledby="dlgTitle"></dialog>
+<script type="module" src="app.js?v=outfit-detail-v3"></script>
+</body>
+</html>
