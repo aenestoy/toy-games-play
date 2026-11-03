@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Riftborn Boss İzle</title>
+<style>
+:root{--bg:#15120f;--card:#221d18;--line:#3a3129;--text:#efe6da;--dim:#b3a594;--acc:#e0a85a;--tag:#2e2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:.2rem 0 .3rem}
+.lead{color:var(--dim);margin:0 0 1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:20px}
+.card h2{font-size:1.15rem;margin:0 0 .2rem}
+.sub{color:var(--dim);font-size:.9rem;margin:0 0 .7rem}
+video{width:100%;border-radius:8px;background:#000;display:block}
+h3{font-size:1rem;margin:1rem 0 .4rem;color:var(--acc)}
+ol{list-style:none;padding:0;margin:0}
+li{border-top:1px solid var(--line);padding:.55rem 0}
+li:first-child{border-top:0}
+.row{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
+button.t{font:600 .95rem ui-monospace,Consolas,monospace;background:var(--tag);color:var(--acc);border:1px solid var(--line);border-radius:6px;padding:.1rem .45rem;cursor:pointer}
+button.t:hover{border-color:var(--acc)}
+.name{font-weight:600}
+.en{color:var(--dim);font-size:.85rem}
+.snd{color:var(--dim);font-size:.88rem;margin-top:.2rem}
+code{font:.85rem ui-monospace,Consolas,monospace;color:var(--text);background:var(--tag);padding:0 .25rem;border-radius:4px;word-break:break-all}
+.phase{color:var(--acc)}
+.note{font-size:.9rem;color:var(--dim)}
+.warn{color:#f0c27a}
+</style>
+</head>
+<body>
+<main>
+<h1>Riftborn — bossları izle</h1>
+<p class="lead">Her boss için gerçek bir dövüş, oyunun kendi sesiyle. Kahraman ölmüyor ve saldırmıyor; boss bütün hamlelerini ve evrelerini gösteriyor. Saniyeye basınca video o ana gider. Şimdilik yalnız ilk boss var; diğerleri sırayla eklenecek.</p>
+
+<section class="card" id="cistern">
+<h2>1. Sarnıç Bekçisi</h2>
+<p class="sub">Bölüm I (Mahzen Kapısı), ilk ara boss · iki evre: Sarnıç → Bent Kapakları (canı yarıya inince) · 40 sn</p>
+<video id="v1" controls playsinline preload="metadata" src="cistern.mp4"></video>
+
+<h3>Hamleler (videodaki sırayla)</h3>
+<ol>
+<li><div class="row"><button class="t" data-v="v1" data-s="1">0:01</button><button class="t" data-v="v1" data-s="16.9">0:17</button><button class="t" data-v="v1" data-s="36.4">0:36</button><span class="name">Çekiç Darbesi</span><span class="en">Hammer Smash · yere daire</span></div>
+<div class="snd">Hamlenin sesi: <code>s5/sfire-1…6</code> (ateş savurması / tutuşma) + <code>b2/bossimp-1…4</code> (boss vuruşu). <span class="warn">Su boss'unda ateş sesi çalıyor.</span></div></li>
+<li><div class="row"><button class="t" data-v="v1" data-s="3.3">0:03</button><button class="t" data-v="v1" data-s="30.8">0:31</button><span class="name">Boğa Hücumu</span><span class="en">Bull Rush · koşarak çarpma</span></div>
+<div class="snd">Kalkışta: <code>rp-cloth</code> (kumaş hışırtısı) + <code>s2/w1-1…4</code> (hafif savurma havası, katana) + <code>s5/stroll-1…4</code>. Çarpınca: <code>s5/srock-1…6</code> + <code>b2/bossimp-1…4</code>. Boss'un hücum bağırışı çalmıyor.</div></li>
+<li><div class="row"><button class="t" data-v="v1" data-s="8.1">0:08</button><button class="t" data-v="v1" data-s="19.4">0:19</button><span class="name">Zincir Süpürme</span><span class="en">Chain Sweep · önüne yelpaze</span></div>
+<div class="snd">Hamlenin sesi: <code>s5/srock-1…6</code> + <code>b2/bossimp-1…4</code>. Yalnız kahraman yakındayken yapıyor.</div></li>
+<li><div class="row"><button class="t" data-v="v1" data-s="11.7">0:12</button><span class="name">Çamur</span><span class="en">sludge · yere daire</span></div>
+<div class="snd">Hamlenin sesi: <code>s5/sfire-1…6</code> (ateş) + <code>b2/bossimp-1…4</code>.</div></li>
+<li class="phase"><div class="row"><button class="t" data-v="v1" data-s="19.7">0:20</button><span class="name">Evre değişimi: Bent Kapakları</span></div>
+<div class="snd">Ses: <code>s5/srock-1…6</code> + <code>s5/stroll-1…4</code> + <code>b2/bossimp-1…4</code> + <code>impactPunch_heavy_*</code>.</div></li>
+<li><div class="row"><button class="t" data-v="v1" data-s="21.3">0:21</button><button class="t" data-v="v1" data-s="38.9">0:39</button><span class="name">Sel Baskını</span><span class="en">Flood Surge · dışa yayılan halka</span></div>
+<div class="snd">Hamlenin sesi: <code>s5/sfire-1…6</code> (ateş) + <code>b2/bossimp-1…4</code>.</div></li>
+<li><div class="row"><button class="t" data-v="v1" data-s="25.4">0:25</button><button class="t" data-v="v1" data-s="34">0:34</button><span class="name">Yükselen Su</span><span class="en">Rising Water · zemin su basar, adacığa çık</span></div>
+<div class="snd">Hamlenin sesi: <code>s5/sfire-1…6</code> (ateş) + <code>b2/bossimp-1…4</code>.</div></li>
+</ol>
+
+<h3>Her vuruşta duyulan ortak sesler</h3>
+<p class="note">Kahraman vurulunca: <code>impactPunch_heavy_*</code>, <code>impactSoft_heavy_*</code>, <code>impactPunch_medium_*</code>, kısa bir üretilmiş gürültü (dosyası yok) ve kahramanın inlemesi <code>b2/hurtg-1…4</code>.
+Suda / çamurda dururken yarım saniyede bir <code>impactPunch_medium_*</code> (küçük hasar tıkırtısı).
+Arkada: <code>music/cave-ambience.mp3</code> (mağara uğultusu); bu dövüşte ayrı boss müziği yok.</p>
+<p class="note">Dosyalar oyunda <code>games/12-riftborn/public/sfx/</code> altında. "…" aynı sesin birkaç çeşidi: oyun her seferinde birini seçiyor.</p>
+</section>
+</main>
+<script>
+document.querySelectorAll('button.t').forEach(function(b){b.addEventListener('click',function(){var v=document.getElementById(b.dataset.v);v.currentTime=+b.dataset.s;v.play().catch(function(){});v.scrollIntoView({behavior:'smooth',block:'center'});});});
+</script>
+</body>
+</html>
