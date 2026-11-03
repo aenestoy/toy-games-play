@@ -30,6 +30,11 @@ code{font:.85rem ui-monospace,Consolas,monospace;color:var(--text);background:va
 .phase{color:var(--acc)}
 .note{font-size:.9rem;color:var(--dim)}
 .warn{color:#f0c27a}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pair .lbl{font-weight:600;color:var(--acc);margin:0 0 .25rem}
+@media (max-width:640px){.pair{grid-template-columns:1fr}}
+img.proof{width:100%;border-radius:8px;display:block;margin-top:.4rem}
+details{margin-top:1rem}summary{cursor:pointer;color:var(--acc)}
 </style>
 </head>
 <body>
@@ -40,8 +45,39 @@ code{font:.85rem ui-monospace,Consolas,monospace;color:var(--text);background:va
 <section class="card" id="cistern">
 <h2>1. Sarnıç Bekçisi</h2>
 <p class="sub">Bölüm I (Mahzen Kapısı), ilk ara boss · iki evre: Sarnıç → Bent Kapakları (canı yarıya inince) · 40 sn</p>
-<video id="v1" controls playsinline preload="metadata" src="cistern.mp4"></video>
+<div class="pair">
+<div><p class="lbl">Önce</p><video id="v1" controls playsinline preload="metadata" src="cistern.mp4"></video></div>
+<div><p class="lbl">Sonra (dal <code>claude/rb-sarnic</code>, oyuna girmedi)</p><video id="v2" controls playsinline preload="metadata" src="cistern-sonra.mp4"></video></div>
+</div>
 
+<h3>Ne değişti (saniyeler "Sonra" videosunda)</h3>
+<p class="note">Kural: yerdeki çizim yalnız uyarı. Uyarıdan sonra boss gerçek saldırıyı yapıyor; hasarı o efekt veriyor, uyarılan yere, göründüğü anda. Hasar sayıları aynı.</p>
+<ol>
+<li><div class="row"><button class="t" data-v="v2" data-s="21.3">0:21</button><button class="t" data-v="v2" data-s="35.6">0:35</button><span class="name">Sel Baskını</span><span class="en">Flood Surge</span></div>
+<div class="snd">Önce: yere çizilen halka büyüyor, sonra hiçbir şey gelmiyordu (vuran çizgiydi). Şimdi: yeşil halka uyarır → boss çekiçle yere vurur → <b>köpüklü bir su duvarı</b> dışa doğru akar, boşluk yerinde su yok; su sana değdiği anda vurur. Ses: taş gümlemesi + su patlaması + akan dalga.</div></li>
+<li class="phase"><div class="row"><button class="t" data-v="v2" data-s="19.7">0:19</button><span class="name">Evre değişimi: Bent Kapakları</span></div>
+<div class="snd">Boss kükrer, çevresinden su fışkırır, ardından ilk Sel Baskını gelir. Ses: kırılan taş kapaklar + alçak gök gürültüsü + su.</div></li>
+<li><div class="row"><button class="t" data-v="v2" data-s="25.2">0:25</button><span class="name">Yükselen Su</span><span class="en">Rising Water</span></div>
+<div class="snd">Uyarı: bütün arena + mavi adacıklar. Sonra su arenanın kenarından içeri doğru <b>akarak</b> gelir, adacıklar kuru kalır; su sana ulaştığı an vurur, sonra su yerde durur (içinde durmak az acıtır). Ses: uzun akan su + derin uğultu.</div></li>
+<li><div class="row"><button class="t" data-v="v2" data-s="3.1">0:03</button><button class="t" data-v="v2" data-s="17.5">0:17</button><span class="name">Çekiç Darbesi</span><span class="en">Hammer Smash</span></div>
+<div class="snd">Zaten gerçek vuruşu vardı (çekiç, çatlak, şok halkası); şimdi su da sıçrıyor. Ses: ateş sesi yerine kaya darbesi + su + moloz.</div></li>
+<li><div class="row"><button class="t" data-v="v2" data-s="0.7">0:00</button><button class="t" data-v="v2" data-s="6.8">0:06</button><span class="name">Zincir Süpürme</span><span class="en">Chain Sweep</span></div>
+<div class="snd">Gerçek savuruşu vardı. Ses: zincir savurma havası + zincir şakırtısı + taş + ıslak şaplak.</div></li>
+<li><div class="row"><button class="t" data-v="v2" data-s="9.8">0:09</button><span class="name">Boğa Hücumu</span><span class="en">Bull Rush</span></div>
+<div class="snd">Gerçek koşu. Ses: kalkışta bağırış (önce hiç çalmıyordu), koşarken su şıpırtılı ağır adımlar, çarpınca kaya + su.</div></li>
+<li><div class="row"><span class="name">Kara Su</span><span class="en">Black Water · bu videoda gelmedi</span></div>
+<div class="snd">Uyarı dairelerinden kara su fışkırır; kalan alan yerde gerçek kara su birikintisi (önce yalnız yer deseniydi). Ses: kalın su patlaması.</div></li>
+<li><div class="row"><span class="name">Boss'un kendi sesi</span></div>
+<div class="snd">Önce hiç yoktu. Şimdi tek bir derin, ıslak yaratık sesi: dövüş başında ve evre değişiminde kükreme, her vuruş hazırlığında homurtu, büyük darbe yiyince acı homurtusu, ölünce çığlık, aralarda ağır nefes.</div></li>
+<li><div class="row"><span class="name">Sana isabet sesi</span></div>
+<div class="snd">Önce sıradan canavar yumruğu (<code>impactPunch_*</code>, <code>bossimp</code>). Şimdi bu boss'a özel taş + su darbesi; suda dururken tıkırtı yerine hafif su şıpırtısı.</div></li>
+</ol>
+<h3>Kontrol kareleri</h3>
+<p class="note">Solda Sel Baskını uyarısı (yeşil halka, boşluk çizgisi), sağda 1 sn sonra su duvarı yolda. Altta Yükselen Su: uyarı, sonra kenardan gelen su.</p>
+<img class="proof" src="sonra-sel.jpg" alt="Sel Baskını uyarı ve su duvarı">
+<img class="proof" src="sonra-su.jpg" alt="Yükselen Su uyarı ve su">
+
+<details><summary>Önceki video: hamleler ve sesler (eski not)</summary>
 <h3>Hamleler (videodaki sırayla)</h3>
 <ol>
 <li><div class="row"><button class="t" data-v="v1" data-s="1">0:01</button><button class="t" data-v="v1" data-s="16.9">0:17</button><button class="t" data-v="v1" data-s="36.4">0:36</button><span class="name">Çekiç Darbesi</span><span class="en">Hammer Smash · yere daire</span></div>
@@ -65,6 +101,7 @@ code{font:.85rem ui-monospace,Consolas,monospace;color:var(--text);background:va
 Suda / çamurda dururken yarım saniyede bir <code>impactPunch_medium_*</code> (küçük hasar tıkırtısı).
 Arkada: <code>music/cave-ambience.mp3</code> (mağara uğultusu); bu dövüşte ayrı boss müziği yok.</p>
 <p class="note">Dosyalar oyunda <code>games/12-riftborn/public/sfx/</code> altında. "…" aynı sesin birkaç çeşidi: oyun her seferinde birini seçiyor.</p>
+</details>
 </section>
 </main>
 <script>
