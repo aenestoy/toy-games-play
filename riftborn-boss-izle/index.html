@@ -40,7 +40,7 @@ details{margin-top:1rem}summary{cursor:pointer;color:var(--acc)}
 <body>
 <main>
 <h1>Riftborn — bossları izle</h1>
-<p class="lead">Her boss için gerçek bir dövüş, oyunun kendi sesiyle. Kahraman ölmüyor ve saldırmıyor; boss bütün hamlelerini ve evrelerini gösteriyor. Saniyeye basınca video o ana gider. Şimdilik yalnız ilk boss var; diğerleri sırayla eklenecek.</p>
+<p class="lead">Her boss için gerçek bir dövüş, oyunun kendi sesiyle. Kahraman ölmüyor ve saldırmıyor; boss bütün hamlelerini ve evrelerini gösteriyor. Saniyeye basınca video o ana gider. Sarnıç Bekçisi ve Yarığın Kalbi var; diğerleri sırayla eklenecek.</p>
 
 <section class="card" id="cistern">
 <h2>1. Sarnıç Bekçisi</h2>
@@ -102,6 +102,39 @@ Suda / çamurda dururken yarım saniyede bir <code>impactPunch_medium_*</code> (
 Arkada: <code>music/cave-ambience.mp3</code> (mağara uğultusu); bu dövüşte ayrı boss müziği yok.</p>
 <p class="note">Dosyalar oyunda <code>games/12-riftborn/public/sfx/</code> altında. "…" aynı sesin birkaç çeşidi: oyun her seferinde birini seçiyor.</p>
 </details>
+</section>
+<section class="card" id="heart">
+<h2>2. Yarığın Kalbi (son boss)</h2>
+<p class="sub">Hikâyenin son dövüşü · üç evre: Atış → Et Yayılıyor (%66) → Yarık Çözülüyor (%33) · müzik "Fantasy Choir 2" · 40 sn · yalnız sesler yeni (dal <code>claude/rb-kalpses</code>, oyuna girmedi)</p>
+<video id="v3" controls playsinline preload="metadata" src="heart-sonra.mp4"></video>
+<h3>Ne değişti</h3>
+<p class="note">Önce: bu boss'un kendi sesi yoktu; vuruşları ortak "bossimp" ve canavar yumruğuyla çalıyordu. Şimdi dev, ıslak, atan bir et kalbi gibi: derin, yankılı, insan ya da trol olmayan bir ses. Kahramanın kendi "ah" inlemesi aynen kaldı. Hasar ve hamleler aynı.</p>
+<ol>
+<li class="phase"><div class="row"><button class="t" data-v="v3" data-s="12.6">0:12</button><button class="t" data-v="v3" data-s="25.9">0:25</button><span class="name">Kükreme</span><span class="en">dövüş başı ve her evre değişimi</span></div>
+<div class="snd">Çok alçaltılmış yaratık sesi + yankı, altında ıslak et ve çift kalp atışı; evre değişiminde ayrıca tapınak sarsıntısı (kaya + gök gürültüsü).</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="6.6">0:06</button><button class="t" data-v="v3" data-s="24.3">0:24</button><span class="name">Kalp Darbesi</span><span class="en">Heart Slam</span></div>
+<div class="snd">Hazırlıkta yükselen ıslak uğultu, inince kaya gümlemesi + çiğ et + et fışkırması + derin gümleme.</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="0.7">0:00</button><span class="name">Dokunaç Kırbacı</span><span class="en">Tendril Lash</span></div>
+<div class="snd">Vurmadan hemen önce kırbaç havası, sonra ıslak şaklama + kemik çatırtısı.</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="1.7">0:01</button><button class="t" data-v="v3" data-s="16.5">0:16</button><span class="name">Kalp Atışı</span><span class="en">Heartbeat · dışa yayılan dalga</span></div>
+<div class="snd">Tek, kocaman, ıslak bir kalp atışı ("güm-güm").</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="9.5">0:09</button><button class="t" data-v="v3" data-s="19.8">0:19</button><span class="name">Yarık Safrası</span><span class="en">Rift Bile</span></div>
+<div class="snd">Hazırlıkta guruldama, düşünce kalın ıslak sıçrama. Safranın içinde dururken hafif şıpırtı.</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="3.6">0:03</button><span class="name">Yarık Tükürüğü</span><span class="en">Rift Spit</span></div>
+<div class="snd">Her atışta ıslak tükürük + buz çatırtısı.</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="11.9">0:11</button><button class="t" data-v="v3" data-s="14.7">0:14</button><button class="t" data-v="v3" data-s="30.1">0:30</button><span class="name">Dokunaçlar, Karıncıklar, Yavrular</span><span class="en">Tendrils · Ventricles · Spawn</span></div>
+<div class="snd">Yerden gelen uğultu + yırtılan et, çıkarken kaya + kemik + et patlaması.</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="17.3">0:17</button><span class="name">Et Yayılıyor</span><span class="en">The Flesh Spreads</span></div>
+<div class="snd">Yere sürünen ıslak et sesi.</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="28">0:28</button><span class="name">Sahte Kalpler</span><span class="en">False Hearts</span></div>
+<div class="snd">Yankılanan kalp atışı: sahte kalpler ona cevap veriyor.</div></li>
+<li><div class="row"><button class="t" data-v="v3" data-s="32.2">0:32</button><span class="name">Ölüm</span></div>
+<div class="snd">Uzun, alçak çığlık, et fışkırması, sonra yavaşlayıp duran son iki kalp atışı.</div></li>
+<li><div class="row"><span class="name">Bu videoda gelmeyenler</span></div>
+<div class="snd">Yarık Bakışı (yükselen mor uğultu + ışın çatlaması), Yutma (bütün kütlenin çöküşü), Yarık Çiçeği (2,6 sn toplanan uğultu + en büyük patlama). Uzun denemede (100 sn) üçü de çaldı.</div></li>
+<li><div class="row"><span class="name">Kendi sesi ve sana isabet</span></div>
+<div class="snd">Her vuruş hazırlığında homurtu (en çok 1,3 sn'de bir), büyük darbe yiyince acı sesi (kendi vuruşundan sonraki 0,5 sn'de asla), aralarda alçak nabız/nefes. Sana vurunca ortak yumruk yerine bu boss'a özel et darbesi; kahramanın "ah"ı yine çalıyor.</div></li>
+</ol>
 </section>
 </main>
 <script>
