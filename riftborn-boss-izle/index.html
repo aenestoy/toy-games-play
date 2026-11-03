@@ -40,7 +40,7 @@ details{margin-top:1rem}summary{cursor:pointer;color:var(--acc)}
 <body>
 <main>
 <h1>Riftborn — bossları izle</h1>
-<p class="lead">Her boss için gerçek bir dövüş, oyunun kendi sesiyle. Kahraman ölmüyor ve saldırmıyor; boss bütün hamlelerini ve evrelerini gösteriyor. Saniyeye basınca video o ana gider. Sarnıç Bekçisi ve Ser Aldric var; diğerleri sırayla eklenecek.</p>
+<p class="lead">Her boss için gerçek bir dövüş, oyunun kendi sesiyle. Kahraman ölmüyor ve saldırmıyor; boss bütün hamlelerini ve evrelerini gösteriyor. Saniyeye basınca video o ana gider. Sarnıç Bekçisi, Ser Aldric, Kemik Dokumacı ve Oyuk Kral var; diğerleri sırayla eklenecek.</p>
 
 <section class="card" id="cistern">
 <h2>1. Sarnıç Bekçisi</h2>
@@ -161,6 +161,35 @@ Arkada: <code>music/cave-ambience.mp3</code> (mağara uğultusu); bu dövüşte 
 <div class="snd">Daireler uyarı. Son anda her daireye karanlıktan bir kemik mızrak düşer, saplanınca kıymık halkası kenara koşar ve vurur. Ses: düşen mızrak vınlaması, saplanma.</div></li>
 <li><div class="row"><span class="name">Bu videoda gelmeyenler</span></div>
 <div class="snd">Ölüm: çığlık + kemiklerin dağılışı (ayrı denemede çaldı).</div></li>
+</ol>
+</section>
+<section class="card" id="kral">
+<h2>4. Oyuk Kral (3. zindan son bossu)</h2>
+<p class="sub">Oyuk Kral'ın Tahtı'nın son dövüşü · Kral Orren · üç evre: Oyuk Saray → Veba Yükseliyor (%66) → Taç Kırılıyor (%33) · ortak boss müziği · 60 sn · dal <code>claude/rb-kral</code>, oyuna girmedi</p>
+<video id="v5" controls playsinline preload="metadata" src="king-sonra.mp4"></video>
+<h3>Ne değişti</h3>
+<p class="note">Önce: yerdeki çizimin kendisi vuruyordu (kılıç konisi, Kralın Düşüşü dairesi, veba dairesi ve avize dairesi dolduğu anda; Taç Şok Dalgası'nda kayan mor bant; veba havuzunda mor desen). Saray Muhafızları'ndaki tarikatçı kendi kırmızı dairesiyle vuruyor ve mor bir top fırlatıyordu. Sesleri başka bossların ortak yumruk sesleriydi, kendi sesi yoktu. Şimdi çizim yalnız uyarı; her vuruşu görünen bir şey yapıyor: kılıcın gölge ateşi ağzı koniyi süpürür, yere inince taş levhalar kalkar, dalga taş levha halkası olarak yuvarlanır, ağzından yeşil veba gazı fışkırır, tavandan demir avizeler düşer. Vuruş o şey sana ulaştığı anda ve yalnız uyarılan alanda geliyor. Veba havuzu artık gerçek koyu safra birikintisi; yanma yalnız o yerden. Tarikatçı çıkarıldı, yerine zombi geliyor; top biçimli hiçbir şey yok. Kendi sesi eklendi (gerçek kayıtlardan): derin, boğuk bir kral sesi — dövüş başında ve evre değişiminde kükreme, saldırı homurtuları, acı sesi (kendi vuruşundan sonraki 0,5 sn'de asla), soluma, ölüm çığlığı + zırhın yıkılışı; sana isabette kendi ağır zırhlı darbesi; kahramanın "ah"ı yine çalıyor. Hasar ve hamle sayıları aynı; müzik değişmedi.</p>
+<ol>
+<li class="phase"><div class="row"><button class="t" data-v="v5" data-s="19.7">0:19</button><button class="t" data-v="v5" data-s="39.7">0:39</button><span class="name">Evre değişimi</span><span class="en">The Hollow Court → Plague Rising (%66) → The Crown Breaks (%33)</span></div>
+<div class="snd">Etrafına yeşil veba gazı patlar; kendi kükremesi. Dövüşün başında da aynı kükreme var (videodan önce).</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="4.5">0:04</button><button class="t" data-v="v5" data-s="17.4">0:17</button><button class="t" data-v="v5" data-s="55.4">0:55</button><span class="name">Kral Yarması</span><span class="en">Royal Cleave</span></div>
+<div class="snd">Koni uyarı. Kılıcını savurur, gölge ateşinden bir kılıç ağzı koniyi baştan sona süpürür; ağız senin üstünden geçtiği anda vurur. Ses: zırh gıcırtısı, ağır kılıç savuruşu.</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="7.8">0:07</button><button class="t" data-v="v5" data-s="44.4">0:44</button><span class="name">Taç Şok Dalgası</span><span class="en">Crown Shockwave</span></div>
+<div class="snd">Açıklığı olan halkalar uyarı. Ondan dışa yuvarlanan taş levha halkası; açıklıkta dur. Vuran levhaların önü. Ses: yerden kalkan taş gürültüsü.</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="11.1">0:11</button><button class="t" data-v="v5" data-s="58.4">0:58</button><span class="name">Veba Nefesi</span><span class="en">Plague</span></div>
+<div class="snd">Şerit üstünde daireler uyarı. Derin nefes alır, ağzından yeşil gaz fışkırır; gaz her daireye ulaşınca orada patlar ve vurur; sonra yerde koyu safra havuzu kalır, yanma yalnız havuzdan. Ses: nefes çekiş, gaz püskürmesi.</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="14.4">0:14</button><button class="t" data-v="v5" data-s="27.8">0:27</button><span class="name">Saray Muhafızları</span><span class="en">Court</span></div>
+<div class="snd">Hasarsız: yerden taş kırarak zombiler kalkar. Ses: kral çağrısı, taş kırılması.</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="24.6">0:24</button><span class="name">Sarayın Vebası</span><span class="en">Miasma</span></div>
+<div class="snd">Arenanın kenarlarında 6 daire uyarı (ortada savaş). Her daireden yerden gaz fışkırır, gaz kenara ulaşınca vurur; ardından koyu safra havuzları kalır, uzun süre yanar. Havuzlardan uzak dur. Ses: nefes çekiş, yerden fışkıran gaz.</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="30.8">0:30</button><span class="name">Kral Muhafızı</span><span class="en">Royal Guard</span></div>
+<div class="snd">Hasarsız: zırhlı şövalyeler çağırır. Ses: zırh gıcırtısı, kraliyet çağrısı.</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="34.2">0:34</button><button class="t" data-v="v5" data-s="37.7">0:37</button><button class="t" data-v="v5" data-s="47.9">0:47</button><button class="t" data-v="v5" data-s="51.4">0:51</button><span class="name">Kralın Düşüşü</span><span class="en">Kingsfall</span></div>
+<div class="snd">Daire uyarı. Havaya sıçrar ve oraya iner; inişte altındaysan gövdesi vurur, sonra taş levhalar daireyi kenara kadar kaldırır, levhanın önü sana ulaşınca vurur. İkinci evrede iki kez arka arkaya. Ses: sıçrayış, ağır yer sarsıntısı.</div></li>
+<li><div class="row"><button class="t" data-v="v5" data-s="41.7">0:41</button><button class="t" data-v="v5" data-s="47.0">0:47</button><button class="t" data-v="v5" data-s="55.9">0:55</button><span class="name">Düşen Avizeler</span><span class="en">Chandelier</span></div>
+<div class="snd">Daireler uyarı. Son yarım saniyede tavandan mumlu demir avize düşer; yere çarptığında vurur, demir parçaları saçılır. Ses: zincir şıngırtısı, düşüş, metal çarpması.</div></li>
+<li><div class="row"><span class="name">Bu videoda gelmeyenler</span></div>
+<div class="snd">Ölüm: çığlık + zırhın yıkılışı (ayrı denemede çaldı).</div></li>
 </ol>
 </section>
 </main>
