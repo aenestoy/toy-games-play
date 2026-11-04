@@ -162,6 +162,9 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .doll .turn{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:var(--fs-tiny);line-height:14px;color:#9a8664;pointer-events:none;z-index:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .slot{z-index:1}
 .cell.drop{outline:3px solid #7be05a;box-shadow:0 0 14px rgba(123,224,90,.7)}
+/* (owner 2026-11-04, free placement) the bag slot a carried item would land on, and the cell it was picked up from */
+.cell.dropTo{outline:2px solid #ffd890;outline-offset:-2px;box-shadow:inset 0 0 12px rgba(255,216,144,.45)}.cell.dragFrom{opacity:.35}
+.bagSortB{flex:none;white-space:nowrap}.shards .bagSortB{margin-left:6px;align-self:center}.shards .bagn+.bagSortB{margin-left:6px}
 .doll .hero{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:88%;opacity:.95;pointer-events:none}
 .slot{position:absolute;transform:translate(-50%,0);display:grid;place-items:center}
 /* an empty slot: a faint outline of what goes there; its name shows on hover or tap */
@@ -804,8 +807,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 @media(max-width:700px){.artisanCost{grid-template-columns:minmax(0,1fr)}}
 .averageGear{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #665238;border-radius:7px;background:#211b14;padding:8px 10px;margin-bottom:6px;color:#dbc69f}.averageGear div{display:flex;flex-direction:column;gap:2px}.averageGear span{font-size:var(--fs-body)}.averageGear small{font-size:var(--fs-tiny);color:#ad9f88}.averageGear>b{font-size:var(--fs-title);color:#f1d399;font-variant-numeric:tabular-nums}
 .companionPanel{margin:0 0 12px;padding:10px 12px;background:linear-gradient(#25291f,#141810);border:1px solid #817345;border-radius:9px;color:#e3d9bc}.companionPanel summary{cursor:pointer;font-weight:700;color:#e6d29d;min-height:24px}.companionPanel p{font-size:var(--fs-small);line-height:1.4;color:#bfb9a3;margin:8px 0}.companionChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.companionChoices button{white-space:normal;min-width:0;padding:9px}.companionChoices small{display:block;font-size:var(--fs-tiny);margin-top:5px}.companionChoices .selected{border-color:#d7bc76;background:#4b4326}.companionProgress{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:var(--fs-small);margin:12px 0}.companionSkills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.companionSkills>div{background:#090e0955;border:1px solid #576048;padding:8px;border-radius:6px}.companionSkills b{font-size:var(--fs-small)}.companionSkills small{display:block;color:#c9b57c;font-size:var(--fs-tiny);margin-top:3px}.companionSkills .locked{opacity:.55}.sk3side .companionPanel{margin:0;padding:5px 10px;flex:none}.sk3side .companionPanel summary{font-size:var(--fs-small);min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sk3side .companionChoices,.sk3side .companionSkills{grid-template-columns:1fr}@media(max-width:560px){.companionSkills{grid-template-columns:1fr}.companionChoices button{padding:7px 3px;font-size:var(--fs-tiny)}}</style>
-  <script type="module" crossorigin src="./assets/index-CI9r9MIz.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DU9-4AfR.css">
+  <script type="module" crossorigin src="./assets/index-B9dIwXwM.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DbExKwko.css">
 </head>
 <body>
 <canvas id="c3"></canvas>
