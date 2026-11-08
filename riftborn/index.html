@@ -5,6 +5,31 @@
     <meta name="robots" content="noindex, nofollow" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Riftborn</title>
+<script>(function abArm(on) {
+	try {
+		if (window.__rbAbArm !== void 0) return window.__rbAbArm;
+		var arm = "", skip = false, K = "rb-ab-start", ls = window.localStorage, ss = window.sessionStorage;
+		if (on) {
+			var q = location.search.match(/[?&]skip=([01])\b/), had = !!(ls.getItem("riftborn-heroes-1") || ls.getItem("riftborn-trial-1"));
+			var v = ls.getItem(K);
+			if (q) arm = q[1] === "1" ? "skip" : "normal";
+			else if (v === "skip" || v === "normal") arm = v;
+			else if (!v && !had && !/[?&](inspect|conv|secim|stand|clip|canli|canlit|kisx|yenimob|sandik|hound|ghoul)=/.test(location.search)) {
+				arm = Math.random() < .5 ? "skip" : "normal";
+				ls.setItem(K, arm);
+			}
+			skip = arm === "skip" && !had && !ls.getItem(K + "-done") && ss.getItem("riftborn-hero-create") === null && ss.getItem("rb-hero-select") === null;
+			if (skip) document.documentElement.classList.add("rb-abskip");
+		}
+		window.__rbAbArm = arm;
+		window.__rbAbSkip = skip;
+		return arm;
+	} catch (e) {
+		window.__rbAbArm = "";
+		window.__rbAbSkip = false;
+		return "";
+	}
+})(true);</script>
 <script>
 // (2026-11-07, load time) on CrazyGames the portal's script is asked for now, beside the game script, not after it has run (the start
 // waited ~0.5 s on it on a mid phone once the play models no longer hold the title screen); the portal code's own request takes it
@@ -466,6 +491,8 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 /* (rb-ilk-izlenim) after Play / ENTER / CONTINUE, until play starts (main.js #go, classPicker begin): only the loading shows.
    The title screen's tips and HERO SELECT go; a new hero's class choice stays up, still, with LOADING on its Play button and the bar under it */
 #start.entering #keys,#start.entering #wipe{display:none!important}
+/* (rb-baslangic) the start trial's skip arm (src/ab-start.js): the loading screen is only the title and the loading label and bar; the game enters by itself */
+html.rb-abskip #start .box>p:not(.title),html.rb-abskip #keys,html.rb-abskip #wipe,html.rb-abskip #clsPick{display:none!important}html.rb-abskip #go{pointer-events:none;opacity:.45}
 #start.entering #go.hide~#ldBar{display:block}
 #clsPick.entering .clsCard{pointer-events:none}#clsPick.entering #clsGo{pointer-events:none;opacity:1;cursor:default}
 .cell .noUse{position:absolute;left:3px;top:0;color:#ff5a4a;font-style:normal;font-size:var(--fs-body);line-height:14px;font-weight:800;text-shadow:0 0 3px #000,0 0 2px #000}
@@ -893,6 +920,7 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 .companionPanel{margin:0 0 12px;padding:10px 12px;background:linear-gradient(#25291f,#141810);border:1px solid #817345;border-radius:9px;color:#e3d9bc}.companionPanel summary{cursor:pointer;font-weight:700;color:#e6d29d;min-height:24px}.companionPanel p{font-size:var(--fs-small);line-height:1.4;color:#bfb9a3;margin:8px 0}.companionChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.companionChoices button{white-space:normal;min-width:0;padding:9px}.companionChoices small{display:block;font-size:var(--fs-tiny);margin-top:5px}.companionChoices .selected{border-color:#d7bc76;background:#4b4326}.companionProgress{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:var(--fs-small);margin:12px 0}.companionSkills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.companionSkills>div{background:#090e0955;border:1px solid #576048;padding:8px;border-radius:6px}.companionSkills b{font-size:var(--fs-small)}.companionSkills small{display:block;color:#c9b57c;font-size:var(--fs-tiny);margin-top:3px}.companionSkills .locked{opacity:.55}.sk3side .companionPanel{margin:0;padding:5px 10px;flex:none}.sk3side .companionPanel summary{font-size:var(--fs-small);min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sk3side .companionChoices,.sk3side .companionSkills{grid-template-columns:1fr}@media(max-width:560px){.companionSkills{grid-template-columns:1fr}.companionChoices button{padding:7px 3px;font-size:var(--fs-tiny)}}</style>
   <script>(function(){try{var SW=function shellWant() {
 	try {
+		if (window.__rbAbSkip) return false;
 		if (!window.matchMedia || !matchMedia("(pointer: coarse)").matches) return false;
 		if (/[?&](kodbol=0|inspect=|ilk=0|stand=|clip=|canli=|canlit=|kisx=|conv=|secim=|yenimob=|sandik=|hound=|ghoul=)/.test(location.search)) return false;
 		if (localStorage.getItem("riftborn-heroes-1") || localStorage.getItem("riftborn-trial-1")) return false;
@@ -907,16 +935,16 @@ html,body,#c,#c3,button,.cell,.bgem,.sk,.sock2{cursor:url("data:image/svg+xml,%3
 	} catch (e) {
 		return false;
 	}
-};if(window.__rbShellWant=SW())return;var M=["assets/main-CFCTUIyh.js","assets/three.module-D6PxXFY6.js","assets/three.core-DtjtRha-.js","assets/crypt-dress-DO8wzuN0.js","assets/SkeletonUtils-KLfsWoiB.js","assets/BufferGeometryUtils-DrgT4mc6.js","assets/ember-plan-D1EEyzKx.js","assets/throne-story-CBH-4N07.js"];for(var i=0;i<M.length;i++){var l=document.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=M[i];document.head.appendChild(l)}}catch(e){}})();(function(){var SH=!!window.__rbShellWant,H=["pick/stand-room.jpg","pick/stand-mage-canli2c.webp","pick/card-mage-canli2c.webp","pick/card-rogue-canli2c.webp","pick/card-barb-canli2c.webp","pick/card-knight-canli2c.webp","pick/card-ranger-canli2c.webp"],L=H.concat(["models/act3mob/Iron_Nuggets.bin","models/act3mob/Iron_Nuggets.gltf","models/act3mob/chain_shackle.bin","models/act3mob/chain_shackle.gltf","models/act3mob/chainlinks.bin","models/act3mob/chainlinks.gltf","models/act3mob/hammer.bin","models/act3mob/hammer.gltf","models/act3mob/kaykit_texture_A.png","models/act3mob/mining_helmet.bin","models/act3mob/mining_helmet.gltf","models/act3mob/pickaxe.bin","models/act3mob/pickaxe.gltf","models/act3mob/resource_bits_texture.png","models/act3mob/tongs.bin","models/act3mob/tongs.gltf","models/act3mob/tools_bits_texture.png","models/silah/Skeleton_Axe.bin","models/silah/Skeleton_Axe.gltf","models/silah/Skeleton_Blade.bin","models/silah/Skeleton_Blade.gltf","models/silah/Skeleton_Crossbow.bin","models/silah/Skeleton_Crossbow.gltf","models/silah/Skeleton_Shield_Small_A.bin","models/silah/Skeleton_Shield_Small_A.gltf","models/silah/Skeleton_Staff.bin","models/silah/Skeleton_Staff.gltf","models/silah/skeleton_texture.png","models/graveyard/halloweenbits_texture.png","models/graveyard/lantern_hanging.bin","models/graveyard/lantern_hanging.gltf","models/kk2/bow.glb","models/kk2/ranger.glb","models/kk2/rogue.glb","models/kk2/weapons.glb","models/crypt-ghoul-blender-v7.glb","models/kk-barbarian.glb","models/kk-knight.glb","models/kk-mage.glb","models/kk-rogue.glb","models/kk-rogue_hooded.glb","models/kk-skeleton_mage.glb","models/kk-skeleton_minion.glb","models/kk-skeleton_rogue.glb","models/kk-skeleton_warrior.glb","models/mobs/hellhound-kk.glb"]),J=["assets/main-CFCTUIyh.js","assets/three.module-D6PxXFY6.js","assets/three.core-DtjtRha-.js","assets/crypt-dress-DO8wzuN0.js","assets/SkeletonUtils-KLfsWoiB.js","assets/BufferGeometryUtils-DrgT4mc6.js","assets/ember-plan-D1EEyzKx.js","assets/throne-story-CBH-4N07.js"],S=/[?&](inspect|yenimob|sandik|hound|ghoul|pre)=/,NL=["models/act3mob/","models/mobs/hellhound-kk.glb","models/crypt-ghoul-blender-v7.glb","models/graveyard/lantern_hanging."],NW=function bootNew() {
+};if(window.__rbShellWant=SW())return;var M=["assets/main-CAKRIdcZ.js","assets/three.module-D6PxXFY6.js","assets/three.core-DtjtRha-.js","assets/crypt-dress-DO8wzuN0.js","assets/SkeletonUtils-KLfsWoiB.js","assets/BufferGeometryUtils-DrgT4mc6.js","assets/ember-plan-D1EEyzKx.js","assets/throne-story-CBH-4N07.js"];for(var i=0;i<M.length;i++){var l=document.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=M[i];document.head.appendChild(l)}}catch(e){}})();(function(){var SH=!!window.__rbShellWant,H=["pick/stand-room.jpg","pick/stand-mage-canli2c.webp","pick/card-mage-canli2c.webp","pick/card-rogue-canli2c.webp","pick/card-barb-canli2c.webp","pick/card-knight-canli2c.webp","pick/card-ranger-canli2c.webp"],L=H.concat(["models/act3mob/Iron_Nuggets.bin","models/act3mob/Iron_Nuggets.gltf","models/act3mob/chain_shackle.bin","models/act3mob/chain_shackle.gltf","models/act3mob/chainlinks.bin","models/act3mob/chainlinks.gltf","models/act3mob/hammer.bin","models/act3mob/hammer.gltf","models/act3mob/kaykit_texture_A.png","models/act3mob/mining_helmet.bin","models/act3mob/mining_helmet.gltf","models/act3mob/pickaxe.bin","models/act3mob/pickaxe.gltf","models/act3mob/resource_bits_texture.png","models/act3mob/tongs.bin","models/act3mob/tongs.gltf","models/act3mob/tools_bits_texture.png","models/silah/Skeleton_Axe.bin","models/silah/Skeleton_Axe.gltf","models/silah/Skeleton_Blade.bin","models/silah/Skeleton_Blade.gltf","models/silah/Skeleton_Crossbow.bin","models/silah/Skeleton_Crossbow.gltf","models/silah/Skeleton_Shield_Small_A.bin","models/silah/Skeleton_Shield_Small_A.gltf","models/silah/Skeleton_Staff.bin","models/silah/Skeleton_Staff.gltf","models/silah/skeleton_texture.png","models/graveyard/halloweenbits_texture.png","models/graveyard/lantern_hanging.bin","models/graveyard/lantern_hanging.gltf","models/kk2/bow.glb","models/kk2/ranger.glb","models/kk2/rogue.glb","models/kk2/weapons.glb","models/crypt-ghoul-blender-v7.glb","models/kk-barbarian.glb","models/kk-knight.glb","models/kk-mage.glb","models/kk-rogue.glb","models/kk-rogue_hooded.glb","models/kk-skeleton_mage.glb","models/kk-skeleton_minion.glb","models/kk-skeleton_rogue.glb","models/kk-skeleton_warrior.glb","models/mobs/hellhound-kk.glb"]),J=["assets/main-CAKRIdcZ.js","assets/three.module-D6PxXFY6.js","assets/three.core-DtjtRha-.js","assets/crypt-dress-DO8wzuN0.js","assets/SkeletonUtils-KLfsWoiB.js","assets/BufferGeometryUtils-DrgT4mc6.js","assets/ember-plan-D1EEyzKx.js","assets/throne-story-CBH-4N07.js"],S=/[?&](inspect|yenimob|sandik|hound|ghoul|pre)=/,NL=["models/act3mob/","models/mobs/hellhound-kk.glb","models/crypt-ghoul-blender-v7.glb","models/graveyard/lantern_hanging."],NW=function bootNew() {
 	try {
 		if (/[?&](yk|ykmob|ilk)=0/.test(location.search)) return false;
 		return !localStorage.getItem("riftborn-heroes-1") && !localStorage.getItem("riftborn-trial-1");
 	} catch (e) {
 		return false;
 	}
-};if(!window.fetch||!window.Response||!window.PerformanceObserver||window.__rbEarly||S.test(location.search))return;if(NW())L=L.filter(function(f){for(var i=0;i<NL.length;i++)if(f.indexOf(NL[i])===0)return false;return true});if(SH)L=L.slice(H.length);var E=window.__rbEarly={},on=0,got={},n=0;function go(){if(on)return;on=1;for(var i=0;i<L.length;i++){var u=new URL(L[i],document.baseURI).href,p=fetch(u,{priority:i<H.length?'high':'low'}).then(function(r){return r.ok?r.arrayBuffer().then(function(b){return new Response(b,{status:r.status,statusText:r.statusText,headers:r.headers})}):r});p.catch(function(){});E[u]=p}}try{var o=new PerformanceObserver(function(l){var es=l.getEntries();for(var i=0;i<es.length;i++){var u=es[i].name.split('?')[0];for(var k=0;k<J.length;k++)if(!got[J[k]]&&u.slice(-J[k].length-1)==='/'+J[k]){got[J[k]]=1;n++}}if(n>=J.length){o.disconnect();go()}});o.observe({type:'resource',buffered:true})}catch(e){}})();</script>
-  <script type="module" crossorigin src="./assets/index-DfWcbA39.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/char-select-BsHAPJ-g.js">
+};if(!window.fetch||!window.Response||!window.PerformanceObserver||window.__rbEarly||S.test(location.search))return;if(NW())L=L.filter(function(f){for(var i=0;i<NL.length;i++)if(f.indexOf(NL[i])===0)return false;return true});if(SH||window.__rbAbSkip)L=L.slice(H.length);var E=window.__rbEarly={},on=0,got={},n=0;function go(){if(on)return;on=1;for(var i=0;i<L.length;i++){var u=new URL(L[i],document.baseURI).href,p=fetch(u,{priority:i<H.length?'high':'low'}).then(function(r){return r.ok?r.arrayBuffer().then(function(b){return new Response(b,{status:r.status,statusText:r.statusText,headers:r.headers})}):r});p.catch(function(){});E[u]=p}}try{var o=new PerformanceObserver(function(l){var es=l.getEntries();for(var i=0;i<es.length;i++){var u=es[i].name.split('?')[0];for(var k=0;k<J.length;k++)if(!got[J[k]]&&u.slice(-J[k].length-1)==='/'+J[k]){got[J[k]]=1;n++}}if(n>=J.length){o.disconnect();go()}});o.observe({type:'resource',buffered:true})}catch(e){}})();</script>
+  <script type="module" crossorigin src="./assets/index-CETTciAW.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/ab-start-BOcB1PHc.js">
   <link rel="stylesheet" crossorigin href="./assets/style-DSylLuIC.css">
 </head>
 <body>
