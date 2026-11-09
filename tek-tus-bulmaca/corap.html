@@ -51,10 +51,13 @@ addEventListener('pointerdown',e=>{e.preventDefault();audioOn();const x=e.client
  if(state==='play'&&inR(mapRect(),x,y,5)){tone(520,.07,'triangle',.04);toMap();return}
  if(state==='play')tapGame(x,y);else if(state==='won'){if(stT>.45)toMap()}else if(state==='lost'){if(stT>.45)startLevel(lvl)}else if(state==='map')tapMap(x,y)},{passive:false});
 ['touchstart','touchmove','touchend','gesturestart','dblclick','contextmenu'].forEach(n=>addEventListener(n,e=>e.preventDefault(),{passive:false}));
+addEventListener('pointerup',audioOn);addEventListener('touchend',audioOn);
 // ---- effects: particles, pop text, things flying to counters ----
 let parts=[],pops=[],flys=[];
 function burst(x,y,n,col,sp,life,sz,grav,kind){for(let i=0;i<n;i++){const a=R(0,TAU),v=R(.25,1)*sp*TS;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:life*R(.6,1),m:life,s:sz*TS*R(.6,1.3),c:Array.isArray(col)?col[i%col.length]:col,gr:(grav||0)*TS,k:kind||0})}}
 function ring(x,y,r,col){parts.push({x,y,vx:0,vy:0,l:.5,m:.5,s:r,c:col,gr:0,k:2})}
+// soft feedback for a tap that has no move to make (rule 4: every tap answers)
+function nudge(x,y){tone(300,.07,'sine',.03,250);burst(x,y,6,['rgba(255,255,255,.8)','#ffe2a8'],70,.35,4,0,1);ring(x,y,10*TS,'rgba(255,255,255,.7)')}
 function pop(t,x,y,col,sz){pops.push({t,x,y,c:col,s:sz||1,l:1})}
 function fly(x,y,to,kind,col,dl,cb,dur){flys.push({x,y,px:x,py:y,to,k:kind,c:col,t:-(dl||0),d:dur||.62,cb,h:R(30,80)})}
 function updFx(dt){for(const p of parts){p.vy+=p.gr*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=1-dt*1.6;p.vy*=1-dt*.8;p.l-=dt}parts=parts.filter(p=>p.l>0);for(const p of pops){p.l-=dt*.85;p.y-=dt*34*TS}pops=pops.filter(p=>p.l>0);
@@ -156,8 +159,8 @@ function socksLeft(){return ST.piles.reduce((a,p)=>a+p.length,0)}
 function slotPos(si,j){const w=DR.w/D,x=DR.x+w*(si+.5)+(j-.5)*w*.34,y=DR.y+DR.h*.56;return[x,y]}
 function trayPos(ti){const w=TR.w/TRAY;return[TR.x+w*(ti+.5),TR.y+TR.h*.55]}
 function pileTop(k){const P=PILE[k],n=ST.piles[k].length;return[P.x,P.by-SS*.55-Math.max(0,n-1)*SS*.1]}
-function tapGame(x,y){if(winAt>=0||loseAt>=0)return;let k=-1;PILE.forEach((P,i)=>{if(x>=P.x-P.w/2&&x<=P.x+P.w/2&&y>=P.y0&&y<=P.y1)k=i});if(k<0)return;
- if(!ST.piles[k].length){tone(180,.08,'sine',.03);return}
+function tapGame(x,y){if(winAt>=0||loseAt>=0){nudge(x,y);return}let k=-1;PILE.forEach((P,i)=>{if(x>=P.x-P.w/2&&x<=P.x+P.w/2&&y>=P.y0&&y<=P.y1)k=i});if(k<0){nudge(x,y);return}
+ if(!ST.piles[k].length){squash[k]=1;nudge(x,y);return}
  const from=pileTop(k),ev=step(ST,k,time);tapped=true;squash[k]=1;burst(from[0],from[1],6,['#fff','#ffe2c8'],90,.4,5,0);noise(.12,.05,2400,'bandpass');tone(520+Math.random()*60,.1,'triangle',.04,700);
  let last=time;for(const e of ev){last=Math.max(last,e.at||e.t);
   if(e.k==='slot'||e.k==='tray'){const to=e.k==='slot'?()=>slotPos(e.si,ST.slots[e.si]&&ST.slots[e.si].d===e.d?ST.slots[e.si].s.length-1:1):()=>trayPos(e.ti);const tp=e.k==='slot'?slotPos(e.si,0):trayPos(e.ti);
