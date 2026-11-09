@@ -51,10 +51,13 @@ addEventListener('pointerdown',e=>{e.preventDefault();audioOn();const x=e.client
  if(state==='play'&&inR(mapRect(),x,y,5)){tone(520,.07,'triangle',.04);toMap();return}
  if(state==='play')tapGame(x,y);else if(state==='won'){if(stT>.45)toMap()}else if(state==='lost'){if(stT>.45)startLevel(lvl)}else if(state==='map')tapMap(x,y)},{passive:false});
 ['touchstart','touchmove','touchend','gesturestart','dblclick','contextmenu'].forEach(n=>addEventListener(n,e=>e.preventDefault(),{passive:false}));
+addEventListener('pointerup',audioOn);addEventListener('touchend',audioOn);
 // ---- effects: particles, pop text, things flying to counters ----
 let parts=[],pops=[],flys=[];
 function burst(x,y,n,col,sp,life,sz,grav,kind){for(let i=0;i<n;i++){const a=R(0,TAU),v=R(.25,1)*sp*TS;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:life*R(.6,1),m:life,s:sz*TS*R(.6,1.3),c:Array.isArray(col)?col[i%col.length]:col,gr:(grav||0)*TS,k:kind||0})}}
 function ring(x,y,r,col){parts.push({x,y,vx:0,vy:0,l:.5,m:.5,s:r,c:col,gr:0,k:2})}
+// soft feedback for a tap that has no move to make (rule 4: every tap answers)
+function nudge(x,y){tone(300,.07,'sine',.03,250);burst(x,y,6,['rgba(255,255,255,.8)','#ffe2a8'],70,.35,4,0,1);ring(x,y,10*TS,'rgba(255,255,255,.7)')}
 function pop(t,x,y,col,sz){pops.push({t,x,y,c:col,s:sz||1,l:1})}
 function fly(x,y,to,kind,col,dl,cb,dur){flys.push({x,y,px:x,py:y,to,k:kind,c:col,t:-(dl||0),d:dur||.62,cb,h:R(30,80)})}
 function updFx(dt){for(const p of parts){p.vy+=p.gr*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=1-dt*1.6;p.vy*=1-dt*.8;p.l-=dt}parts=parts.filter(p=>p.l>0);for(const p of pops){p.l-=dt*.85;p.y-=dt*34*TS}pops=pops.filter(p=>p.l>0);
@@ -152,7 +155,9 @@ let B=[],L=null,need=[],goalB=[],moves=0,bonus=false,floats=[],winAt=-1,loseAt=-
 let BX=0,BY=0,CS=40,SPR=[],SPRL=[],BG=null,goalPos=[],movePos=[0,0],lvPos=[0,0],hintBox={x:0,y:0,w:1},port=true,hudBox={x:0,y:0,w:1,h:1};
 function cellXY(j,o){return[BX+((j%COLS)+.5)*CS,BY+(((j/COLS)|0)+.5+(o?o.oy:0))*CS]}
 function startLevel(i){lvl=i;L=LEVELS[i];state='play';stT=0;B=newBoard(L.nc,Math.random);B.forEach((o,j)=>{o.oy=-8.5-Math.random()*1.2-(j%COLS)*.18;o.vy=0});need=L.goals.map(q=>q[1]);goalB=need.map(()=>0);moves=L.moves;bonus=false;floats=[];winAt=loseAt=-1;tapped=false;hintA=1;parts=[];flys=[];pops=[];noise(.5,.03,900,'lowpass');arp([392,523],.2,.03,.08)}
-function tapGame(x,y){if(winAt>=0||loseAt>=0)return;const c=Math.floor((x-BX)/CS),r=Math.floor((y-BY)/CS);if(c<0||c>=COLS||r<0||r>=ROWS)return;const i=r*COLS+c,o=B[i];if(!o||o.oy<-.6)return;
+function tapGame(x,y){if(winAt>=0||loseAt>=0){nudge(x,y);return}const c=Math.floor((x-BX)/CS),r=Math.floor((y-BY)/CS);if(c<0||c>=COLS||r<0||r>=ROWS){nudge(x,y);return}const i=r*COLS+c,o=B[i];if(!o){nudge(x,y);return}
+ // taps are accepted even while lanterns are still dropping in: the board logic is already final
+
  const res=applyTap(B,i,L.nc,Math.random),[ox,oy]=cellXY(i,o);
  if(res.kind==='none'){o.w=1;tone(210,.12,'sine',.035,170);burst(ox,oy,5,'rgba(255,255,255,.6)',60,.35,4,0);return}
  tapped=true;moves--;mvB=1;const n=res.out.length;let k=0;
