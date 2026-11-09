@@ -11,11 +11,11 @@ iframe{width:100%;aspect-ratio:9/16;border:2px solid #3a3350;border-radius:10px;
 @media(max-width:520px){.g{grid-template-columns:1fr}}
 </style></head><body><div class="w">
 <h1>Lantern Night: eski ve yeni</h1>
-<p>Solda kodla çizilen eski hâl, sağda resimli yeni hâl (fenerler, gece arka planı, haritadaki köy evi). İkisi de oynanır.</p>
-<div class="t"><button id="b1" aria-pressed="true">Oyun</button><button id="b2" aria-pressed="false">Harita (köy evi)</button></div>
+<p>Solda kodla çizilen eski hâl, sağda resimli yeni hâl (fenerler, gece arka planı, haritadaki köy evi). İkisi de oynanır. Harita sekmesinde bütün parçalar yanmış gösterilir; yalnız sol alttaki köy evi resimle değişti.</p>
+<div class="t"><button id="b1" aria-pressed="true">Oyun</button><button id="b2" aria-pressed="false">Harita (yanmış hâl)</button></div>
 <div class="g"><div><b>Eski</b><iframe id="a"></iframe></div><div><b>Yeni (resimli)</b><iframe id="b"></iframe></div></div>
 </div><script>
 const A=document.getElementById('a'),B=document.getElementById('b'),b1=document.getElementById('b1'),b2=document.getElementById('b2');
-function go(map){const q=map?'view=map&':'';A.src='../lantern-night/?'+q+'mute=1&st=0';B.src='../lantern-night/?'+q+'art=1&mute=1&st=0';b1.setAttribute('aria-pressed',!map);b2.setAttribute('aria-pressed',map)}
+function go(map){const q=map?'view=map&lit=1&':'';A.src='../lantern-night/?'+q+'mute=1&st=0';B.src='../lantern-night/?'+q+'art=1&mute=1&st=0';b1.setAttribute('aria-pressed',!map);b2.setAttribute('aria-pressed',map)}
 b1.onclick=()=>go(false);b2.onclick=()=>go(true);go(false);
 </script></body></html>
