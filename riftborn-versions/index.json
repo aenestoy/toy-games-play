@@ -8,45 +8,5 @@
     "seed": 17,
     "digest": "acabbd47f4a07581562b7032894e2cd818836318376f2bd4517df85bd1499093",
     "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-f0bef85/"
-  },
-  {
-    "id": "2026-10-14-start-v2",
-    "title": "V2 · başlangıç işaretleri",
-    "createdAt": "2026-10-14T07:51:53.655Z",
-    "sourceCommit": "6d11e4fb0ce964d2b8ca806c8e81c06cecfec815",
-    "previewCommit": "9528265abb398fb2e134a0663b7e153880125d31",
-    "seed": 17,
-    "digest": "ea8bf743c13bf593ad24789aeef8dfa065689de16786f6110de31d8cb8facd7c",
-    "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-start-v2/"
-  },
-  {
-    "id": "2026-10-14-boss-v3",
-    "title": "V3 · küçük boss işaretleri",
-    "createdAt": "2026-10-14T08:03:20.967Z",
-    "sourceCommit": "6266a4c26ed90dbe13e39134bbc11f6bebf1a54b",
-    "previewCommit": "c8027d289262a92b8f6a854469b4dfab791ca39e",
-    "seed": 17,
-    "digest": "d754ff8cb9b4e8e51403a939c10d6e287ab4f6f838535c789ca6668b2f2d0ecd",
-    "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-boss-v3/"
-  },
-  {
-    "id": "2026-10-14-content-v4",
-    "title": "V4 · harita içerikleri",
-    "createdAt": "2026-10-14T08:25:31.918Z",
-    "sourceCommit": "c29656d30be402e1637ed571b1ee1675c3c04dd7",
-    "previewCommit": "7885bf386ad494562b0b2d82f099b4664ba74d79",
-    "seed": 17,
-    "digest": "985c0ae46d980ed05c4c7f40a88e1541b7fc209cec919638c811f62240395d2c",
-    "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-content-v4/"
-  },
-  {
-    "id": "2026-10-14-locate-v5",
-    "title": "V5 · karttan konum gösterme",
-    "createdAt": "2026-10-14T09:54:54.267Z",
-    "sourceCommit": "9b97fb433cc8448b2fbd3458cd43818008747213",
-    "previewCommit": "4a675d27c87d957bee8d54998d10570e184c1b5c",
-    "seed": 17,
-    "digest": "27dd71099cd44a1f75d07cf3118da294a1446823c40f90fc31d28f89023290f2",
-    "base": "https://aenestoy.github.io/toy-games-play/riftborn-versions/2026-10-14-locate-v5/"
   }
 ]
