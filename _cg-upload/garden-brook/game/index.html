@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Garden Brook</title>
+    <link rel="icon" href="data:," />
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #78c26a; overscroll-behavior: none; }
+      body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+      #game { position: fixed; inset: 0; }
+      #game canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
+      /* loading indicator (src/loading.ts): visible from the first paint, removed when the first screen is drawn */
+      #gb-load { position: fixed; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #78c26a; pointer-events: none; transition: opacity .3s; }
+      #gb-load .ring { width: 46px; height: 46px; box-sizing: border-box; border-radius: 50%; border: 5px solid rgba(255,255,255,.35); border-top-color: #fff; animation: gbspin .9s linear infinite; }
+      #gb-load .bar { width: 168px; height: 10px; border-radius: 5px; background: rgba(30,80,30,.22); overflow: hidden; }
+      #gb-load-fill { width: 100%; height: 100%; border-radius: 5px; background: #fff; transform-origin: 0 50%; transform: scaleX(.02); animation: gbcode 6s cubic-bezier(.2,.7,.3,1) forwards; transition: transform .3s ease-out; }
+      @keyframes gbspin { to { transform: rotate(360deg); } }
+      @keyframes gbcode { to { transform: scaleX(.28); } }
+    </style>
+    <script type="module" crossorigin src="./assets/index-CJqEgsVt.js"></script>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="gb-load"><div class="ring"></div><div class="bar"><div id="gb-load-fill"></div></div></div>
+  </body>
+</html>
