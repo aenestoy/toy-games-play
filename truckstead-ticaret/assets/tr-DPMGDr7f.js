@@ -1,0 +1,1 @@
+var e=[{url:``+new URL(`tr-1-RsAt3XUr.woff2`,import.meta.url).href,range:`U+11e-11f, U+130, U+15e-15f, U+306-307, U+327`}];export{e as default};
