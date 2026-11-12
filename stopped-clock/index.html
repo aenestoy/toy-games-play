@@ -71,6 +71,17 @@ body.touch .ab[data-act="lantern"]{grid-column:1;grid-row:2}
 #reset{position:absolute;left:max(10px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));pointer-events:auto;font:inherit;font-size:11px;color:#b8ad98;background:rgba(8,8,12,.55);border:1px solid rgba(200,190,170,.3);border-radius:8px;padding:5px 9px;cursor:pointer}
 #help{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:12px;color:#d8ceb8;background:rgba(8,8,12,.55);border-radius:10px;padding:4px 12px;white-space:nowrap}
 body.touch #help{display:none}
+#help b{color:#ffe2a0}
+#help .cap,body.locked #help .free{display:none}
+body.locked #help .cap{display:inline}
+#gear{position:absolute;right:max(14px,env(safe-area-inset-right));top:48px;width:34px;height:34px;pointer-events:auto;font:inherit;font-size:18px;line-height:1;color:#d8ceb8;background:rgba(8,8,12,.6);border:1px solid rgba(240,220,170,.38);border-radius:10px;cursor:pointer;padding:0}
+body.touch #gear{width:44px;height:44px;font-size:22px}
+#settings{position:absolute;right:max(14px,env(safe-area-inset-right));top:90px;width:220px;pointer-events:auto;background:rgba(14,12,10,.95);border:1px solid #c89a50;border-radius:12px;padding:12px 14px;display:grid;gap:10px;font-size:14px;z-index:3}
+body.touch #settings{top:100px}
+#settings input{width:100%;accent-color:#e8b860;touch-action:none}
+#settings .btn{min-height:36px;padding:6px 14px;font-size:14px}
+.threat{position:absolute;left:0;top:0;font-size:38px;line-height:1;color:#ff4a30;text-shadow:0 0 8px #ff2a10,0 1px 3px #000;will-change:transform;animation:threat .3s linear infinite alternate}
+@keyframes threat{from{opacity:.55}to{opacity:1}}
 /* ---- dialog ---- */
 #dialog{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(680px,calc(100vw - 32px));box-sizing:border-box;background:rgba(14,12,10,.93);border:1px solid #c89a50;border-radius:12px;padding:10px 16px 12px;cursor:pointer;z-index:5}
 #dialog em{display:block;font-style:normal;font-size:12px;letter-spacing:.14em;color:#e8b860;margin-bottom:3px}
@@ -111,7 +122,7 @@ body.touch .card kbd{display:none}
   #dialog p{font-size:14px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-tUtt1Uce.js"></script>
+  <script type="module" crossorigin src="./assets/index-DHQOM9W8.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-DveaWOhF.css">
 </head>
 <body>
@@ -129,7 +140,9 @@ body.touch .card kbd{display:none}
   <div id="boss" class="hide"><em class="serif">GATE WARDEN</em><div class="bar"><i></i></div></div>
   <div id="banner" class="serif"></div>
   <button id="prompt" class="hide" data-act="interact"></button>
-  <div id="help">WASD move · Click / J attack · Space dodge · Q flare · F lantern · E use · hold right mouse to look</div>
+  <div id="help"><span class="free"><b>Click the game</b> to look around with the mouse · </span>WASD move · Click attack · Space dodge · Q flare · F lantern · E use<span class="cap"> · Esc frees the mouse</span></div>
+  <button id="gear" aria-label="Settings">⚙</button>
+  <div id="settings" class="hide"><label for="sens">Look sensitivity <b id="sensVal"></b></label><input id="sens" type="range"><button class="btn ghost" id="settingsClose">Close</button></div>
   <div id="btns">
     <button class="ab" data-act="lantern"><kbd>F</kbd>☀<small>LAMP</small><u></u></button>
     <button class="ab" data-act="flare"><kbd>Q</kbd>✺<small>FLARE</small><u></u></button>
