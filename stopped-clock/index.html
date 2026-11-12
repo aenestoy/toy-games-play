@@ -76,6 +76,12 @@ body.touch #help{display:none}
 body.locked #help .cap{display:inline}
 #gear{position:absolute;right:max(14px,env(safe-area-inset-right));top:48px;width:34px;height:34px;pointer-events:auto;font:inherit;font-size:18px;line-height:1;color:#d8ceb8;background:rgba(8,8,12,.6);border:1px solid rgba(240,220,170,.38);border-radius:10px;cursor:pointer;padding:0}
 body.touch #gear{width:44px;height:44px;font-size:22px}
+#fs{position:absolute;right:calc(max(14px,env(safe-area-inset-right)) + 42px);top:48px;width:34px;height:34px;pointer-events:auto;color:#d8ceb8;background:rgba(8,8,12,.6);border:1px solid rgba(240,220,170,.38);border-radius:10px;cursor:pointer;padding:0;display:grid;place-items:center;touch-action:manipulation}
+#fs svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#fs .out,#fs.on .in{display:none}
+#fs.on .out{display:inline}
+body.touch #fs{width:44px;height:44px;right:calc(max(14px,env(safe-area-inset-right)) + 52px)}
+body.touch #fs svg{width:22px;height:22px}
 #settings{position:absolute;right:max(14px,env(safe-area-inset-right));top:90px;width:220px;pointer-events:auto;background:rgba(14,12,10,.95);border:1px solid #c89a50;border-radius:12px;padding:12px 14px;display:grid;gap:10px;font-size:14px;z-index:3}
 body.touch #settings{top:100px}
 #settings input{width:100%;accent-color:#e8b860;touch-action:none}
@@ -122,7 +128,7 @@ body.touch .card kbd{display:none}
   #dialog p{font-size:14px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-ctYzLLl7.js"></script>
+  <script type="module" crossorigin src="./assets/index-CJdJxKIG.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-DveaWOhF.css">
 </head>
 <body>
@@ -140,8 +146,9 @@ body.touch .card kbd{display:none}
   <div id="boss" class="hide"><em class="serif">GATE WARDEN</em><div class="bar"><i></i></div></div>
   <div id="banner" class="serif"></div>
   <button id="prompt" class="hide" data-act="interact"></button>
-  <div id="help"><span class="free"><b>Click the game</b> to look around with the mouse · </span>WASD move · Click attack · Space dodge · Q flare · F lantern · E use<span class="cap"> · Esc frees the mouse</span></div>
+  <div id="help"><span class="free"><b>Click the game</b> to look around with the mouse · </span>WASD move · Click attack · Space dodge · Q flare · F lantern · E use<span id="fsHelp"></span><span class="cap"> · Esc frees the mouse</span></div>
   <button id="gear" aria-label="Settings">⚙</button>
+  <button id="fs" class="hide" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path class="in" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/><path class="out" d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg></button>
   <div id="settings" class="hide"><label for="sens">Look sensitivity <b id="sensVal"></b></label><input id="sens" type="range"><button class="btn ghost" id="settingsClose">Close</button></div>
   <div id="btns">
     <button class="ab" data-act="lantern"><kbd>F</kbd>☀<small>LAMP</small><u></u></button>
