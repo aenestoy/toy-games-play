@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>Stopped Clock</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0b0e14;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#ece4d2}
+#c{display:block;position:fixed;inset:0;width:100%;height:100%}
+.hide{display:none!important}
+.serif{font-family:Cinzel,Georgia,serif}
+/* ---- HUD ---- */
+#hud{position:fixed;inset:0;pointer-events:none}
+#bars{position:absolute;left:max(14px,env(safe-area-inset-left));top:12px;width:min(250px,32vw)}
+.bar{position:relative;height:16px;border-radius:4px;background:rgba(8,8,12,.72);border:1px solid rgba(240,220,170,.38);overflow:hidden;margin-bottom:5px}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:100%;transform-origin:left center;border-radius:2px}
+.bar b{position:absolute;inset:0;font-size:11px;line-height:16px;text-align:center;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
+#hp i{background:linear-gradient(#e05a4a,#a62f28)}
+#oil{height:11px}
+#oil i{background:linear-gradient(#ffd070,#d08a1c)}
+#oil.off i{background:linear-gradient(#8f8770,#5e5848)}
+#oil b{font-size:9px;line-height:11px}
+#boons{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+#boons span{width:22px;height:22px;border-radius:5px;background:rgba(8,8,12,.72);border:1px solid rgba(240,200,120,.5);font-size:14px;line-height:22px;text-align:center;color:#ffd890}
+#shards{position:absolute;right:max(14px,env(safe-area-inset-right));top:12px;font-weight:800;font-size:18px;background:rgba(8,8,12,.72);border:1px solid rgba(240,220,170,.38);border-radius:16px;padding:3px 12px 3px 8px;color:#ffe2a0}
+#shards::before{content:"⚙";margin-right:6px;color:#e8b860}
+#room{position:absolute;left:50%;top:12px;transform:translateX(-50%);font-size:15px;letter-spacing:.08em;background:rgba(8,8,12,.6);border-radius:12px;padding:3px 14px;white-space:nowrap}
+#boss{position:absolute;left:50%;top:44px;transform:translateX(-50%);width:min(440px,54vw);text-align:center}
+#boss em{font-style:normal;font-size:14px;letter-spacing:.12em;color:#ffcf8a;text-shadow:0 1px 3px #000}
+#boss .bar{height:12px;margin-top:3px}
+#boss .bar i{background:linear-gradient(#ffa040,#c0401c)}
+#banner{position:absolute;left:50%;top:26%;transform:translate(-50%,-50%);font-size:clamp(22px,5vw,40px);font-weight:800;letter-spacing:.1em;color:#ffe2a8;text-shadow:0 2px 12px #000,0 0 24px rgba(255,160,60,.5);opacity:0;transition:opacity .35s;white-space:nowrap}
+#banner.on{opacity:1}
+#labels{position:absolute;inset:0;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-weight:800;text-shadow:0 1px 3px #000,0 0 6px #000;will-change:transform}
+.lbl.mark{font-size:26px;color:#ffd24a}
+.lbl.alert{font-size:28px;color:#ff5a3c}
+.lbl.name{font-size:13px;color:#f4e6c8;background:rgba(8,8,12,.6);border-radius:9px;padding:1px 9px;font-weight:600}
+.lbl.door{font-size:15px;color:#ffe2a0;background:rgba(8,8,12,.78);border:1px solid rgba(240,200,120,.6);border-radius:10px;padding:3px 10px}
+.lbl.dmg{font-size:19px;color:#fff}
+.lbl.dmg.big{font-size:25px;color:#ffd24a}
+.lbl.hurt{font-size:21px;color:#ff6a5a}
+.lbl.heal{font-size:17px;color:#8fe08a}
+.lbl.gain{font-size:17px;color:#ffe2a0}
+.lbl.note{font-size:15px;color:#cfd8e8}
+#prompt{position:absolute;left:50%;bottom:22%;transform:translateX(-50%);pointer-events:auto;font:inherit;font-weight:700;font-size:16px;color:#fff;background:rgba(16,14,10,.86);border:1px solid #c89a50;border-radius:12px;padding:9px 16px;white-space:nowrap;cursor:pointer}
+#prompt kbd{font:inherit;display:inline-block;min-width:18px;text-align:center;background:#e8b860;color:#1a1206;border-radius:5px;padding:0 5px;margin-right:8px}
+body.touch #prompt{min-height:64px;min-width:64px;font-size:17px;bottom:auto;top:30%;left:auto;right:max(18px,env(safe-area-inset-right));transform:none}
+body.touch #prompt kbd{display:none}
+/* ---- action buttons (touch) / key hints (desktop) ---- */
+#btns{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));display:flex;gap:8px;align-items:flex-end;pointer-events:auto}
+.ab{position:relative;width:50px;height:50px;border-radius:12px;border:1px solid rgba(240,200,120,.55);background:rgba(12,10,8,.7);color:#f4e6c8;font:inherit;font-size:20px;display:grid;place-items:center;cursor:pointer;padding:0;overflow:hidden}
+.ab small{position:absolute;left:0;right:0;bottom:2px;font-size:9px;letter-spacing:.04em;opacity:.85}
+.ab kbd{position:absolute;left:3px;top:2px;font:inherit;font-size:9px;font-weight:800;color:#e8b860}
+.ab u{position:absolute;left:0;right:0;bottom:0;height:0;background:rgba(0,0,0,.72);text-decoration:none}
+.ab.down{background:rgba(120,90,40,.75)}
+.ab.lit{border-color:#ffc860;box-shadow:0 0 10px rgba(255,180,80,.55);color:#ffd890}
+body.touch #btns{display:grid;grid-template-columns:66px 66px 96px;grid-template-rows:66px 66px;gap:10px}
+body.touch .ab{width:66px;height:66px;border-radius:50%;font-size:26px}
+body.touch .ab kbd{display:none}
+body.touch .ab small{bottom:7px}
+body.touch .ab[data-act="attack"]{grid-column:3;grid-row:1/span 2;width:96px;height:96px;align-self:end;font-size:38px;background:rgba(90,30,20,.72)}
+body.touch .ab[data-act="dodge"]{grid-column:2;grid-row:2}
+body.touch .ab[data-act="flare"]{grid-column:2;grid-row:1}
+body.touch .ab[data-act="lantern"]{grid-column:1;grid-row:2}
+#stick{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:2px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);display:none}
+#stick.on{display:block}
+#knob{position:absolute;left:50%;top:50%;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.35);transform:translate(-50%,-50%)}
+#reset{position:absolute;left:max(10px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));pointer-events:auto;font:inherit;font-size:11px;color:#b8ad98;background:rgba(8,8,12,.55);border:1px solid rgba(200,190,170,.3);border-radius:8px;padding:5px 9px;cursor:pointer}
+#help{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:12px;color:#d8ceb8;background:rgba(8,8,12,.55);border-radius:10px;padding:4px 12px;white-space:nowrap}
+body.touch #help{display:none}
+/* ---- dialog ---- */
+#dialog{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(680px,calc(100vw - 32px));box-sizing:border-box;background:rgba(14,12,10,.93);border:1px solid #c89a50;border-radius:12px;padding:10px 16px 12px;cursor:pointer;z-index:5}
+#dialog em{display:block;font-style:normal;font-size:12px;letter-spacing:.14em;color:#e8b860;margin-bottom:3px}
+#dialog p{margin:0;font-size:16px;line-height:1.4;min-height:2.8em}
+#dialog small{position:absolute;right:12px;bottom:5px;font-size:10px;color:#9a8e78}
+/* ---- overlays ---- */
+.ov{position:fixed;inset:0;display:grid;place-items:center;background:rgba(5,6,10,.74);z-index:6;padding:12px;box-sizing:border-box;overflow:auto;touch-action:pan-y}
+.ov h2{margin:0 0 4px;font-size:clamp(20px,4.4vw,32px);letter-spacing:.08em;color:#ffe2a8;text-align:center;text-shadow:0 2px 10px #000}
+.ov .sub{text-align:center;color:#c8bca4;font-size:14px;margin:0 0 14px}
+.row{display:flex;gap:12px;justify-content:center;align-items:stretch;flex-wrap:nowrap}
+.card{flex:1 1 0;max-width:220px;min-width:0;background:linear-gradient(#262018,#15110c);border:1px solid #8a6a3a;border-radius:12px;padding:14px 12px;text-align:center;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;align-items:center;gap:6px}
+.card:hover,.card:focus-visible{border-color:#ffc860;box-shadow:0 0 14px rgba(255,180,80,.4);outline:none}
+.card .ic{font-size:34px;line-height:1;color:#ffd890}
+.card .nm{font-weight:800;font-size:16px;color:#ffe2a8;letter-spacing:.04em}
+.card .ds{font-size:13px;line-height:1.35;color:#d8ceb8}
+.card .ft{margin-top:auto;font-size:13px;font-weight:700;color:#e8b860}
+.card kbd{font:inherit;font-size:10px;color:#9a8e78}
+body.touch .card kbd{display:none}
+.card[disabled]{opacity:.5;cursor:default;box-shadow:none;border-color:#5a4a34}
+.pips{letter-spacing:4px;color:#e8b860;font-size:14px}
+.btn{font:inherit;font-weight:800;font-size:16px;letter-spacing:.06em;color:#1a1206;background:linear-gradient(#f0c870,#c8943c);border:0;border-radius:10px;padding:11px 26px;cursor:pointer;min-height:44px}
+.btn.ghost{background:none;color:#d8ceb8;border:1px solid rgba(200,190,170,.4)}
+.center{text-align:center;margin-top:14px;display:flex;gap:10px;justify-content:center}
+#end .stats{text-align:center;color:#d8ceb8;font-size:15px;line-height:1.7;margin:6px 0 4px}
+#end .stats b{color:#ffe2a0}
+#loading{position:fixed;inset:0;display:grid;place-items:center;background:#0b0e14;z-index:20;text-align:center}
+#loading h1{margin:0;font-size:clamp(30px,8vw,56px);letter-spacing:.12em;color:#e8b860;text-shadow:0 0 24px rgba(255,150,50,.35)}
+#loading p{color:#a89c84;font-size:14px;margin:10px 0 0}
+#fade{position:fixed;inset:0;background:#07090d;opacity:0;pointer-events:none;transition:opacity .3s;z-index:4}
+#fade.on{opacity:1}
+#hurt{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 120px 30px rgba(200,30,20,.7);opacity:0;transition:opacity .25s}
+#rotate{position:fixed;inset:0;display:none;place-items:center;background:#0b0e14;z-index:30;text-align:center;padding:24px;box-sizing:border-box}
+#rotate div{font-size:20px;line-height:1.5;color:#ffe2a8}
+#rotate span{display:block;font-size:56px;margin-bottom:10px;color:#e8b860}
+@media (orientation:portrait){body.touch #rotate{display:grid}}
+@media (max-height:440px){
+  .card{padding:9px 9px}.card .ic{font-size:26px}.card .ds{font-size:12px}.ov .sub{margin-bottom:8px}
+  #dialog p{font-size:14px}
+}
+</style>
+  <script type="module" crossorigin src="./assets/index-B-1yrlnt.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DveaWOhF.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hurt"></div>
+<div id="hud" class="hide">
+  <div id="labels"></div>
+  <div id="bars">
+    <div id="hp" class="bar"><i></i><b></b></div>
+    <div id="oil" class="bar"><i></i><b></b></div>
+    <div id="boons"></div>
+  </div>
+  <div id="room" class="serif hide"></div>
+  <div id="shards">0</div>
+  <div id="boss" class="hide"><em class="serif">GATE WARDEN</em><div class="bar"><i></i></div></div>
+  <div id="banner" class="serif"></div>
+  <button id="prompt" class="hide" data-act="interact"></button>
+  <div id="help">WASD move · Click / J attack · Space dodge · Q flare · F lantern · E use · hold right mouse to look</div>
+  <div id="btns">
+    <button class="ab" data-act="lantern"><kbd>F</kbd>☀<small>LAMP</small><u></u></button>
+    <button class="ab" data-act="flare"><kbd>Q</kbd>✺<small>FLARE</small><u></u></button>
+    <button class="ab" data-act="dodge"><kbd>␣</kbd>➶<small>DODGE</small><u></u></button>
+    <button class="ab" data-act="attack"><kbd>J</kbd>⚔<u></u></button>
+  </div>
+  <div id="stick"><div id="knob"></div></div>
+  <button id="reset" class="hide">Reset progress</button>
+</div>
+<div id="fade"></div>
+<div id="dialog" class="hide"><em class="serif"></em><p></p><small>tap to close</small></div>
+<div id="cards" class="ov hide"><div><h2 class="serif"></h2><p class="sub"></p><div class="row"></div></div></div>
+<div id="smith" class="ov hide"><div><h2 class="serif">THE SMITH</h2><p class="sub"></p><div class="row"></div><div class="center"><button class="btn ghost" id="smithClose">Close</button></div></div></div>
+<div id="end" class="ov hide"><div><h2 class="serif"></h2><div class="stats"></div><div class="center"><button class="btn" id="endBtn"></button></div></div></div>
+<div id="confirm" class="ov hide"><div><h2 class="serif">RESET PROGRESS?</h2><p class="sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn" id="confirmYes">Reset</button><button class="btn ghost" id="confirmNo">Keep</button></div></div></div>
+<div id="loading"><div><h1 class="serif">STOPPED CLOCK</h1><p id="loadText">Lighting the lantern…</p></div></div>
+<div id="rotate"><div><span>⟳</span>Turn your phone sideways to play</div></div>
+</body>
+</html>
