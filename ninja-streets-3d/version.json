@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "9d654851b",
- "date": "2026-11-13T23:55:58+03:00",
- "msg": "fix(game-29): shadow clones cross narrow ways single file behind the hero"
+ "commit": "cf9e84592",
+ "date": "2026-11-14T00:23:30+03:00",
+ "msg": "Merge remote-tracking branch 'origin/claude/ns-boss-kural' into claude/tek-tus-oyunlar"
 }
