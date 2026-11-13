@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "261a11ce0",
- "date": "2026-11-13T13:36:40+03:00",
- "msg": "feat(game-29): hook hunter and raiders strike again sooner (chapter 12 mob hits a minute above chapter 11's)"
+ "commit": "e0bbe83e1",
+ "date": "2026-11-13T17:43:58+03:00",
+ "msg": "fix(game-29): stats version no longer imports package.json (panel generator copies only src)"
 }
