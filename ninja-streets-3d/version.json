@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "e0bbe83e1",
- "date": "2026-11-13T17:43:58+03:00",
- "msg": "fix(game-29): stats version no longer imports package.json (panel generator copies only src)"
+ "commit": "c981f8c08",
+ "date": "2026-11-13T20:15:24+03:00",
+ "msg": "Merge branch 'claude/ns-takilma2' of https://github.com/aenestoy/web-game-studio into claude/tek-tus-oyunlar"
 }
