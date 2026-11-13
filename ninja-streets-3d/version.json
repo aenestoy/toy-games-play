@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "3868cc5dc",
- "date": "2026-11-13T21:19:30+03:00",
- "msg": "fix(game-29): oni chief boulders and snow maiden icicle fall no longer lead the hero"
+ "commit": "7546d0c48",
+ "date": "2026-11-13T22:36:14+03:00",
+ "msg": "revert(game-29): enemy flinch cross-fades as before (snapping it gave no measurable gain on the laptop)"
 }
