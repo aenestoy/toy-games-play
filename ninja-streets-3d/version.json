@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "5023e7d1d",
- "date": "2026-11-13T12:42:13+03:00",
- "msg": "Merge remote-tracking branch 'origin/claude/tek-tus-oyunlar' into claude/ns-bolum11-mob"
+ "commit": "261a11ce0",
+ "date": "2026-11-13T13:36:40+03:00",
+ "msg": "feat(game-29): hook hunter and raiders strike again sooner (chapter 12 mob hits a minute above chapter 11's)"
 }
