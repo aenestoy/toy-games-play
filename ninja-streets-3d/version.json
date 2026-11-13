@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "7546d0c48",
- "date": "2026-11-13T22:36:14+03:00",
- "msg": "revert(game-29): enemy flinch cross-fades as before (snapping it gave no measurable gain on the laptop)"
+ "commit": "f2b77e509",
+ "date": "2026-11-13T23:10:26+03:00",
+ "msg": "fix(game-29): shadow clone keeps a fixed shoulder slot, slides on walls, faces and animates like the hero"
 }
