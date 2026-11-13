@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "9fc187fd6",
- "date": "2026-11-13T23:17:22+03:00",
- "msg": "perf(game-29): foes use half-triangle copies of their models (art-3d/models/lo, art-3d/scripts/lod.mjs)"
+ "commit": "9d654851b",
+ "date": "2026-11-13T23:55:58+03:00",
+ "msg": "fix(game-29): shadow clones cross narrow ways single file behind the hero"
 }
