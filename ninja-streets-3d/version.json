@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "c87546de1",
- "date": "2026-11-13T21:10:23+03:00",
- "msg": "Merge remote-tracking branch 'origin/claude/ns-okcu-sinir' into claude/tek-tus-oyunlar"
+ "commit": "3868cc5dc",
+ "date": "2026-11-13T21:19:30+03:00",
+ "msg": "fix(game-29): oni chief boulders and snow maiden icicle fall no longer lead the hero"
 }
