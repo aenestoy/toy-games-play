@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "17f236c49",
- "date": "2026-11-14T19:10:09+03:00",
- "msg": "Merge claude/ns-boss-yeni: own models for bosses 11 (ice diver) and 12 (ice dancer), drummer sticks, powder miner mask"
+ "commit": "5899d9ab2",
+ "date": "2026-11-14T19:13:49+03:00",
+ "msg": "Merge claude/ns-lider: weekly challenge with world and country leaderboard"
 }
