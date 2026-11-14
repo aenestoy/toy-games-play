@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "03953e117",
- "date": "2026-11-14T10:54:40+03:00",
- "msg": "fix(game-29): Throne Corridor's middle ice blocks moved off the east door (the way in from the Frozen Garden was walled)"
+ "commit": "cac3c75d9",
+ "date": "2026-11-14T13:12:41+03:00",
+ "msg": "feat(game-29): why players leave - leave summary, frustration, first minute and frame-rate stats"
 }
