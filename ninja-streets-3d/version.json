@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "81d7d63c2",
- "date": "2026-11-14T20:20:26+03:00",
- "msg": "Merge claude/ns-guc2: power curve and yellow Legendary items (owner: his ayni)"
+ "commit": "521e5d161",
+ "date": "2026-11-14T20:59:45+03:00",
+ "msg": "fix(game-29): coins flying home land on the hero instead of hanging around him"
 }
