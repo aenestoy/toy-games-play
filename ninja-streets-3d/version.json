@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "6659b2d1e",
- "date": "2026-11-14T02:42:54+03:00",
- "msg": "perf(game-29): chapter rooms built ahead under the loading screen / on the idle map, no build+compile freeze on PLAY"
+ "commit": "1a8113f38",
+ "date": "2026-11-14T04:15:19+03:00",
+ "msg": "Merge remote-tracking branch 'origin/claude/ns-b13' into claude/tek-tus-oyunlar"
 }
