@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "3fb7c8026",
- "date": "2026-11-14T06:47:39+03:00",
- "msg": "Merge origin/claude/ns-b15 (chapter 15 Aurora Plain) into claude/tek-tus-oyunlar"
+ "commit": "47f27f52d",
+ "date": "2026-11-14T07:48:53+03:00",
+ "msg": "feat(game-29): twins damage fit 0.247 (whole fight not easier than the target)"
 }
