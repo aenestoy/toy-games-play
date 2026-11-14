@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "cac3c75d9",
- "date": "2026-11-14T13:12:41+03:00",
- "msg": "feat(game-29): why players leave - leave summary, frustration, first minute and frame-rate stats"
+ "commit": "8c2e99bf6",
+ "date": "2026-11-14T17:13:11+03:00",
+ "msg": "Merge claude/ns-duzelt: 9 bug fixes and chapters 11-14 wave sizes like chapter 17"
 }
