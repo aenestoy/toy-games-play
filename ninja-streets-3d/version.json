@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "8c2e99bf6",
- "date": "2026-11-14T17:13:11+03:00",
- "msg": "Merge claude/ns-duzelt: 9 bug fixes and chapters 11-14 wave sizes like chapter 17"
+ "commit": "17f236c49",
+ "date": "2026-11-14T19:10:09+03:00",
+ "msg": "Merge claude/ns-boss-yeni: own models for bosses 11 (ice diver) and 12 (ice dancer), drummer sticks, powder miner mask"
 }
