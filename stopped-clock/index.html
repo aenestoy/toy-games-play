@@ -103,10 +103,10 @@ body.touch #fs img{width:28px;height:28px}
 /* ---- talk strip ---- */
 #dialog{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(760px,calc(100vw - 24px));display:flex;align-items:center;gap:14px;padding:10px 16px;cursor:pointer;z-index:5}
 #dialog .por{width:68px;height:68px;border-radius:6px;border:1px solid var(--brass);flex:none;object-fit:cover}
-#dialog .txt{flex:1;min-width:0;padding-right:84px}
+#dialog .txt{flex:1;min-width:0}
 #dialog em{display:block;font-style:normal;font-size:16px;font-weight:700;letter-spacing:.12em;color:var(--brass-hi);margin-bottom:3px}
 #dialog p{margin:0;font-size:16px;line-height:1.4;min-height:2.8em}
-#dialog small{position:absolute;right:14px;bottom:10px;font-size:14px;color:var(--muted)}
+#dialog small{position:absolute;right:14px;top:10px;font-size:14px;color:var(--muted)}
 /* ---- overlays ---- */
 .ov{position:fixed;inset:0;display:grid;place-items:center;background:rgba(5,7,12,.66);z-index:6;padding:12px;box-sizing:border-box;overflow:auto;touch-action:pan-y}
 .ov .sub{text-align:center;color:#c8bca4;font-size:14px;margin:-6px 0 14px}
@@ -181,7 +181,7 @@ body.touch .card kbd{display:none}
 .srow>span,.srow>label{flex:1;min-width:0}
 .srow b{color:var(--brass-hi);font-weight:700}
 .srow input[type=range]{flex:0 0 40%;height:48px;margin:0;accent-color:var(--glow);touch-action:none;cursor:pointer}
-.srow select{font:inherit;font-size:16px;min-height:40px;background:#151922;color:var(--ink);border:1px solid var(--brass);border-radius:4px}
+.srow select{font:inherit;font-size:16px;min-height:48px;padding:0 8px;background:#151922;color:var(--ink);border:1px solid var(--brass);border-radius:4px}
 .tog{position:relative;width:64px;height:48px;flex:none;border:0;background:none;padding:0;cursor:pointer;display:grid;place-items:center}
 .tog::before{content:"";display:block;width:46px;height:24px;border-radius:12px;background:#3a3f4c;border:1px solid #5a5e6a;box-sizing:border-box;transition:background .15s}
 .tog::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#d8ceb8;transform:translateX(-11px);transition:transform .15s}
@@ -233,8 +233,8 @@ body.touch .card kbd{display:none}
   #boss{top:58px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-Y20536zG.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DveaWOhF.css">
+  <script type="module" crossorigin src="./assets/index-WkaYScNI.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -242,17 +242,17 @@ body.touch .card kbd{display:none}
 <div id="hud" class="hide">
   <div id="labels"></div>
   <div id="bars">
-    <div class="meter"><img class="ic" src="img/ui/icons/hp.webp" alt="Health"><div id="hp" class="bar"><i></i><b></b></div></div>
-    <div class="meter" id="oilRow"><img class="ic" src="img/ui/icons/oil.webp" alt="Oil"><div id="oil" class="bar"><i></i></div></div>
+    <div class="meter"><img class="ic" src="img/ui/icons/hp.webp" alt="Health" data-t-alt="hud.health"><div id="hp" class="bar"><i></i><b></b></div></div>
+    <div class="meter" id="oilRow"><img class="ic" src="img/ui/icons/oil.webp" alt="Oil" data-t-alt="hud.oil"><div id="oil" class="bar"><i></i></div></div>
     <div id="boons"></div>
   </div>
   <div id="room" class="plate hide"><b class="serif"></b><small></small></div>
-  <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards"><span>0</span></div>
-  <div id="boss" class="hide"><em class="serif">GATE WARDEN</em><div class="bar"><i></i></div></div>
+  <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
+  <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i></div></div>
   <div id="banner" class="serif"></div>
   <button id="prompt" class="hide" data-act="interact"></button>
-  <div id="help"><span class="free"><b>Click the game</b> to look around with the mouse · </span>WASD move · Click attack · Space dodge · Q flare · F lantern · E use<span id="fsHelp"></span><span class="cap"> · Esc frees the mouse</span></div>
-  <button id="gear" class="plate" aria-label="Settings"><img src="img/ui/icons/settings.webp" alt=""></button>
+  <div id="help"><span class="free"><b data-t="help.click">Click the game</b> <span data-t="help.look">to look around with the mouse</span> · </span><span data-t="help.keys">WASD move · Click attack · Space dodge · Q flare · F lantern · E use</span><span id="fsHelp"></span><span class="cap"> · <span data-t="help.esc">Esc frees the mouse</span></span></div>
+  <button id="gear" class="plate" aria-label="Settings" data-t-aria="hud.settings"><img src="img/ui/icons/settings.webp" alt=""></button>
   <button id="fs" class="hide" aria-label="Fullscreen"><img src="img/ui/icons/fullscreen.webp" alt=""></button>
   <div id="btns">
     <button class="ab" data-act="lantern"><kbd>F</kbd><img src="img/ui/icons/lantern.webp" alt=""><u></u></button>
@@ -265,19 +265,19 @@ body.touch .card kbd{display:none}
 <div id="fade"></div>
 <div id="dialog" class="win hide"><img class="por" alt=""><div class="txt"><em class="serif"></em><p></p></div><small>tap to close</small></div>
 <div id="cards" class="ov hide"><div><h2 class="serif"></h2><p class="sub"></p><div class="row"></div><div class="center"><button class="btn ghost hide" id="redraw"></button></div></div></div>
-<div id="shop" class="ov hide"><div class="win"><div class="head"><img class="por" alt=""><div class="hd"><h2 class="serif"></h2><p class="line"></p></div><div class="pill"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards"><span></span></div></div><div class="row"></div><div class="center"><button class="btn ghost" id="shopClose">Close</button></div></div></div>
-<div id="ferry" class="ov hide"><div class="win"><h2 class="serif"></h2><div class="row"></div><div class="center"><button class="btn ghost" id="ferryClose">Close</button></div></div></div>
-<div id="end" class="ov hide"><div><h2 class="serif"></h2><div class="stats win"></div><div class="center"><button class="btn ghost hide" id="endDouble" data-ad="double"><img class="ic" src="img/ui/icons/play.webp" alt="">Double shards</button><button class="btn ghost hide" id="endRevive" data-ad="revive"><img class="ic" src="img/ui/icons/play.webp" alt="">Rise with 50 health</button><button class="btn" id="endBtn"></button></div></div></div>
-<div id="settings" class="ov hide"><div class="win"><h2 class="serif">SETTINGS</h2>
-  <div class="srow"><img class="ic" src="img/ui/icons/sound.webp" alt=""><span>Sound</span><button class="tog" id="sndOn" role="switch" aria-label="Sound on or off"></button><input id="sndVol" type="range" min="0" max="1" step="0.05" aria-label="Sound volume"></div>
-  <div class="srow"><img class="ic" src="img/ui/icons/music.webp" alt=""><span>Music</span><input id="musVol" type="range" min="0" max="1" step="0.05" aria-label="Music volume"></div>
-  <div class="srow"><img class="ic" src="img/ui/icons/eye.webp" alt=""><label for="sens">Look sensitivity <b id="sensVal"></b></label><input id="sens" type="range"></div>
-  <div class="srow hide" id="langRow"><img class="ic" src="img/ui/icons/globe.webp" alt=""><span>Language</span><select id="lang"><option value="en">English</option></select></div>
-  <div class="srow" id="fsRow"><img class="ic" src="img/ui/icons/fullscreen.webp" alt=""><span>Fullscreen</span><button class="tog" id="fsTog" role="switch" aria-label="Fullscreen"></button></div>
-  <div class="center"><button class="btn danger" id="reset">Reset progress</button><button class="btn ghost" id="settingsClose">Close</button></div>
+<div id="shop" class="ov hide"><div class="win"><div class="head"><img class="por" alt=""><div class="hd"><h2 class="serif"></h2><p class="line"></p></div><div class="pill"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span></span></div></div><div class="row"></div><div class="center"><button class="btn ghost" id="shopClose" data-t="shop.close">Close</button></div></div></div>
+<div id="ferry" class="ov hide"><div class="win"><h2 class="serif"></h2><div class="row"></div><div class="center"><button class="btn ghost" id="ferryClose" data-t="shop.close">Close</button></div></div></div>
+<div id="end" class="ov hide"><div><h2 class="serif"></h2><div class="stats win"></div><div class="center"><button class="btn ghost hide" id="endDouble" data-ad="double"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.double">Double shards</span></button><button class="btn ghost hide" id="endRevive" data-ad="revive"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.revive">Rise with 50 health</span></button><button class="btn" id="endBtn"></button></div></div></div>
+<div id="settings" class="ov hide"><div class="win"><h2 class="serif" data-t="set.title">SETTINGS</h2>
+  <div class="srow"><img class="ic" src="img/ui/icons/sound.webp" alt=""><span data-t="set.sound">Sound</span><button class="tog" id="sndOn" role="switch" aria-label="Sound on or off" data-t-aria="set.soundOn"></button><input id="sndVol" type="range" min="0" max="1" step="0.05" aria-label="Sound volume" data-t-aria="set.soundVol"></div>
+  <div class="srow"><img class="ic" src="img/ui/icons/music.webp" alt=""><span data-t="set.music">Music</span><input id="musVol" type="range" min="0" max="1" step="0.05" aria-label="Music volume" data-t-aria="set.musicVol"></div>
+  <div class="srow"><img class="ic" src="img/ui/icons/eye.webp" alt=""><label for="sens"><span data-t="set.sens">Look sensitivity</span> <b id="sensVal"></b></label><input id="sens" type="range"></div>
+  <div class="srow hide" id="langRow"><img class="ic" src="img/ui/icons/globe.webp" alt=""><span data-t="set.lang">Language</span><select id="lang" aria-label="Language" data-t-aria="set.lang"><option value="en">English</option></select></div>
+  <div class="srow" id="fsRow"><img class="ic" src="img/ui/icons/fullscreen.webp" alt=""><span data-t="set.fullscreen">Fullscreen</span><button class="tog" id="fsTog" role="switch" aria-label="Fullscreen" data-t-aria="set.fullscreen"></button></div>
+  <div class="center"><button class="btn danger" id="reset" data-t="set.reset">Reset progress</button><button class="btn ghost" id="settingsClose" data-t="set.close">Close</button></div>
 </div></div>
-<div id="confirm" class="ov hide"><div class="win"><h2 class="serif">RESET PROGRESS?</h2><p class="sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn danger" id="confirmYes">Reset</button><button class="btn ghost" id="confirmNo">Keep</button></div></div></div>
-<div id="loading"><div><h1 class="serif plate"><span>STOPPED</span><img src="img/ui/icons/clock.webp" alt=""><span>CLOCK</span></h1><p id="loadText">Lighting the lantern…</p><div class="lbar"><i id="loadBar"></i></div></div></div>
-<div id="rotate"><div>Turn your phone sideways to play</div></div>
+<div id="confirm" class="ov hide"><div class="win"><h2 class="serif" data-t="reset.title">RESET PROGRESS?</h2><p class="sub" data-t="reset.sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn danger" id="confirmYes" data-t="reset.yes">Reset</button><button class="btn ghost" id="confirmNo" data-t="reset.no">Keep</button></div></div></div>
+<div id="loading"><div><h1 class="serif plate"><span>STOPPED</span><img src="img/ui/icons/clock.webp" alt=""><span>CLOCK</span></h1><p id="loadText" data-t="loading">Lighting the lantern…</p><div class="lbar"><i id="loadBar"></i></div></div></div>
+<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
 </body>
 </html>
