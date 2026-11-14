@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "47f27f52d",
- "date": "2026-11-14T07:48:53+03:00",
- "msg": "feat(game-29): twins damage fit 0.247 (whole fight not easier than the target)"
+ "commit": "03953e117",
+ "date": "2026-11-14T10:54:40+03:00",
+ "msg": "fix(game-29): Throne Corridor's middle ice blocks moved off the east door (the way in from the Frozen Garden was walled)"
 }
