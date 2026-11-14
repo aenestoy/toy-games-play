@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "1a8113f38",
- "date": "2026-11-14T04:15:19+03:00",
- "msg": "Merge remote-tracking branch 'origin/claude/ns-b13' into claude/tek-tus-oyunlar"
+ "commit": "d88c7bc27",
+ "date": "2026-11-14T05:37:28+03:00",
+ "msg": "Revert \"fix(game-29): kicked kegs no longer stun the Powder Miner (bosses are immune to control)\""
 }
