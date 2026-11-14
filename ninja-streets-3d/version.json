@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "d88c7bc27",
- "date": "2026-11-14T05:37:28+03:00",
- "msg": "Revert \"fix(game-29): kicked kegs no longer stun the Powder Miner (bosses are immune to control)\""
+ "commit": "3fb7c8026",
+ "date": "2026-11-14T06:47:39+03:00",
+ "msg": "Merge origin/claude/ns-b15 (chapter 15 Aurora Plain) into claude/tek-tus-oyunlar"
 }
