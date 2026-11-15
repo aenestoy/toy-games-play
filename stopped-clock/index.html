@@ -60,7 +60,15 @@ img{-webkit-user-drag:none}
 .lbl.mark .ic{width:36px;height:36px;margin:0;filter:drop-shadow(0 0 6px rgba(255,200,60,.7))}
 .lbl.alert{font-size:28px;color:#ff5a3c}
 .lbl.name{font-size:14px;color:#f4e6c8;background:rgba(8,8,12,.6);border-radius:9px;padding:1px 9px;font-weight:600}
-.lbl.door{font-size:15px;color:#ffe2a0;background:rgba(14,17,25,.85);border:1px solid var(--brass);border-radius:6px;padding:3px 10px}
+.lbl.door{font-size:15px;color:#ffe2a0;background:rgba(14,17,25,.85);border:1px solid var(--brass);border-radius:6px;padding:3px 10px;text-align:center;line-height:1.25}
+.lbl.door b{display:block;font-size:16px;color:#f1d9a6;letter-spacing:.04em}
+.lbl.door small{display:block;font-size:14px;color:#ffe2a0}
+.lbl.door .ic{width:20px;height:20px;vertical-align:-4px;margin-right:4px}
+#tip{position:absolute;left:50%;bottom:calc(22% + 64px);transform:translate(-50%,6px);max-width:min(620px,calc(100vw - 32px));white-space:normal;text-align:center;font-size:16px;line-height:1.35;color:#ffe2a0;padding:7px 16px;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none}
+#tip.on{opacity:1;transform:translate(-50%,0)}
+body.touch #tip{bottom:auto;top:58px;font-size:14px;max-width:calc(100vw - 260px)}
+#end .tipline{max-width:min(420px,calc(100vw - 24px));margin:12px auto 0;text-align:center;font-size:15px;line-height:1.35;color:#ffe2a0}
+.card.opt .pic{object-fit:contain;background:#0e1119;padding:10px;box-sizing:border-box}
 .lbl.dmg{font-size:19px;color:#fff}
 .lbl.dmg.big{font-size:25px;color:#ffd24a}
 .lbl.hurt{font-size:21px;color:#ff6a5a}
@@ -238,7 +246,7 @@ body.touch .card kbd{display:none}
   #boss{top:58px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-tX4vNk8T.js"></script>
+  <script type="module" crossorigin src="./assets/index-BZHzZmG9.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -256,6 +264,7 @@ body.touch .card kbd{display:none}
   <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
   <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i></div></div>
   <div id="banner" class="serif"></div>
+  <div id="tip" class="plate"></div>
   <button id="prompt" class="hide" data-act="interact"></button>
   <div id="help"><span class="free"><b data-t="help.click">Click the game</b> <span data-t="help.look">to look around with the mouse</span> · </span><span data-t="help.keys">WASD move · Click attack · Space dodge · Q flare · F lantern · E use</span><span id="fsHelp"></span><span class="cap"> · <span data-t="help.esc">Esc frees the mouse</span></span></div>
   <button id="gear" class="plate" aria-label="Settings" data-t-aria="hud.settings"><img src="img/ui/icons/settings.webp" alt=""></button>
@@ -273,7 +282,7 @@ body.touch .card kbd{display:none}
 <div id="cards" class="ov hide"><div><h2 class="serif"></h2><p class="sub"></p><div class="row"></div><div class="center"><button class="btn ghost hide" id="redraw"></button></div></div></div>
 <div id="shop" class="ov hide"><div class="win"><div class="head"><img class="por" alt=""><div class="hd"><h2 class="serif"></h2><p class="line"></p></div><div class="pill"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span></span></div></div><div class="row"></div><div class="center"><button class="btn ghost" id="shopClose" data-t="shop.close">Close</button></div></div></div>
 <div id="ferry" class="ov hide"><div class="win"><h2 class="serif"></h2><div class="row"></div><div class="center"><button class="btn ghost" id="ferryClose" data-t="shop.close">Close</button></div></div></div>
-<div id="end" class="ov hide"><div><h2 class="serif"></h2><div class="stats win"></div><div class="center"><button class="btn ghost hide" id="endDouble" data-ad="double"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.double">Double shards</span></button><button class="btn ghost hide" id="endRevive" data-ad="revive"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.revive">Rise with 50 health</span></button><button class="btn" id="endBtn"></button></div></div></div>
+<div id="end" class="ov hide"><div><h2 class="serif"></h2><div class="stats win"></div><p class="tipline hide"></p><div class="center"><button class="btn ghost hide" id="endDouble" data-ad="double"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.double">Double shards</span></button><button class="btn ghost hide" id="endRevive" data-ad="revive"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.revive">Rise with 50 health</span></button><button class="btn" id="endBtn"></button></div></div></div>
 <div id="settings" class="ov hide"><div class="win"><h2 class="serif" data-t="set.title">SETTINGS</h2>
   <div class="srow"><img class="ic" src="img/ui/icons/sound.webp" alt=""><span data-t="set.sound">Sound</span><button class="tog" id="sndOn" role="switch" aria-label="Sound on or off" data-t-aria="set.soundOn"></button><input id="sndVol" type="range" min="0" max="1" step="0.05" aria-label="Sound volume" data-t-aria="set.soundVol"></div>
   <div class="srow"><img class="ic" src="img/ui/icons/music.webp" alt=""><span data-t="set.music">Music</span><input id="musVol" type="range" min="0" max="1" step="0.05" aria-label="Music volume" data-t-aria="set.musicVol"></div>
