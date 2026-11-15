@@ -57,6 +57,8 @@ img{-webkit-user-drag:none}
 #boss em{font-style:normal;font-size:16px;letter-spacing:.14em;color:#ffcf8a;text-shadow:0 1px 3px #000}
 #boss .bar{height:12px;margin-top:3px}
 #boss .bar i{background:linear-gradient(#ffa040,#c0401c)}
+/* three parts: the lines where phases 2 and 3 begin (design/plan.json gate-warden phase2 / phase3, set by ui.ts) */
+#boss .bar s{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#140a05;box-shadow:0 0 0 1px rgba(255,214,150,.55);z-index:1}
 #boss b{display:none;margin-top:4px;font-size:15px;letter-spacing:.08em;color:#ffb060;text-shadow:0 0 8px #ff6a00,0 1px 3px #000;animation:heatPulse .5s ease-in-out infinite alternate}#boss b.on{display:block}@keyframes heatPulse{to{color:#ffe0a0}}
 #banner{position:absolute;left:50%;top:26%;transform:translate(-50%,-50%);font-size:clamp(22px,5vw,40px);font-weight:800;letter-spacing:.1em;color:#ffe2a8;text-shadow:0 2px 12px #000,0 0 24px rgba(255,160,60,.5);opacity:0;transition:opacity .35s;white-space:nowrap}
 #banner.on{opacity:1}
@@ -275,9 +277,10 @@ body.touch .card kbd{display:none}
   #room{padding:2px 16px 3px}
   #room b{font-size:15px}
   #boss{top:76px}
+  #banner{top:50%;left:calc(50% - 60px);font-size:20px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-YrEdjD-e.js"></script>
+  <script type="module" crossorigin src="./assets/index-DsLYkATB.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -293,7 +296,7 @@ body.touch .card kbd{display:none}
   <div id="goal" class="plate"><b class="serif" data-t="hud.goal">TAKE THE FERRY</b><small data-t="hud.goalSub">The ferry waits at the pier</small></div>
   <div id="room" class="plate hide"><b class="serif"></b><small></small></div>
   <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
-  <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i></div><b></b></div>
+  <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i><s></s><s></s></div><b></b></div>
   <div id="banner" class="serif"></div>
   <div id="tip" class="plate"></div>
   <button id="prompt" class="hide" data-act="interact"></button>
@@ -327,6 +330,6 @@ body.touch .card kbd{display:none}
 </div></div>
 <div id="confirm" class="ov hide"><div class="win"><h2 class="serif" data-t="reset.title">RESET PROGRESS?</h2><p class="sub" data-t="reset.sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn danger" id="confirmYes" data-t="reset.yes">Reset</button><button class="btn ghost" id="confirmNo" data-t="reset.no">Keep</button></div></div></div>
 <div id="loading"><div><h1 class="serif plate"><span>STOPPED</span><img src="img/ui/icons/clock.webp" alt=""><span>CLOCK</span></h1><p id="loadText" data-t="loading">Lighting the lantern…</p><div class="lbar"><i id="loadBar"></i></div></div></div>
-<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
+<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
 </body>
 </html>
