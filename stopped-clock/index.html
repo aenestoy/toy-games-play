@@ -39,6 +39,7 @@ img{-webkit-user-drag:none}
 @media (prefers-reduced-motion:reduce){#oil.low{animation:none;border-color:#ff5a3c;box-shadow:0 0 0 1px rgba(255,70,40,.8)}}
 #oil i{background:linear-gradient(#ffc560,#d9801c)}
 #oil.off i{background:linear-gradient(#8f8770,#5e5848)}
+#fps{display:table;margin-top:6px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.55);color:#fff;font:600 12px/1.3 system-ui,sans-serif;white-space:nowrap;pointer-events:none}
 #boons{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
 #boons span{position:relative;width:32px;height:32px;border-radius:50%;background:var(--plate);border:1px solid var(--brass-hi)}
 #boons img{width:100%;height:100%;border-radius:50%;display:block}
@@ -48,6 +49,7 @@ img{-webkit-user-drag:none}
 #room{position:absolute;left:50%;top:10px;transform:translateX(-50%);text-align:center;padding:4px 22px 5px;white-space:nowrap}
 #goal{position:absolute;left:50%;top:12px;transform:translate(-50%,-6px);text-align:center;padding:5px 22px 6px;white-space:nowrap;opacity:0;transition:opacity .6s,transform .6s}
 #goal.on{opacity:1;transform:translate(-50%,0)}
+body.cards-open #room,body.cards-open #goal{visibility:hidden}
 #goal b{display:block;font-size:17px;letter-spacing:.12em;color:#ffd890;font-weight:700;text-shadow:0 0 10px rgba(255,170,70,.45)}
 #goal small{display:block;font-size:14px;color:var(--muted)}
 @media (max-width:900px){#goal{top:46px;left:max(14px,env(safe-area-inset-left));transform:translate(0,-6px);text-align:left;padding:3px 12px 4px}#goal.on{transform:none}#goal b{font-size:15px}#goal small{font-size:12px}}
@@ -62,8 +64,10 @@ img{-webkit-user-drag:none}
 #boss b{display:none;margin-top:4px;font-size:15px;letter-spacing:.08em;color:#ffb060;text-shadow:0 0 8px #ff6a00,0 1px 3px #000;animation:heatPulse .5s ease-in-out infinite alternate}#boss b.on{display:block}@keyframes heatPulse{to{color:#ffe0a0}}
 #banner{position:absolute;left:50%;top:26%;transform:translate(-50%,-50%);font-size:clamp(22px,5vw,40px);font-weight:800;letter-spacing:.1em;color:#ffe2a8;text-shadow:0 2px 12px #000,0 0 24px rgba(255,160,60,.5);opacity:0;transition:opacity .35s;white-space:nowrap}
 #banner.on{opacity:1}
-#labels{position:absolute;inset:0;overflow:hidden}
-.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-weight:800;text-shadow:0 1px 3px #000,0 0 6px #000;will-change:transform}
+#labels{position:absolute;inset:0;overflow:hidden;isolation:isolate} /* (isolate: the numbers canvas, src/numbers.ts, is over the other labels but stays under the HUD after it) */
+/* (will-change opacity too: a number's fade is then the compositor's; with transform alone every fading frame painted the
+   label again on the graphics card's thread, which the WebGL frame waits behind - the cards' numbers cost ~0.4 ms a frame) */
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-weight:800;text-shadow:0 1px 3px #000,0 0 6px #000;will-change:transform,opacity}
 .lbl.mark{font-size:26px;color:#ffd24a}
 .lbl.boss{font-size:16px;letter-spacing:.12em;color:#ffcf8a}
 .lbl .ic{display:inline-block;vertical-align:-6px;width:22px;height:22px;margin-right:4px}
@@ -178,6 +182,26 @@ body.touch .card kbd{display:none}
 .card.f-bell{--fam:linear-gradient(90deg,#4a4818,#6e6a26,#4a4818)}
 .card.duo{border-color:#c8a0ff;--fam:linear-gradient(90deg,#a4481a,#4d5a6e)}
 .card.duo .lv{color:#d8b8ff}
+/* rarity: blue rare, purple epic (design/plan.json boons.rarities); a legendary is gold */
+#cards .card.r-1{border-color:#5aa0ff;box-shadow:0 0 12px rgba(90,160,255,.45),inset 0 0 0 2px rgba(14,17,25,.9)}
+#cards .card.r-2{border-color:#b070ff;box-shadow:0 0 16px rgba(176,112,255,.6),inset 0 0 0 2px rgba(14,17,25,.9)}
+.card .rar{letter-spacing:.06em}
+.card.r-1 .rar{color:#8cc0ff}
+.card.r-2 .rar{color:#d0a0ff}
+.card.legend{border-color:#ffd060;box-shadow:0 0 18px rgba(255,200,80,.55),inset 0 0 0 2px rgba(14,17,25,.9);--fam:linear-gradient(90deg,#7a5a10,#d0a030,#7a5a10)}
+.card.legend .lv{color:#ffe090}
+.card .need{font-size:14px;line-height:1.25;color:#c8bca4}
+.card .hint{font-size:14px;line-height:1.25;font-weight:700;color:#9fe0a0}
+.card .ty{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#cdbf9f;display:flex;align-items:center;gap:4px;justify-content:center}
+.card .ty img{width:18px;height:18px;border-radius:50%;object-fit:cover}
+.card .ty.t-key{color:#ffd27a}.card .ty.t-ally{color:#9fe0ff}.card .ty.t-world{color:#b8e09a}.card .ty.t-deal{color:#ff9a8a}
+.card .swap{font-size:13px;line-height:1.2;font-weight:700;color:#ffb070}
+#cardSwap{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(14,17,25,.96);border:1px solid var(--brass);border-radius:8px;padding:10px 16px;text-align:center;z-index:3;max-width:92%}
+#cardSwap p{margin:0 0 8px;font-size:15px;color:#f1d9a6}
+.ab .cardmark{position:absolute;right:1px;top:1px;width:22px;height:22px;border-radius:50%;border:1px solid #ffd27a;object-fit:cover;pointer-events:none}
+.ab .cardmark.hv{left:1px;right:auto}
+#boons .r-1 img{box-shadow:0 0 0 2px #5aa0ff}
+#boons .r-2 img{box-shadow:0 0 0 2px #b070ff}
 .btn{font:inherit;font-weight:700;font-size:16px;letter-spacing:.06em;color:#1e1406;background:linear-gradient(#f2c672,#c78a36);border:1px solid #ffe0a0;border-radius:6px;padding:10px 24px;cursor:pointer;min-height:48px;min-width:48px;text-transform:uppercase}
 .btn .ic{display:inline-block;width:20px;height:20px;vertical-align:-4px;margin-right:8px}
 .btn.ghost{background:rgba(14,17,25,.7);color:var(--ink);border:1px solid var(--brass)}
@@ -247,12 +271,13 @@ body.touch .card kbd{display:none}
 @media (orientation:portrait){body.touch #rotate{display:grid}}
 /* phone landscape: smaller, but no text under 14 px and no button under 48 px */
 @media (max-height:500px){
+  #fps{font-size:11px;margin-top:4px}
   .win{padding:10px 14px}
   .win h2,.ov h2{font-size:20px;margin-bottom:8px}
   .ov .sub{margin:-4px 0 8px}
   .center{margin-top:8px}
   .card{padding:8px 6px;gap:4px}
-  .card .pic{width:52px;height:52px}
+  .card .pic{width:46px;height:46px}.card .ty{font-size:10.5px}.card .ty img{width:14px;height:14px}#cards .center{margin-top:6px}#cards #redraw{padding:6px 14px}
   .card .nm{font-size:14px}
   .card .ds{font-size:14px;line-height:1.25}
   .row{gap:8px}
@@ -280,7 +305,7 @@ body.touch .card kbd{display:none}
   #banner{top:50%;left:calc(50% - 60px);font-size:20px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-lt3-MrhY.js"></script>
+  <script type="module" crossorigin src="./assets/index-CYEG_RG7.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -316,7 +341,7 @@ body.touch .card kbd{display:none}
 </div>
 <div id="fade"></div>
 <div id="dialog" class="win hide"><img class="por" alt=""><div class="txt"><em class="serif"></em><p></p></div><small>tap to close</small></div>
-<div id="cards" class="ov hide"><div><h2 class="serif"></h2><p class="sub"></p><div class="row"></div><div class="center"><button class="btn ghost hide" id="redraw"></button></div></div></div>
+<div id="cards" class="ov hide"><div><h2 class="serif"></h2><p class="sub"></p><div class="row"></div><div class="center"><button class="btn ghost hide" id="redraw"></button></div><div id="cardSwap" class="hide"><p></p><button class="btn" id="swapYes" data-t="cards.swapYes"></button> <button class="btn ghost" id="swapNo" data-t="cards.swapNo"></button></div></div></div>
 <div id="shop" class="ov hide"><div class="win"><div class="head"><img class="por" alt=""><div class="hd"><h2 class="serif"></h2><p class="line"></p></div><div class="pill"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span></span></div></div><div class="row"></div><div class="center"><button class="btn ghost" id="shopClose" data-t="shop.close">Close</button></div></div></div>
 <div id="ferry" class="ov hide"><div class="win"><h2 class="serif"></h2><div class="row"></div><div class="center"><button class="btn ghost" id="ferryClose" data-t="shop.close">Close</button></div></div></div>
 <div id="end" class="ov hide"><div><h2 class="serif"></h2><div class="stats win"></div><p class="tipline hide"></p><div class="center"><button class="btn ghost hide" id="endDouble" data-ad="double"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.double">Double shards</span></button><button class="btn ghost hide" id="endRevive" data-ad="revive"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.revive">Rise with 50 health</span></button><button class="btn" id="endBtn"></button></div></div></div>
@@ -326,10 +351,11 @@ body.touch .card kbd{display:none}
   <div class="srow"><img class="ic" src="img/ui/icons/eye.webp" alt=""><label for="sens"><span data-t="set.sens">Look sensitivity</span> <b id="sensVal"></b></label><input id="sens" type="range"></div>
   <div class="srow hide" id="langRow"><img class="ic" src="img/ui/icons/globe.webp" alt=""><span data-t="set.lang">Language</span><select id="lang" aria-label="Language" data-t-aria="set.lang"><option value="en">English</option></select></div>
   <div class="srow" id="fsRow"><img class="ic" src="img/ui/icons/fullscreen.webp" alt=""><span data-t="set.fullscreen">Fullscreen</span><button class="tog" id="fsTog" role="switch" aria-label="Fullscreen" data-t-aria="set.fullscreen"></button></div>
+  <div class="srow" id="fpsRow"><span class="noic"></span><span data-t="set.fps">Show FPS</span><button class="tog" id="fpsTog" role="switch" aria-label="Show FPS" data-t-aria="set.fps"></button></div>
   <div class="center"><button class="btn danger" id="reset" data-t="set.reset">Reset progress</button><button class="btn ghost" id="settingsClose" data-t="set.close">Close</button></div>
 </div></div>
 <div id="confirm" class="ov hide"><div class="win"><h2 class="serif" data-t="reset.title">RESET PROGRESS?</h2><p class="sub" data-t="reset.sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn danger" id="confirmYes" data-t="reset.yes">Reset</button><button class="btn ghost" id="confirmNo" data-t="reset.no">Keep</button></div></div></div>
 <div id="loading"><div><h1 class="serif plate"><span>STOPPED</span><img src="img/ui/icons/clock.webp" alt=""><span>CLOCK</span></h1><p id="loadText" data-t="loading">Lighting the lantern…</p><div class="lbar"><i id="loadBar"></i></div></div></div>
-<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
+<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
 </body>
 </html>
