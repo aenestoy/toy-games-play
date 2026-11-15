@@ -103,6 +103,25 @@ body.touch .ab[data-act="attack"]{grid-column:3;grid-row:1/span 2;width:96px;hei
 body.touch .ab[data-act="dodge"]{grid-column:2;grid-row:2}
 body.touch .ab[data-act="flare"]{grid-column:2;grid-row:1}
 body.touch .ab[data-act="lantern"]{grid-column:1;grid-row:2}
+/* the skill (the weapon's picture) and the clock-stop super (glows when ready) */
+.ab[data-act="skill"] img{width:76%;height:76%;object-fit:cover;border-radius:50%}
+.ab[data-act="super"].lit{border-color:#bfe4ff;box-shadow:0 0 14px rgba(150,210,255,.75),inset 0 0 0 2px rgba(10,12,18,.8);animation:clockbeat 1s ease-in-out infinite}
+@keyframes clockbeat{50%{box-shadow:0 0 22px rgba(170,220,255,.95),inset 0 0 0 2px rgba(10,12,18,.8)}}
+body.touch #btns{grid-template-rows:66px 66px 66px}
+body.touch .ab[data-act="attack"]{grid-row:2/span 2}
+body.touch .ab[data-act="flare"]{grid-row:1}
+body.touch .ab[data-act="lantern"]{grid-column:1;grid-row:1}
+body.touch .ab[data-act="super"]{grid-column:1;grid-row:2}
+body.touch .ab[data-act="skill"]{grid-column:2;grid-row:2}
+body.touch .ab[data-act="dodge"]{grid-column:2;grid-row:3}
+/* time stands: a cold still picture, a clock face over it */
+#stopfx{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(ellipse at center,rgba(120,170,220,0) 45%,rgba(40,70,110,.45) 100%)}
+#stopfx i{position:absolute;left:50%;top:50%;width:min(60vh,60vw);height:min(60vh,60vw);transform:translate(-50%,-50%);border-radius:50%;border:2px solid rgba(200,230,255,.28);box-shadow:0 0 30px rgba(160,210,255,.25) inset}
+#stopfx b{position:absolute;left:50%;top:50%;width:2px;height:min(26vh,26vw);background:rgba(220,240,255,.45);transform-origin:50% 100%;transform:translate(-50%,-100%) rotate(0deg)}
+body.timestop #stopfx{opacity:1}
+body.timestop #stopfx b{animation:hand 3s steps(6) forwards}
+@keyframes hand{to{transform:translate(-50%,-100%) rotate(180deg)}}
+body.timestop #c{filter:saturate(.2) brightness(1.06) contrast(1.08)}
 #stick{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:2px solid rgba(226,189,120,.4);background:rgba(20,24,34,.3);display:none}
 #stick.on{display:block}
 #knob{position:absolute;left:50%;top:50%;width:52px;height:52px;border-radius:50%;background:rgba(236,228,210,.4);transform:translate(-50%,-50%)}
@@ -138,6 +157,7 @@ body.touch #fs img{width:28px;height:28px}
 .card .pic{width:84px;height:84px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 2px 10px rgba(0,0,0,.6)}
 .card .nm{font-weight:700;font-size:16px;color:#f1d9a6;letter-spacing:.04em;align-self:stretch;padding:3px 4px}
 .card .ds{font-size:14px;line-height:1.35;color:#d8ceb8}
+.card .ds small.mv{display:block;margin-top:6px;font-size:12px;color:#e8c890}
 .card .ft{margin-top:auto;font-size:14px;font-weight:700;color:var(--brass-hi);display:flex;align-items:center;gap:5px;justify-content:center;border-top:1px solid rgba(168,132,78,.35);align-self:stretch;padding-top:7px}
 .card .ft .ic{width:20px;height:20px}
 .card kbd{font:inherit;font-size:14px;color:var(--muted);border:1px solid rgba(168,132,78,.5);border-radius:4px;padding:0 6px}
@@ -234,10 +254,12 @@ body.touch .card kbd{display:none}
   .card .nm{font-size:14px}
   .card .ds{font-size:14px;line-height:1.25}
   .row{gap:8px}
-  #shop .head{margin-bottom:8px;padding-bottom:6px;gap:10px}
+  #shop .head{margin-bottom:6px;padding-bottom:4px;gap:10px}
   #shop .por{width:44px;height:44px}
-  #shop .card .pic{width:44px;height:44px}
+  #shop .card .pic{width:38px;height:38px}
   #shop .card .ft{padding-top:4px}
+  #shop .card .ds{font-size:12.5px;line-height:1.2}
+  .card .ds small.mv{margin-top:3px;font-size:11px}
   .dcard{padding:0}
   .dcard .ph{aspect-ratio:16/9}
   .dcard .ph .lock{width:40px;height:40px}
@@ -255,7 +277,7 @@ body.touch .card kbd{display:none}
   #boss{top:76px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-DWrArJQB.js"></script>
+  <script type="module" crossorigin src="./assets/index-YrEdjD-e.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -281,10 +303,13 @@ body.touch .card kbd{display:none}
   <div id="btns">
     <button class="ab" data-act="lantern"><kbd>F</kbd><img src="img/ui/icons/lantern.webp" alt=""><u></u></button>
     <button class="ab" data-act="flare"><kbd>Q</kbd><img src="img/ui/icons/flare.webp" alt=""><u></u></button>
+    <button class="ab" data-act="super"><kbd>C</kbd><img src="img/ui/icons/clock.webp" alt=""><u></u></button>
+    <button class="ab" data-act="skill"><kbd>R</kbd><img src="img/items/weapon-blade.webp" alt=""><u></u></button>
     <button class="ab" data-act="dodge"><kbd>Space</kbd><img src="img/ui/icons/dodge.webp" alt=""><u></u></button>
     <button class="ab" data-act="attack"><kbd>J</kbd><img src="img/ui/icons/attack.webp" alt=""><u></u></button>
   </div>
   <div id="stick"><div id="knob"></div></div>
+  <div id="stopfx"><i></i><b></b></div>
 </div>
 <div id="fade"></div>
 <div id="dialog" class="win hide"><img class="por" alt=""><div class="txt"><em class="serif"></em><p></p></div><small>tap to close</small></div>
@@ -302,6 +327,6 @@ body.touch .card kbd{display:none}
 </div></div>
 <div id="confirm" class="ov hide"><div class="win"><h2 class="serif" data-t="reset.title">RESET PROGRESS?</h2><p class="sub" data-t="reset.sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn danger" id="confirmYes" data-t="reset.yes">Reset</button><button class="btn ghost" id="confirmNo" data-t="reset.no">Keep</button></div></div></div>
 <div id="loading"><div><h1 class="serif plate"><span>STOPPED</span><img src="img/ui/icons/clock.webp" alt=""><span>CLOCK</span></h1><p id="loadText" data-t="loading">Lighting the lantern…</p><div class="lbar"><i id="loadBar"></i></div></div></div>
-<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
+<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
 </body>
 </html>
