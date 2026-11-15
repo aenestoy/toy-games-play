@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "62ebb9b93",
- "date": "2026-11-15T02:57:37+03:00",
- "msg": "fix(game-29): panel progress model reads bossUp in the CHAPTERS table"
+ "commit": "39bfde81e",
+ "date": "2026-11-15T03:02:47+03:00",
+ "msg": "feat(game-29): chapter card shows the chapter's best clear time"
 }
