@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "39bfde81e",
- "date": "2026-11-15T03:02:47+03:00",
- "msg": "feat(game-29): chapter card shows the chapter's best clear time"
+ "commit": "21fc6e8cb",
+ "date": "2026-11-15T03:58:53+03:00",
+ "msg": "Merge claude/ns-yazi: sharp text, Lilita One + Rubik (tr/pl/ru), outline, 14 px minimum, cached text bitmaps (owner: olur, rubik olsun)"
 }
