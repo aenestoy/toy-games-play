@@ -39,6 +39,11 @@ img{-webkit-user-drag:none}
 #shards{position:absolute;right:calc(max(14px,env(safe-area-inset-right)) + 54px);top:12px;height:40px;box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:0 14px 0 8px;font-weight:800;font-size:18px;color:#ffe2a0;border-radius:20px}
 #shards .ic{width:26px;height:26px}
 #room{position:absolute;left:50%;top:10px;transform:translateX(-50%);text-align:center;padding:4px 22px 5px;white-space:nowrap}
+#goal{position:absolute;left:50%;top:12px;transform:translate(-50%,-6px);text-align:center;padding:5px 22px 6px;white-space:nowrap;opacity:0;transition:opacity .6s,transform .6s}
+#goal.on{opacity:1;transform:translate(-50%,0)}
+#goal b{display:block;font-size:17px;letter-spacing:.12em;color:#ffd890;font-weight:700;text-shadow:0 0 10px rgba(255,170,70,.45)}
+#goal small{display:block;font-size:14px;color:var(--muted)}
+@media (max-width:900px){#goal{top:46px;left:max(14px,env(safe-area-inset-left));transform:translate(0,-6px);text-align:left;padding:3px 12px 4px}#goal.on{transform:none}#goal b{font-size:15px}#goal small{font-size:12px}}
 #room b{display:block;font-size:17px;letter-spacing:.1em;color:#f1d9a6;font-weight:700}
 #room small{display:block;font-size:14px;color:var(--muted)}
 #boss{position:absolute;left:50%;top:70px;transform:translateX(-50%);width:min(440px,52vw);text-align:center}
@@ -233,7 +238,7 @@ body.touch .card kbd{display:none}
   #boss{top:58px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-B6knP1Fx.js"></script>
+  <script type="module" crossorigin src="./assets/index-CQQhiCB0.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -246,6 +251,7 @@ body.touch .card kbd{display:none}
     <div class="meter" id="oilRow"><img class="ic" src="img/ui/icons/oil.webp" alt="Oil" data-t-alt="hud.oil"><div id="oil" class="bar"><i></i></div></div>
     <div id="boons"></div>
   </div>
+  <div id="goal" class="plate"><b class="serif" data-t="hud.goal">TAKE THE FERRY</b><small data-t="hud.goalSub">The ferry waits at the pier</small></div>
   <div id="room" class="plate hide"><b class="serif"></b><small></small></div>
   <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
   <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i></div></div>
