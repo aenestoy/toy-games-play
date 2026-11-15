@@ -29,7 +29,14 @@ img{-webkit-user-drag:none}
 .bar i{position:absolute;left:0;top:0;bottom:0;width:100%;transform-origin:left center}
 .bar b{position:absolute;inset:0;font-size:14px;line-height:20px;text-align:center;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
 #hp i{background:linear-gradient(#e2584a,#9e2a24)}
-#oil{height:12px}
+#oil{height:18px}
+#oil b{line-height:18px}
+#oil::after{content:"";position:absolute;inset:0;background:rgba(255,50,40,0);pointer-events:none}
+#oil.short::after{animation:oilShort .4s ease-out}
+@keyframes oilShort{from{background:rgba(255,50,40,.8)}to{background:rgba(255,50,40,0)}}
+#oil.low{animation:oilLow 1.4s ease-in-out infinite}
+@keyframes oilLow{50%{border-color:#ff5a3c;box-shadow:0 0 8px rgba(255,70,40,.8)}}
+@media (prefers-reduced-motion:reduce){#oil.low{animation:none;border-color:#ff5a3c;box-shadow:0 0 0 1px rgba(255,70,40,.8)}}
 #oil i{background:linear-gradient(#ffc560,#d9801c)}
 #oil.off i{background:linear-gradient(#8f8770,#5e5848)}
 #boons{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
@@ -50,6 +57,7 @@ img{-webkit-user-drag:none}
 #boss em{font-style:normal;font-size:16px;letter-spacing:.14em;color:#ffcf8a;text-shadow:0 1px 3px #000}
 #boss .bar{height:12px;margin-top:3px}
 #boss .bar i{background:linear-gradient(#ffa040,#c0401c)}
+#boss b{display:none;margin-top:4px;font-size:15px;letter-spacing:.08em;color:#ffb060;text-shadow:0 0 8px #ff6a00,0 1px 3px #000;animation:heatPulse .5s ease-in-out infinite alternate}#boss b.on{display:block}@keyframes heatPulse{to{color:#ffe0a0}}
 #banner{position:absolute;left:50%;top:26%;transform:translate(-50%,-50%);font-size:clamp(22px,5vw,40px);font-weight:800;letter-spacing:.1em;color:#ffe2a8;text-shadow:0 2px 12px #000,0 0 24px rgba(255,160,60,.5);opacity:0;transition:opacity .35s;white-space:nowrap}
 #banner.on{opacity:1}
 #labels{position:absolute;inset:0;overflow:hidden}
@@ -66,11 +74,12 @@ img{-webkit-user-drag:none}
 .lbl.door .ic{width:20px;height:20px;vertical-align:-4px;margin-right:4px}
 #tip{position:absolute;left:50%;bottom:calc(22% + 64px);transform:translate(-50%,6px);max-width:min(620px,calc(100vw - 32px));white-space:normal;text-align:center;font-size:16px;line-height:1.35;color:#ffe2a0;padding:7px 16px;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none}
 #tip.on{opacity:1;transform:translate(-50%,0)}
-body.touch #tip{bottom:auto;top:58px;font-size:14px;max-width:calc(100vw - 260px)}
+body.touch #tip{bottom:auto;top:130px;font-size:14px;max-width:calc(100vw - 500px)}
 #end .tipline{max-width:min(420px,calc(100vw - 24px));margin:12px auto 0;text-align:center;font-size:15px;line-height:1.35;color:#ffe2a0}
 .card.opt .pic{object-fit:contain;background:#0e1119;padding:10px;box-sizing:border-box}
 .lbl.dmg{font-size:19px;color:#fff}
 .lbl.dmg.big{font-size:25px;color:#ffd24a}
+.lbl.dmg.armor{color:#a9b4c2} /* a blow the armour took */
 .lbl.hurt{font-size:21px;color:#ff6a5a}
 .lbl.heal{font-size:17px;color:#8fe08a}
 .lbl.gain{font-size:17px;color:#ffe2a0}
@@ -243,10 +252,10 @@ body.touch .card kbd{display:none}
   #dialog em{font-size:14px;margin-bottom:1px}
   #room{padding:2px 16px 3px}
   #room b{font-size:15px}
-  #boss{top:58px}
+  #boss{top:76px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-BZHzZmG9.js"></script>
+  <script type="module" crossorigin src="./assets/index-CHyA9wOx.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -256,13 +265,13 @@ body.touch .card kbd{display:none}
   <div id="labels"></div>
   <div id="bars">
     <div class="meter"><img class="ic" src="img/ui/icons/hp.webp" alt="Health" data-t-alt="hud.health"><div id="hp" class="bar"><i></i><b></b></div></div>
-    <div class="meter" id="oilRow"><img class="ic" src="img/ui/icons/oil.webp" alt="Oil" data-t-alt="hud.oil"><div id="oil" class="bar"><i></i></div></div>
+    <div class="meter" id="oilRow"><img class="ic" src="img/ui/icons/oil.webp" alt="Oil" data-t-alt="hud.oil"><div id="oil" class="bar"><i></i><b></b></div></div>
     <div id="boons"></div>
   </div>
   <div id="goal" class="plate"><b class="serif" data-t="hud.goal">TAKE THE FERRY</b><small data-t="hud.goalSub">The ferry waits at the pier</small></div>
   <div id="room" class="plate hide"><b class="serif"></b><small></small></div>
   <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
-  <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i></div></div>
+  <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i></div><b></b></div>
   <div id="banner" class="serif"></div>
   <div id="tip" class="plate"></div>
   <button id="prompt" class="hide" data-act="interact"></button>
@@ -293,6 +302,6 @@ body.touch .card kbd{display:none}
 </div></div>
 <div id="confirm" class="ov hide"><div class="win"><h2 class="serif" data-t="reset.title">RESET PROGRESS?</h2><p class="sub" data-t="reset.sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn danger" id="confirmYes" data-t="reset.yes">Reset</button><button class="btn ghost" id="confirmNo" data-t="reset.no">Keep</button></div></div></div>
 <div id="loading"><div><h1 class="serif plate"><span>STOPPED</span><img src="img/ui/icons/clock.webp" alt=""><span>CLOCK</span></h1><p id="loadText" data-t="loading">Lighting the lantern…</p><div class="lbar"><i id="loadBar"></i></div></div></div>
-<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
+<div id="rotate"><div data-t="rotate">Turn your phone sideways to play</div></div>
 </body>
 </html>
