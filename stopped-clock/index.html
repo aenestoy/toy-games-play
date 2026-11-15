@@ -255,6 +255,19 @@ body.touch .card kbd{display:none}
 .tog::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#d8ceb8;transform:translateX(-11px);transition:transform .15s}
 .tog.on::before{background:linear-gradient(#f2b45a,#c97a26);border-color:#ffd08a}
 .tog.on::after{transform:translateX(11px);background:#fff4dc}
+/* the combat-feel trial's two-way switch (settings.ts) */
+.seg{display:flex;flex:none;border:1px solid var(--brass);border-radius:6px;overflow:hidden}
+.seg button{min-width:64px;min-height:44px;padding:0 10px;border:0;background:#151922;color:var(--muted);font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.seg button+button{border-left:1px solid var(--brass)}
+.seg button.on{background:linear-gradient(#f2b45a,#c97a26);color:#1a1208}
+/* the combat-feel trial: the kill streak under the shards, and the dodge's charges on its button */
+#streak{position:absolute;right:calc(max(14px,env(safe-area-inset-right)) + 58px);top:58px;font-size:26px;font-weight:800;letter-spacing:.04em;color:#ffd890;text-shadow:0 2px 6px #000,0 0 14px rgba(255,140,40,.6);opacity:0;transition:opacity .3s;pointer-events:none;transform-origin:100% 50%}
+#streak.on{opacity:1}
+#streak.big{color:#fff0c8;text-shadow:0 2px 6px #000,0 0 20px rgba(255,170,60,.95)}
+.ab[data-n]::after{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-size:9px;line-height:1;letter-spacing:2px;color:#ffd890;text-shadow:0 1px 2px #000;z-index:1}
+.ab[data-n="2"]::after{content:"\25CF\25CF"}
+.ab[data-n="1"]::after{content:"\25CF\25CB"}
+.ab[data-n="0"]::after{content:"\25CB\25CB"}
 #confirm{z-index:7}
 /* loading */
 #loading{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 40%,#1c2433,#0b0e14 70%);z-index:20;text-align:center}
@@ -272,6 +285,8 @@ body.touch .card kbd{display:none}
 /* phone landscape: smaller, but no text under 14 px and no button under 48 px */
 @media (max-height:500px){
   #fps{font-size:11px;margin-top:4px}
+  #streak{top:52px;font-size:20px}
+  .seg button{min-height:40px;min-width:56px}
   .win{padding:10px 14px}
   .win h2,.ov h2{font-size:20px;margin-bottom:8px}
   .ov .sub{margin:-4px 0 8px}
@@ -305,7 +320,7 @@ body.touch .card kbd{display:none}
   #banner{top:50%;left:calc(50% - 60px);font-size:20px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-CYEG_RG7.js"></script>
+  <script type="module" crossorigin src="./assets/index-BA-ntsAf.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -323,6 +338,7 @@ body.touch .card kbd{display:none}
   <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
   <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i><s></s><s></s></div><b></b></div>
   <div id="banner" class="serif"></div>
+  <div id="streak" class="serif"></div>
   <div id="tip" class="plate"></div>
   <button id="prompt" class="hide" data-act="interact"></button>
   <div id="help"><span class="free"><b data-t="help.click">Click the game</b> <span data-t="help.look">to look around with the mouse</span> · </span><span data-t="help.keys">WASD move · Click attack · Space dodge · Q flare · F lantern · E use</span><span id="fsHelp"></span><span class="cap"> · <span data-t="help.esc">Esc frees the mouse</span></span></div>
@@ -351,7 +367,8 @@ body.touch .card kbd{display:none}
   <div class="srow"><img class="ic" src="img/ui/icons/eye.webp" alt=""><label for="sens"><span data-t="set.sens">Look sensitivity</span> <b id="sensVal"></b></label><input id="sens" type="range"></div>
   <div class="srow hide" id="langRow"><img class="ic" src="img/ui/icons/globe.webp" alt=""><span data-t="set.lang">Language</span><select id="lang" aria-label="Language" data-t-aria="set.lang"><option value="en">English</option></select></div>
   <div class="srow" id="fsRow"><img class="ic" src="img/ui/icons/fullscreen.webp" alt=""><span data-t="set.fullscreen">Fullscreen</span><button class="tog" id="fsTog" role="switch" aria-label="Fullscreen" data-t-aria="set.fullscreen"></button></div>
-  <div class="srow" id="fpsRow"><span class="noic"></span><span data-t="set.fps">Show FPS</span><button class="tog" id="fpsTog" role="switch" aria-label="Show FPS" data-t-aria="set.fps"></button></div>
+  <div class="srow" id="fpsRow"><img class="ic" src="img/ui/icons/fps.webp" alt=""><span data-t="set.fps">Show FPS</span><button class="tog" id="fpsTog" role="switch" aria-label="Show FPS" data-t-aria="set.fps"></button></div>
+  <div class="srow" id="feelRow"><img class="ic" src="img/ui/icons/feel.webp" alt=""><span data-t="set.feel">Combat feel</span><div class="seg" role="radiogroup" aria-label="Combat feel" data-t-aria="set.feel"><button id="feelNew" role="radio" data-t="set.feelNew">New</button><button id="feelOld" role="radio" data-t="set.feelOld">Old</button></div></div>
   <div class="center"><button class="btn danger" id="reset" data-t="set.reset">Reset progress</button><button class="btn ghost" id="settingsClose" data-t="set.close">Close</button></div>
 </div></div>
 <div id="confirm" class="ov hide"><div class="win"><h2 class="serif" data-t="reset.title">RESET PROGRESS?</h2><p class="sub" data-t="reset.sub">Shards, smith upgrades and the story start over.</p><div class="center"><button class="btn danger" id="confirmYes" data-t="reset.yes">Reset</button><button class="btn ghost" id="confirmNo" data-t="reset.no">Keep</button></div></div></div>
