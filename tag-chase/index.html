@@ -44,11 +44,12 @@
       .emo { position: absolute; transform: translate(-50%, -100%); font-size: 30px; animation: pop 0.3s ease-out; }
       .pt { position: absolute; transform: translate(-50%, -100%); font-size: 22px; font-weight: 900; color: #ffe14a; animation: rise 0.9s ease-out forwards; }
       @keyframes rise { from { transform: translate(-50%, -60%) scale(1.5); opacity: 1; } to { transform: translate(-50%, -260%) scale(1); opacity: 0; } }
-      #stickBase { position: fixed; width: 120px; height: 120px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); border: 3px solid rgba(255, 255, 255, 0.5);
+      #stickBase { position: fixed; width: 120px; height: 120px; border-radius: 50%; background: rgba(29, 24, 48, 0.3); border: 4px solid rgba(255, 255, 255, 0.9);
         transform: translate(-50%, -50%); pointer-events: none; z-index: 30; display: none; }
       #stickKnob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(255, 255, 255, 0.85); }
-      #stickHint { position: fixed; left: max(22px, env(safe-area-inset-left)); bottom: 22px; width: 96px; height: 96px; border-radius: 50%; border: 3px dashed rgba(255, 255, 255, 0.45);
-        pointer-events: none; z-index: 29; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; opacity: 0.8; }
+      #stickHint { position: fixed; left: max(22px, env(safe-area-inset-left)); bottom: 22px; width: 96px; height: 96px; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.9);
+        background: rgba(29, 24, 48, 0.35); box-shadow: 0 0 0 2px rgba(29, 24, 48, 0.55), inset 0 0 0 2px rgba(29, 24, 48, 0.35);
+        pointer-events: none; z-index: 29; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; }
       #dash { position: fixed; right: max(22px, env(safe-area-inset-right)); bottom: 22px; width: 96px; height: 96px; border-radius: 50%; border: 0; z-index: 31;
         color: #1d1830; font-size: 18px; font-weight: 900; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3); background: #ffe14a; }
       #dash.it { background: #ff6a3a; color: #fff; }
@@ -79,6 +80,7 @@
         #top { left: 40%; }
         #clock { font-size: 26px; }
         #banner { top: 22%; font-size: 40px; }
+        #feed { top: max(172px, calc(env(safe-area-inset-top) + 168px)); }
       }
       @media (orientation: landscape) and (max-height: 500px) {
         #res table { font-size: 12px; margin: 4px 0 8px; }
@@ -90,7 +92,7 @@
         #banner small { font-size: 15px; }
       }
     </style>
-    <script type="module" crossorigin src="./assets/index-C_qwL1Ql.js"></script>
+    <script type="module" crossorigin src="./assets/index-DU_1P9rl.js"></script>
   </head>
   <body>
     <canvas id="gl"></canvas>
