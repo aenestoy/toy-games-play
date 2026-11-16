@@ -55,6 +55,8 @@ body.cards-open #room,body.cards-open #goal{visibility:hidden}
 @media (max-width:900px){#goal{top:46px;left:max(14px,env(safe-area-inset-left));transform:translate(0,-6px);text-align:left;padding:3px 12px 4px}#goal.on{transform:none}#goal b{font-size:15px}#goal small{font-size:12px}}
 #room b{display:block;font-size:17px;letter-spacing:.1em;color:#f1d9a6;font-weight:700}
 #room small{display:block;font-size:14px;color:var(--muted)}
+#hint{display:block;font-style:normal;font-size:12px;line-height:1.3;margin-top:2px;color:#a9bfe6;white-space:normal;max-width:min(520px,calc(100vw - 260px))}#hint.lit{color:#ffcf80}#hint:empty{display:none}
+@media (max-width:900px){#hint{font-size:11px;max-width:250px}}
 #boss{position:absolute;left:50%;top:70px;transform:translateX(-50%);width:min(440px,52vw);text-align:center}
 #boss em{font-style:normal;font-size:16px;letter-spacing:.14em;color:#ffcf8a;text-shadow:0 1px 3px #000}
 #boss .bar{height:12px;margin-top:3px}
@@ -324,7 +326,7 @@ body.touch .card kbd{display:none}
   #banner{top:50%;left:calc(50% - 60px);font-size:20px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-lyM5Vb0c.js"></script>
+  <script type="module" crossorigin src="./assets/index-B4C2wXgF.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -338,7 +340,7 @@ body.touch .card kbd{display:none}
     <div id="boons"></div>
   </div>
   <div id="goal" class="plate"><b class="serif" data-t="hud.goal">TAKE THE FERRY</b><small data-t="hud.goalSub">The ferry waits at the pier</small></div>
-  <div id="room" class="plate hide"><b class="serif"></b><small></small></div>
+  <div id="room" class="plate hide"><b class="serif"></b><small></small><i id="hint"></i></div>
   <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
   <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i><s></s><s></s></div><b></b></div>
   <div id="banner" class="serif"></div>
