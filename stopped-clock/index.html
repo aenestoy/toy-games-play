@@ -287,6 +287,77 @@ body.touch .card kbd{display:none}
 #hurt{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 120px 30px rgba(200,30,20,.7);opacity:0;transition:opacity .25s}
 #rotate{position:fixed;inset:0;display:none;place-items:center;background:#0b0e14;z-index:30;text-align:center;padding:24px;box-sizing:border-box}
 #rotate div{font-size:20px;line-height:1.5;color:#ffe2a8}
+/* ---- the new cards (cards2.ts) ---- */
+.card.f-karsilik{--fam:linear-gradient(90deg,#1e3266,#3a5aa8,#1e3266)}
+.card.f-saat{--fam:linear-gradient(90deg,#14485a,#2a7890,#14485a)}
+.card.f-fener{--fam:linear-gradient(90deg,#6e3a08,#b06a18,#6e3a08)}
+.card.f-silah{--fam:linear-gradient(90deg,#3a3e48,#6a707e,#3a3e48)}
+.card.v2.duo{--fam:linear-gradient(90deg,#4a2a78,#8a5ac8,#4a2a78)}
+.card .ty.t-fam{color:#e8d8b0;font-size:14px}
+#cardsAll .win{max-width:980px;width:100%}
+#cardsAll .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;max-height:62vh;overflow:auto;padding:4px}
+#cardsAll .card{max-width:none}
+#cardsAll .card .nm{background:var(--fam,#3a3f4c)}
+#cardsAll .card .hd{display:none;font-size:14px;font-weight:800;letter-spacing:.08em;color:#9fe0a0}
+#cardsAll .card.held{border-color:#9fe0a0;box-shadow:0 0 14px rgba(120,220,140,.5),inset 0 0 0 2px rgba(14,17,25,.9)}
+#cardsAll .card.held .hd{display:block}
+#cardsAll .card .wait{font-size:14px;line-height:1.25;color:#ffb070}
+#cardsAllBtn{position:fixed;left:50%;transform:translateX(-50%);top:8px;z-index:5;min-height:48px;padding:6px 18px}
+body.cards-open #cardsAllBtn{display:none}
+/* the extraction trial (src/extui.ts): the bag button, the getting-out bar, the bag / chest / night's-end windows */
+#bagBtn{position:absolute;right:calc(max(14px,env(safe-area-inset-right)) + 54px);top:60px;white-space:nowrap;pointer-events:auto;display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px;font:inherit;font-weight:800;font-size:16px;color:#ffe2a0;cursor:pointer;border-radius:20px}
+#bagBtn svg{width:26px;height:26px}
+body.touch #bagBtn{right:calc(max(14px,env(safe-area-inset-right)) + 58px);top:66px}
+#bagBtn b{display:flex;align-items:center;gap:4px}
+#bagBtn b span{display:flex;align-items:center;gap:3px;margin-left:8px;font-weight:700}
+#bagBtn .ic{width:20px;height:20px;vertical-align:-4px}
+#extOut{position:absolute;left:50%;top:auto;bottom:24%;transform:translateX(-50%);min-width:min(320px,70vw);padding:8px 18px 10px;text-align:center}
+#extOut b{display:block;font-size:20px;letter-spacing:.06em;color:#bff5e2}
+#extOut i{display:block;height:8px;margin-top:6px;border-radius:4px;background:rgba(0,0,0,.5);overflow:hidden}
+#extOut s{display:block;height:100%;width:0;background:linear-gradient(90deg,#4fc8a8,#bff5e2)}
+.xwin{max-width:860px;width:100%}
+.xwin .head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.xbody{max-height:62vh;overflow:auto;padding:2px 4px}
+.xbody h3{margin:12px 0 6px;font-size:15px;letter-spacing:.08em;color:#f1d9a6}
+.xbody h3 small{font-size:13px;color:#9fe0a0;letter-spacing:0}
+.xgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.xgrid.small{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.xt{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border:1px solid rgba(168,130,70,.6);border-radius:8px;background:rgba(14,17,25,.75);min-height:120px;text-align:center}
+.xt.none{border-style:dashed;opacity:.45}
+.xt img{width:56px;height:56px;object-fit:contain}
+.xt.card img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:2px solid var(--rc)}
+.xt.card{border-color:var(--rc)}
+.xt b{font-size:14px;color:#ffe2a0;line-height:1.2}
+.xt small{font-size:12px;color:var(--rc,#c8bca4)}
+.xt.safe{box-shadow:0 0 0 2px #9fe0a0,0 0 14px rgba(120,220,140,.45)}
+.xt .xb{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:auto}
+.xt .xb .btn{font-size:13px;padding:6px 9px;min-height:36px;letter-spacing:.02em}
+@media (max-height:520px){.xbody{max-height:58vh}.xbody h3{margin:6px 0 4px}.xgrid,.xgrid.small{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}.xt{min-height:70px;padding:5px 4px}.xt img{width:36px;height:36px}.xt.card img{width:40px;height:40px}.xt b{font-size:12px}.xt .xb .btn{font-size:12px;padding:4px 7px;min-height:30px}}
+.xcarried{display:flex;align-items:center;gap:6px;margin:4px 0;font-size:15px;color:#ffe2a0}
+.xcarried .ic{width:20px;height:20px;vertical-align:-4px}
+.xnone{margin:4px 0;color:#c8bca4;font-size:14px}
+#extEnd .tipline{max-width:min(420px,calc(100vw - 24px));margin:12px auto 0;text-align:center;font-size:15px;line-height:1.35;color:#ffe2a0}
+#razorfx{position:fixed;left:0;right:0;top:50%;height:3px;background:#fff;box-shadow:0 0 18px #fff,0 0 40px #9fd8ff;opacity:0;pointer-events:none;z-index:4;display:none}
+#razorfx.on{display:block;animation:razor .5s ease-out forwards}
+@keyframes razor{0%{opacity:1;transform:scaleX(0)}30%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}
+#cardEdge{position:fixed;inset:0;pointer-events:none;z-index:3;display:none}
+body.chain-on #cardEdge{display:block;box-shadow:inset 0 0 60px 12px rgba(80,150,255,.75)}
+body.thick-on #cardEdge{display:block;box-shadow:inset 0 0 90px 20px rgba(150,200,230,.55)}
+body.chain-on.thick-on #cardEdge{box-shadow:inset 0 0 60px 12px rgba(80,150,255,.75),inset 0 0 120px 30px rgba(150,200,230,.4)}
+body.rewind-on canvas{filter:sepia(.85) contrast(1.1)}
+.lbl.stack{font-weight:800;font-size:18px;color:#9fd8ff;text-shadow:0 0 6px #000,0 0 10px #2a6aa0}
+/* phone upright: the card window shows over the 'turn your phone' screen, one card a row */
+body.cards-open #rotate{display:none!important}
+@media (orientation:portrait){
+  #cards .row{flex-direction:column;align-items:stretch;gap:8px}
+  #cards .card{flex:none;max-width:none;display:grid;grid-template-columns:64px 1fr;column-gap:10px;row-gap:3px;text-align:left;align-items:center;padding:10px}
+  #cards .card .pic{width:60px;height:60px;grid-row:1/span 4}
+  #cards .card>*:not(.pic){grid-column:2}
+  #cards .card .ty{justify-content:flex-start}
+  #cards .card .nm{text-align:left}
+  #cards .card .dots{justify-content:flex-start}
+  #cardsAll .grid{grid-template-columns:1fr 1fr;max-height:70vh}
+}
 @media (orientation:portrait){body.touch #rotate{display:grid}}
 /* phone landscape: smaller, but no text under 14 px and no button under 48 px */
 @media (max-height:500px){
@@ -326,7 +397,7 @@ body.touch .card kbd{display:none}
   #banner{top:50%;left:calc(50% - 60px);font-size:20px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-CkQfu-aO.js"></script>
+  <script type="module" crossorigin src="./assets/index-DsdTvhJc.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -342,6 +413,8 @@ body.touch .card kbd{display:none}
   <div id="goal" class="plate"><b class="serif" data-t="hud.goal">TAKE THE FERRY</b><small data-t="hud.goalSub">The ferry waits at the pier</small></div>
   <div id="room" class="plate hide"><b class="serif"></b><small></small><i id="hint"></i></div>
   <div id="shards" class="plate"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span>0</span></div>
+  <button id="bagBtn" class="plate hide" aria-label="Bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8V6a4 4 0 0 1 8 0v2" fill="none" stroke="#ffe2a8" stroke-width="2"/><path d="M4 8h16l-1.5 13h-13z" fill="#7a5530" stroke="#ffe2a8" stroke-width="1.6"/></svg><b></b></button>
+  <div id="extOut" class="plate hide"><b></b><i><s></s></i></div>
   <div id="boss" class="hide"><em class="serif"></em><div class="bar"><i></i><s></s><s></s></div><b></b></div>
   <div id="banner" class="serif"></div>
   <div id="streak" class="serif"></div>
@@ -365,6 +438,12 @@ body.touch .card kbd{display:none}
 <div id="fade"></div>
 <div id="dialog" class="win hide"><img class="por" alt=""><div class="txt"><em class="serif"></em><p></p></div><small>tap to close</small></div>
 <div id="cards" class="ov hide"><div><h2 class="serif"></h2><p class="sub"></p><div class="row"></div><div class="center"><button class="btn ghost hide" id="redraw"></button></div><div id="cardSwap" class="hide"><p></p><button class="btn" id="swapYes" data-t="cards.swapYes"></button> <button class="btn ghost" id="swapNo" data-t="cards.swapNo"></button></div></div></div>
+<div id="cardsAll" class="ov hide"><div class="win"><h2 class="serif" data-t="cards.all">TRY A CARD</h2><p class="sub" data-t="cards.allSub"></p><div class="grid"></div><div class="center"><button class="btn ghost" id="cardsAllClose" data-t="cards.allClose">Close</button></div></div></div>
+<button id="cardsAllBtn" class="btn hide" data-t="cards.allBtn">Cards</button>
+<div id="extBag" class="ov hide"><div class="win xwin"><h2 class="serif"></h2><p class="sub"></p><div class="xbody"></div><div class="center"><button class="btn ghost" id="extBagClose" data-t="cards.allClose">Close</button></div></div></div>
+<div id="extStash" class="ov hide"><div class="win xwin"><div class="head"><h2 class="serif"></h2><div class="pill"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span></span></div></div><p class="sub"></p><div class="xbody"></div><div class="center"><button class="btn ghost" id="extStashClose" data-t="cards.allClose">Close</button></div></div></div>
+<div id="extEnd" class="ov hide"><div class="win xwin"><h2 class="serif"></h2><div class="xbody"></div><p class="tipline hide"></p><div class="center"><button class="btn" id="extEndBtn"></button></div></div></div>
+<div id="razorfx"></div><div id="cardEdge"></div>
 <div id="shop" class="ov hide"><div class="win"><div class="head"><img class="por" alt=""><div class="hd"><h2 class="serif"></h2><p class="line"></p></div><div class="pill"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span></span></div></div><div class="row"></div><div class="center"><button class="btn ghost" id="shopClose" data-t="shop.close">Close</button></div></div></div>
 <div id="ferry" class="ov hide"><div class="win"><h2 class="serif"></h2><div class="row"></div><div class="center"><button class="btn ghost" id="ferryClose" data-t="shop.close">Close</button></div></div></div>
 <div id="end" class="ov hide"><div><h2 class="serif"></h2><div class="stats win"></div><p class="tipline hide"></p><div class="center"><button class="btn ghost hide" id="endDouble" data-ad="double"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.double">Double shards</span></button><button class="btn ghost hide" id="endRevive" data-ad="revive"><img class="ic" src="img/ui/icons/play.webp" alt=""><span data-t="end.revive">Rise with 50 health</span></button><button class="btn" id="endBtn"></button></div></div></div>
