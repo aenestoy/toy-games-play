@@ -1,6 +1,6 @@
 {
  "game": "ninja-streets",
- "commit": "a2b24013c",
- "date": "2026-11-15T05:07:56+03:00",
- "msg": "feat(game-29): typed leaderboard names instead of the word picker"
+ "commit": "14e49191f",
+ "date": "2026-11-16T08:41:06+03:00",
+ "msg": "Ninja Streets 1.2.0 trial: first-room teaching, GET STRONGER after a fall, daily reward chest"
 }
