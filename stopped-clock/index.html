@@ -105,6 +105,10 @@ body.touch #prompt kbd{display:none}
 body.touch #btns{display:grid;grid-template-columns:66px 66px 96px;grid-template-rows:66px 66px;gap:10px}
 body.touch .ab{width:66px;height:66px}
 body.touch .ab kbd{display:none}
+.ab[data-act="counter"]{display:none}
+body.counter-on .ab[data-act="counter"]{display:flex;border-color:#ffd27a;box-shadow:0 0 16px rgba(255,190,90,.85),inset 0 0 0 2px rgba(10,12,18,.8);animation:clockbeat .5s ease-in-out infinite}
+.ab[data-act="counter"] svg{width:62%;height:62%}
+body.touch.counter-on .ab[data-act="counter"]{position:absolute;right:18px;bottom:calc(100% + 10px);width:80px;height:80px}
 body.touch .ab[data-act="attack"]{grid-column:3;grid-row:1/span 2;width:96px;height:96px;align-self:end;border-color:var(--brass-hi);box-shadow:0 0 14px rgba(240,160,64,.35),inset 0 0 0 2px rgba(10,12,18,.8)}
 body.touch .ab[data-act="dodge"]{grid-column:2;grid-row:2}
 body.touch .ab[data-act="flare"]{grid-column:2;grid-row:1}
@@ -320,7 +324,7 @@ body.touch .card kbd{display:none}
   #banner{top:50%;left:calc(50% - 60px);font-size:20px}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-xsZfTw9W.js"></script>
+  <script type="module" crossorigin src="./assets/index-lyM5Vb0c.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -350,6 +354,7 @@ body.touch .card kbd{display:none}
     <button class="ab" data-act="super"><kbd>C</kbd><img src="img/ui/icons/clock.webp" alt=""><u></u></button>
     <button class="ab" data-act="skill"><kbd>R</kbd><img src="img/items/weapon-blade.webp" alt=""><u></u></button>
     <button class="ab" data-act="dodge"><kbd>Space</kbd><img src="img/ui/icons/dodge.webp" alt=""><u></u></button>
+    <button class="ab" data-act="counter"><kbd>V</kbd><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L20 4 M14 4 h6 v6 M9 9 L4 4 M4 9 V4 h5" fill="none" stroke="#ffe2a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><u></u></button>
     <button class="ab" data-act="attack"><kbd>J</kbd><img src="img/ui/icons/attack.webp" alt=""><u></u></button>
   </div>
   <div id="stick"><div id="knob"></div></div>
