@@ -64,7 +64,11 @@ body.cards-open #room,body.cards-open #goal{visibility:hidden}
 /* three parts: the lines where phases 2 and 3 begin (design/plan.json gate-warden phase2 / phase3, set by ui.ts) */
 #boss .bar s{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#140a05;box-shadow:0 0 0 1px rgba(255,214,150,.55);z-index:1}
 #boss b{display:none;margin-top:4px;font-size:15px;letter-spacing:.08em;color:#ffb060;text-shadow:0 0 8px #ff6a00,0 1px 3px #000;animation:heatPulse .5s ease-in-out infinite alternate}#boss b.on{display:block}@keyframes heatPulse{to{color:#ffe0a0}}
-#banner{position:absolute;left:50%;top:26%;transform:translate(-50%,-50%);font-size:clamp(22px,5vw,40px);font-weight:800;letter-spacing:.1em;color:#ffe2a8;text-shadow:0 2px 12px #000,0 0 24px rgba(255,160,60,.5);opacity:0;transition:opacity .35s;white-space:nowrap}
+/* nothing over the middle of the screen while playing (owner 2026-11-16): the banner is one short line under the room's sign
+   (--top: where the sign ends, ui.ts topEdge), the exit timer a small bar there too, the tip one line at the bottom edge */
+#banner{position:absolute;left:50%;top:calc(var(--top,84px) + 6px);transform:translateX(-50%);max-width:calc(100vw - 580px);overflow:hidden;text-overflow:ellipsis;font-size:18px;font-weight:800;letter-spacing:.08em;line-height:1.3;color:#ffe2a8;text-shadow:0 1px 3px #000,0 0 10px #000,0 0 18px rgba(255,160,60,.4);opacity:0;transition:opacity .25s;white-space:nowrap;pointer-events:none}
+#extOut:not(.hide)~#banner{top:calc(var(--top,84px) + 42px)}
+#boss:not(.hide)~#banner{top:136px}
 #banner.on{opacity:1}
 #labels{position:absolute;inset:0;overflow:hidden;isolation:isolate} /* (isolate: the numbers canvas, src/numbers.ts, is over the other labels but stays under the HUD after it) */
 /* (will-change opacity too: a number's fade is then the compositor's; with transform alone every fading frame painted the
@@ -80,9 +84,10 @@ body.cards-open #room,body.cards-open #goal{visibility:hidden}
 .lbl.door b{display:block;font-size:16px;color:#f1d9a6;letter-spacing:.04em}
 .lbl.door small{display:block;font-size:14px;color:#ffe2a0}
 .lbl.door .ic{width:20px;height:20px;vertical-align:-4px;margin-right:4px}
-#tip{position:absolute;left:50%;bottom:calc(22% + 64px);transform:translate(-50%,6px);max-width:min(780px,calc(100vw - 32px));white-space:normal;text-align:center;font-size:clamp(18px,1.6vw,24px);font-weight:600;line-height:1.35;color:#ffe2a0;padding:7px 16px;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none}
-#tip.on{opacity:1;transform:translate(-50%,0)}
-body.touch #tip{bottom:auto;top:130px;font-size:15px;max-width:calc(100vw - 500px)}
+#tip{position:absolute;left:max(14px,env(safe-area-inset-left));right:calc(max(14px,env(safe-area-inset-right)) + 440px);bottom:max(14px,env(safe-area-inset-bottom));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:15px;font-weight:600;line-height:1.3;color:#ffe2a0;text-shadow:0 1px 3px #000,0 0 8px #000;padding:3px 10px;opacity:0;transition:opacity .4s;pointer-events:none}
+#tip.plate{background:linear-gradient(90deg,transparent,rgba(8,9,14,.6) 15%,rgba(8,9,14,.6) 85%,transparent);border:0;border-radius:0;box-shadow:none}
+#tip.on{opacity:1}
+body.touch #tip{right:calc(max(14px,env(safe-area-inset-right)) + 262px);bottom:max(8px,env(safe-area-inset-bottom));font-size:13px}
 #end .tipline{max-width:min(420px,calc(100vw - 24px));margin:12px auto 0;text-align:center;font-size:15px;line-height:1.35;color:#ffe2a0}
 .card.opt .pic{object-fit:contain;background:#0e1119;padding:10px;box-sizing:border-box}
 .lbl.dmg{font-size:19px;color:#fff}
@@ -90,11 +95,11 @@ body.touch #tip{bottom:auto;top:130px;font-size:15px;max-width:calc(100vw - 500p
 .lbl.dmg.armor{color:#a9b4c2} /* a blow the armour took */
 .lbl.hurt{font-size:21px;color:#ff6a5a}
 .lbl.heal{font-size:17px;color:#8fe08a}
-.lbl.gain{font-size:17px;color:#ffe2a0}
-.lbl.note{font-size:15px;color:#cfd8e8}
-#prompt{position:absolute;left:50%;bottom:22%;transform:translateX(-50%);pointer-events:auto;font:inherit;font-weight:700;font-size:16px;color:#fff;background:rgba(14,17,25,.9);border:1px solid var(--brass);border-radius:8px;padding:9px 16px;white-space:nowrap;cursor:pointer;min-height:48px}
+.lbl.gain{font-size:15px;color:#ffe2a0}
+.lbl.note{font-size:13px;color:#cfd8e8}
+#prompt{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:calc(max(14px,env(safe-area-inset-bottom)) + 64px);pointer-events:auto;font:inherit;font-weight:700;font-size:14px;color:#fff;background:rgba(14,17,25,.9);border:1px solid var(--brass);border-radius:8px;padding:6px 12px;white-space:nowrap;cursor:pointer;min-height:36px}
 #prompt kbd{font:inherit;display:inline-block;min-width:18px;text-align:center;background:var(--brass-hi);color:#1a1206;border-radius:5px;padding:0 5px;margin-right:8px}
-body.touch #prompt{min-height:64px;min-width:64px;font-size:17px;bottom:auto;top:30%;left:auto;right:max(18px,env(safe-area-inset-right));transform:none}
+body.touch #prompt{min-height:44px;min-width:64px;font-size:15px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 220px);right:max(14px,env(safe-area-inset-right))}
 body.touch #prompt kbd{display:none}
 /* ---- action buttons (touch) / key hints (desktop) ---- */
 #btns{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));display:flex;gap:8px;align-items:flex-end}
@@ -311,9 +316,9 @@ body.touch #bagBtn{right:calc(max(14px,env(safe-area-inset-right)) + 58px);top:6
 #bagBtn b{display:flex;align-items:center;gap:4px}
 #bagBtn b span{display:flex;align-items:center;gap:3px;margin-left:8px;font-weight:700}
 #bagBtn .ic{width:20px;height:20px;vertical-align:-4px}
-#extOut{position:absolute;left:50%;top:auto;bottom:24%;transform:translateX(-50%);min-width:min(320px,70vw);padding:8px 18px 10px;text-align:center}
-#extOut b{display:block;font-size:20px;letter-spacing:.06em;color:#bff5e2}
-#extOut i{display:block;height:8px;margin-top:6px;border-radius:4px;background:rgba(0,0,0,.5);overflow:hidden}
+#extOut{position:absolute;left:50%;top:calc(var(--top,84px) + 6px);transform:translateX(-50%);width:min(240px,46vw);box-sizing:border-box;padding:3px 12px 5px;text-align:center}
+#extOut b{display:block;font-size:13px;line-height:1.3;letter-spacing:.04em;color:#bff5e2}
+#extOut i{display:block;height:4px;margin-top:3px;border-radius:4px;background:rgba(0,0,0,.5);overflow:hidden}
 #extOut s{display:block;height:100%;width:0;background:linear-gradient(90deg,#4fc8a8,#bff5e2)}
 .xwin{max-width:860px;width:100%}
 .xwin .head{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -338,14 +343,14 @@ body.touch #bagBtn{right:calc(max(14px,env(safe-area-inset-right)) + 58px);top:6
 .xt .xd{margin:2px 0 4px;font-size:12px;line-height:1.3;color:#d8ccb4;text-align:center}
 /* the bag does not stop the night: a side panel (the hero and what comes stay in sight), the overlay lets the game through
    (stick, camera, clicks), its edges dim, a blow flashes them */
-#extBag.live{pointer-events:none;display:block;padding:0;overflow:hidden;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 46%,rgba(60,6,6,.5) 82%,rgba(40,0,0,.8) 100%)}
-#extBag.live .win{pointer-events:auto;position:absolute;right:max(16px,env(safe-area-inset-right));top:122px;bottom:96px;width:min(430px,40vw);max-width:none;display:flex;flex-direction:column;padding:12px 14px}
-#extBag.live .win{background:linear-gradient(#161a25,#0e1119)}
-#extBag.live h2{font-size:21px;margin-bottom:4px}
-#extBag.live .xbody{flex:1;min-height:0;max-height:none}
-#extBag.live .xgrid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
-#extBag.live .center{margin-top:8px}
-#extBag.live.hit{animation:baghit .45s ease-out}
+:is(#extBag,#extLoot).live{pointer-events:none;display:block;padding:0;overflow:hidden;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 46%,rgba(60,6,6,.5) 82%,rgba(40,0,0,.8) 100%)}
+:is(#extBag,#extLoot).live .win{pointer-events:auto;position:absolute;right:max(16px,env(safe-area-inset-right));top:122px;bottom:96px;width:min(430px,40vw);max-width:none;display:flex;flex-direction:column;padding:12px 14px}
+:is(#extBag,#extLoot).live .win{background:linear-gradient(#161a25,#0e1119)}
+:is(#extBag,#extLoot).live h2{font-size:21px;margin-bottom:4px}
+:is(#extBag,#extLoot).live .xbody{flex:1;min-height:0;max-height:none}
+:is(#extBag,#extLoot).live .xgrid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
+:is(#extBag,#extLoot).live .center{margin-top:8px}
+:is(#extBag,#extLoot).live.hit{animation:baghit .45s ease-out}
 @keyframes baghit{0%{background-color:rgba(200,20,20,.38)}100%{background-color:rgba(200,20,20,0)}}
 .xwarn{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:4px 10px;margin:-6px 0 8px;text-align:center}
 .xwarn b{font-size:14px;letter-spacing:.06em;color:#ff8a7a;text-transform:uppercase}
@@ -355,23 +360,57 @@ body.touch #bagBtn{right:calc(max(14px,env(safe-area-inset-right)) + 58px);top:6
 .xt .xlv{position:absolute;top:4px;left:4px;padding:1px 5px;border-radius:6px;background:#c9a24a;color:#14100a;font:800 10px/14px sans-serif;font-style:normal;letter-spacing:.02em}
 /* phone (landscape): the right side above the action buttons - attack and dodge stay free below it, the stick's side and the
    hero stay free on the left; small tiles in rows that scroll sideways; the room name hides while the bag is open */
-body.touch #extBag.live .win{top:max(6px,env(safe-area-inset-top));bottom:116px;right:max(6px,env(safe-area-inset-right));width:min(380px,44vw);padding:6px 8px}
+body.touch :is(#extBag,#extLoot).live .win{top:max(6px,env(safe-area-inset-top));bottom:116px;right:max(6px,env(safe-area-inset-right));width:min(380px,44vw);padding:6px 8px}
 @media (max-height:520px){
-  body.touch.bag-live #room{display:none}
-  body.touch #extBag.live .win{position:absolute}
-  body.touch #extBag.live h2,body.touch #extBag.live .sub,body.touch #extBag.live .xwarn small,body.touch #extBag.live .xcarried,body.touch #extBag.live .xpk{display:none}
-  body.touch #extBag.live .xwarn{margin:0 64px 2px 0;justify-content:flex-start}body.touch #extBag.live .xwarn b{font-size:12px}
-  body.touch #extBag.live .center{position:absolute;top:3px;right:6px;margin:0}body.touch #extBag.live .center .btn{min-height:24px;padding:2px 10px;font-size:12px}
-  body.touch #extBag.live .xbody{padding:0;overflow-y:auto}body.touch #extBag.live .xbody h3{margin:2px 0 2px;font-size:12px}
-  body.touch #extBag.live .xgrid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:76px;overflow-x:auto;overflow-y:hidden;gap:5px;padding:3px}
-  body.touch #extBag.live .xt{height:92px;overflow:hidden;min-height:0;padding:4px 3px 3px;gap:1px;justify-content:flex-start;box-sizing:border-box}
-  body.touch #extBag.live .xt img,body.touch #extBag.live .xt.card img{width:30px;height:30px;flex:none}
-  body.touch #extBag.live .xt b{font-size:11px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  body.touch #extBag.live .xt small{font-size:9.5px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  body.touch #extBag.live .xt .xd,body.touch #extBag.live .xt .xb{display:none}
-  body.touch #extBag.live .xt .xlv{top:2px;left:2px;font-size:9px;line-height:12px;padding:0 4px}
-  body.touch #extBag.live .xt .xdrop{display:block;position:absolute;top:2px;right:2px;width:22px;height:22px;padding:0;border:1px solid rgba(168,130,70,.7);border-radius:50%;background:rgba(10,12,18,.85);color:#ffe2a0;font:700 14px/20px sans-serif;cursor:pointer}
+  body.touch.bag-live #room,body.touch.loot-live #room{display:none}
+  body.touch :is(#extBag,#extLoot).live .win{position:absolute}
+  body.touch :is(#extBag,#extLoot).live h2,body.touch :is(#extBag,#extLoot).live .sub,body.touch :is(#extBag,#extLoot).live .xwarn small,body.touch :is(#extBag,#extLoot).live .xcarried,body.touch :is(#extBag,#extLoot).live .xpk{display:none}
+  body.touch :is(#extBag,#extLoot).live .xwarn{margin:0 64px 2px 0;justify-content:flex-start}body.touch :is(#extBag,#extLoot).live .xwarn b{font-size:12px}
+  body.touch :is(#extBag,#extLoot).live .center{position:absolute;top:3px;right:6px;margin:0}body.touch :is(#extBag,#extLoot).live .center .btn{min-height:24px;padding:2px 10px;font-size:12px}
+  body.touch :is(#extBag,#extLoot).live .xbody{padding:0;overflow-y:auto}body.touch :is(#extBag,#extLoot).live .xbody h3{margin:2px 0 2px;font-size:12px}
+  body.touch :is(#extBag,#extLoot).live .xgrid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:76px;overflow-x:auto;overflow-y:hidden;gap:5px;padding:3px}
+  body.touch :is(#extBag,#extLoot).live .xt{height:92px;overflow:hidden;min-height:0;padding:4px 3px 3px;gap:1px;justify-content:flex-start;box-sizing:border-box}
+  body.touch :is(#extBag,#extLoot).live .xt img,body.touch :is(#extBag,#extLoot).live .xt.card img{width:30px;height:30px;flex:none}
+  body.touch :is(#extBag,#extLoot).live .xt b{font-size:11px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  body.touch :is(#extBag,#extLoot).live .xt small{font-size:9.5px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  body.touch :is(#extBag,#extLoot).live .xt .xd,body.touch :is(#extBag,#extLoot).live .xt .xb{display:none}
+  body.touch :is(#extBag,#extLoot).live .xt .xlv{top:2px;left:2px;font-size:9px;line-height:12px;padding:0 4px}
+  body.touch :is(#extBag,#extLoot).live .xt .xdrop{display:block;position:absolute;top:2px;right:2px;width:22px;height:22px;padding:0;border:1px solid rgba(168,130,70,.7);border-radius:50%;background:rgba(10,12,18,.85);color:#ffe2a0;font:700 14px/20px sans-serif;cursor:pointer}
   .xt .xd{font-size:10.5px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+}
+/* the loot window (extui.ts openLoot): the bag's side panel and phone layout (the shared rules above); its own pieces */
+#extLoot .xlhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#extLoot .xfree{font-size:13px;color:#c8bca4;white-space:nowrap}
+#extLoot .xfree b{color:#ffe2a0}
+#extLoot .xfree.full,#extLoot .xfree.full b{color:#ff8a7a}
+#extLoot.live .xgrid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+#extLoot .xt{min-height:100px}
+#extLoot .xt.loot{cursor:pointer;border-color:var(--rc);box-shadow:inset 0 0 16px -6px var(--rc)}
+#extLoot .xt.loot.r1{background:rgba(16,30,54,.85)}
+#extLoot .xt.loot.r2{background:rgba(54,34,8,.85);box-shadow:inset 0 0 18px -4px var(--rc),0 0 10px rgba(255,180,58,.45)}
+#extLoot .xt.loot small{color:var(--rc)}
+#extLoot .xt.loot:hover{filter:brightness(1.25)}
+#extLoot .xt.hid{justify-content:center;border-style:dashed;cursor:default}
+#extLoot .xt.hid i{font:800 30px/1 serif;font-style:normal;color:#8a7a5a;animation:lootq .5s ease-in-out infinite alternate}
+#extLoot .xt.new{animation:lootin .28s ease-out}
+#extLoot .xt.nofit{opacity:.55}
+#extLoot .xltip{margin:4px 0 0;min-height:15px;font-size:12px;color:#9fe0a0;text-align:center}
+#extLoot .xltip.full{color:#ff8a7a;font-weight:700}
+#extLoot .center{display:flex;gap:8px;justify-content:center}
+#extLootAll:disabled{opacity:.4;filter:grayscale(1);cursor:default}
+@keyframes lootin{0%{transform:scale(.55);opacity:0;filter:brightness(2.4)}100%{transform:none;opacity:1;filter:none}}
+@keyframes lootq{to{opacity:.35}}
+@media (max-height:520px){
+  body.touch #extLoot.live .xlhead{margin:0 172px 0 0;flex-wrap:nowrap;overflow:hidden}
+  body.touch #extLoot.live h2{display:block;font-size:13px;line-height:20px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.touch #extLoot.live .xfree{font-size:11px}
+  body.touch #extLoot.live .xwarn{margin:0 0 2px}
+  body.touch #extLoot.live .xt{height:84px}
+  body.touch #extLoot.live .xt.hid i{font-size:22px}
+  body.touch #extLoot.live .xltip{margin:1px 0 0;min-height:13px;font-size:10.5px}
+  body.touch #extLoot.live .xmine .xt{height:58px}
+  body.touch #extLoot.live .xmine .xt small{display:none}
+  body.touch #extLoot.live .xmine .xt img{width:24px;height:24px}
 }
 .xcarried .ic{width:20px;height:20px;vertical-align:-4px}
 .xnone{margin:4px 0;color:#c8bca4;font-size:14px}
@@ -433,10 +472,14 @@ body.cards-open #rotate{display:none!important}
   #room{padding:2px 16px 3px}
   #room b{font-size:15px}
   #boss{top:76px}
-  #banner{top:50%;left:calc(50% - 60px);font-size:20px}
+  #room{left:calc(max(14px,env(safe-area-inset-left)) + min(260px,32vw) + 10px);right:calc(max(14px,env(safe-area-inset-right)) + 170px);transform:none;white-space:normal}
+  #room small{font-size:12px}#hint{max-width:none}
+  #banner,#extOut{left:calc(max(14px,env(safe-area-inset-left)) + min(260px,32vw) + 10px);right:calc(max(14px,env(safe-area-inset-right)) + 250px);transform:none;text-align:center;max-width:none;margin:0 auto}
+  #banner{font-size:14px}
+  #extOut{padding:2px 10px 3px}#extOut b{font-size:12px}#extOut:not(.hide)~#banner{top:calc(var(--top,84px) + 32px)}
 }
 </style>
-  <script type="module" crossorigin src="./assets/index-D-RzWd1e.js"></script>
+  <script type="module" crossorigin src="./assets/index-DXKirzYS.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-y8P2NVSC.css">
 </head>
 <body>
@@ -480,6 +523,7 @@ body.cards-open #rotate{display:none!important}
 <div id="cardsAll" class="ov hide"><div class="win"><h2 class="serif" data-t="cards.all">TRY A CARD</h2><p class="sub" data-t="cards.allSub"></p><div class="grid"></div><div class="center"><button class="btn ghost" id="cardsAllClose" data-t="cards.allClose">Close</button></div></div></div>
 <button id="cardsAllBtn" class="btn hide" data-t="cards.allBtn">Cards</button>
 <div id="extBag" class="ov hide"><div class="win xwin"><h2 class="serif"></h2><p class="xwarn"><b></b><small></small></p><p class="sub"></p><div class="xbody"></div><div class="center"><button class="btn ghost" id="extBagClose" data-t="cards.allClose">Close</button></div></div></div>
+<div id="extLoot" class="ov hide"><div class="win xwin"><div class="xlhead"><h2 class="serif"></h2><span class="xfree"></span></div><p class="xwarn"><b></b></p><div class="xbody"></div><div class="center"><button class="btn" id="extLootAll" data-t="ext.loot.takeAll">Take all</button><button class="btn ghost" id="extLootClose" data-t="cards.allClose">Close</button></div></div></div>
 <div id="extStash" class="ov hide"><div class="win xwin"><div class="head"><h2 class="serif"></h2><div class="pill"><img class="ic" src="img/ui/icons/shard.webp" alt="Clock shards" data-t-alt="hud.shards"><span></span></div></div><p class="sub"></p><div class="xbody"></div><div class="center"><button class="btn ghost" id="extStashClose" data-t="cards.allClose">Close</button></div></div></div>
 <div id="extEnd" class="ov hide"><div class="win xwin"><h2 class="serif"></h2><div class="xbody"></div><p class="tipline hide"></p><div class="center"><button class="btn" id="extEndBtn"></button></div></div></div>
 <div id="razorfx"></div><div id="cardEdge"></div>
