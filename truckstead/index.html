@@ -39,23 +39,79 @@
     <style>
       html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #9fd6f7; }
       body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-      #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
-        background: linear-gradient(#7cc4f5, #cdeefa 60%, #8fd06a 60.2%, #6fb84f); color: #1d2a44; font: 900 22px system-ui, sans-serif; z-index: 50; }
-      #loading .bar { width: 180px; height: 10px; border-radius: 6px; background: rgba(29, 42, 68, 0.2); overflow: hidden; }
-      #loading .bar i { display: block; height: 100%; width: 30%; background: #ffc83d; border-radius: 6px; animation: load 1s ease-in-out infinite alternate; }
-      #loading .note { font: 700 14px system-ui, sans-serif; min-height: 18px; opacity: 0.75; }
-      @keyframes load { to { width: 100%; } }
-      /* turns on the compositor: it keeps turning while the page is busy building the scene (a still bar looked frozen) */
-      #loading .spin { width: 22px; height: 22px; border-radius: 50%; border: 4px solid rgba(29, 42, 68, 0.2); border-top-color: #1d2a44; will-change: transform; animation: spin 0.8s linear infinite; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      @media (prefers-reduced-motion: reduce) { #loading .spin { animation-duration: 2.4s; } }
+      /* The loading screen (app/loading.ts moves the bar, changes the tip, takes it away): it paints before any code or
+         picture arrives, in the cover's colours; the cover picture (src/ui/loading/, ~50-65 KB, low priority so the game's
+         own files go first) fades in over it. The logo's face is the game's Lilita One, the same file the game loads. */
+      @font-face { font-family: 'TS Logo'; src: url('./assets/lilita-one-latin-400-normal-87r-Z-Re.woff2') format('woff2'); font-display: block; }
+      #loading { position: fixed; inset: 0; z-index: 50; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;
+        align-items: center; justify-content: space-between; color: #fff; font: 400 16px 'Lilita One', 'Arial Black', system-ui, sans-serif;
+        padding: calc(4vh + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) calc(4vh + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
+        background: linear-gradient(#a9b8cf, #e8dbc2 40%, #93b36c 46%, #6e8c55 52%, #5b5653 55%, #3e3b3b); }
+      #loading picture, #loading .bg, #loading .shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+      #loading .bg { object-fit: cover; object-position: 50% 45%; opacity: 0; transition: opacity 0.6s ease; }
+      #loading .bg.on { opacity: 1; }
+      /* keeps the logo and the words readable on any part of the picture */
+      #loading .shade { background: linear-gradient(rgba(12, 18, 34, 0.5), rgba(12, 18, 34, 0) 30%, rgba(12, 18, 34, 0) 50%, rgba(12, 18, 34, 0.8)); }
+      #loading .logo, #loading .foot { position: relative; }
+      #loading .logo { font-family: 'TS Logo', 'Lilita One', 'Arial Black', sans-serif; font-size: clamp(36px, min(12vw, 16vh), 170px); line-height: 1.1;
+        color: #ffc83d; letter-spacing: 0.02em; white-space: nowrap;
+        text-shadow: 0.035em 0 0 #1d2a44, -0.035em 0 0 #1d2a44, 0 0.035em 0 #1d2a44, 0 -0.035em 0 #1d2a44, 0.025em 0.025em 0 #1d2a44,
+          -0.025em 0.025em 0 #1d2a44, 0.025em -0.025em 0 #1d2a44, -0.025em -0.025em 0 #1d2a44, 0 0.085em 0 #1d2a44, 0.03em 0.085em 0 #1d2a44,
+          -0.03em 0.085em 0 #1d2a44, 0 0.13em 0.2em rgba(0, 0, 0, 0.45); }
+      /* the tip, the bar and its truck grow with the screen (em of this size) */
+      #loading .foot { width: min(40em, 100%); display: flex; flex-direction: column; gap: 0.45em; font-size: clamp(16px, min(2.6vw, 2.8vh), 28px); }
+      #loading .tip { min-height: 2.7em; display: flex; align-items: flex-end; justify-content: center; text-align: center; line-height: 1.3;
+        text-shadow: 0 2px 3px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.6); opacity: 0; transition: opacity 0.3s ease; }
+      #loading .tip.on { opacity: 1; }
+      #loading .road { display: flex; align-items: center; gap: 0.6em; padding-top: 1.7em; }
+      #loading .bar { position: relative; flex: 1; height: 0.9em; border-radius: 0.6em; background: #3d3f46; border: 2px solid #1d2a44; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35); }
+      /* the lane line runs on the compositor: it keeps moving while the page is busy building the scene (a still bar looked frozen) */
+      #loading .lane { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+      #loading .lane s { position: absolute; left: 0; right: -2em; top: 50%; height: 2px; margin-top: -1px; will-change: transform;
+        background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0 1em, transparent 1em 2em); animation: lane 0.6s linear infinite; }
+      @keyframes lane { to { transform: translateX(-2em); } }
+      #loading .bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; min-width: 2.3em; border-radius: inherit;
+        background: linear-gradient(#ffd96a, #ffc83d 55%, #e3a414); transition: width 0.4s ease-out; }
+      #loading .truck { position: absolute; right: -1.1em; bottom: calc(100% - 0.2em); width: 3.6em; height: 1.87em; will-change: transform; animation: bob 0.32s ease-in-out infinite alternate; }
+      @keyframes bob { to { transform: translateY(-0.1em); } }
+      #loading .pct { min-width: 2.6em; text-align: right; font-size: 1.05em; text-shadow: 0 2px 3px rgba(0, 0, 0, 0.8); }
+      #loading .note { min-height: 1.2em; text-align: center; font-size: 0.85em; opacity: 0.9; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+      #loading .msg { display: none; text-align: center; line-height: 1.35; padding: 0.7em 1em; border-radius: 12px; background: rgba(12, 18, 34, 0.75); }
+      #loading.failed .msg { display: block; }
+      #loading.failed .tip, #loading.failed .road, #loading.failed .note { display: none; }
+      @media (prefers-reduced-motion: reduce) { #loading .lane s { animation-duration: 2.4s; } #loading .truck { animation: none; } }
     </style>
-    <script type="module" crossorigin src="./assets/index-DYUgr7TP.js"></script>
+    <script type="module" crossorigin src="./assets/index-CVLAcbDQ.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/release-Bkhxlx68.js">
     <link rel="stylesheet" crossorigin href="./assets/index-C1SlJ0lj.css">
   </head>
   <body>
     <div id="app"></div>
-    <div id="loading"><div>TRUCKSTEAD</div><div class="bar"><i></i></div><i class="spin"></i><div class="note"></div></div>
+    <div id="loading">
+      <picture>
+        <source media="(orientation: portrait)" srcset="./assets/cover-tall-Dv33--D6.webp" />
+        <img class="bg" src="./assets/cover-wide-DwfERQoP.webp" alt="" fetchpriority="low" decoding="async" onload="this.classList.add('on')" />
+      </picture>
+      <div class="shade"></div>
+      <div class="logo">TRUCKSTEAD</div>
+      <div class="foot">
+        <div class="tip" aria-live="polite"></div>
+        <div class="road">
+          <div class="bar"><span class="lane"><s></s></span><i><svg class="truck" viewBox="0 0 54 28" aria-hidden="true">
+            <rect x="1.5" y="4" width="32" height="15" rx="2" fill="#8ea2c6" stroke="#1d2a44" stroke-width="1.5" />
+            <rect x="3.5" y="6" width="28" height="3" rx="1" fill="#d7e0ef" />
+            <path d="M35 19.5V6.5h9.5l6 6.5.5 6.5z" fill="#ff8a1f" stroke="#1d2a44" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M44 8.5h.3l4.4 4.8H44z" fill="#1d2a44" />
+            <rect x="35.5" y="4.5" width="9" height="2.4" rx="1" fill="#e63946" />
+            <rect x="1" y="19" width="51" height="3" rx="1" fill="#1d2a44" />
+            <g fill="#1d2a44"><circle cx="8" cy="23.5" r="3.6" /><circle cx="15.5" cy="23.5" r="3.6" /><circle cx="39" cy="23.5" r="3.6" /><circle cx="47" cy="23.5" r="3.6" /></g>
+            <g fill="#cfd6e3"><circle cx="8" cy="23.5" r="1.3" /><circle cx="15.5" cy="23.5" r="1.3" /><circle cx="39" cy="23.5" r="1.3" /><circle cx="47" cy="23.5" r="1.3" /></g>
+          </svg></i></div>
+          <span class="pct"></span>
+        </div>
+        <div class="note"></div>
+        <div class="msg"></div>
+      </div>
+    </div>
   </body>
 </html>
