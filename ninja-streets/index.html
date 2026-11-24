@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="icon" href="data:," />
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Ninja Streets</title>
+    <link rel="modulepreload" crossorigin href="./assets/render3d-CaJHs55W.js">
+    <link rel="preload" as="image" crossorigin="anonymous" href="./assets/atlas-BgHXc0ZM.png">
+    <link rel="preload" as="fetch" crossorigin="anonymous" href="./assets/anims-a-DY0P6bC4.glb">
+    <link rel="preload" as="fetch" crossorigin="anonymous" href="./assets/props-CrG9AcWK.bin">
+    <link rel="preload" as="fetch" crossorigin="anonymous" href="./assets/C1-BPNDMxXG.glb">
+    <link rel="preload" as="fetch" crossorigin="anonymous" href="./assets/C2-DdH-O_jH.glb">
+    <!-- the title's face first; the build adds the first room's files here (vite.config.ts preloadFirst) -->
+    <link rel="preload" href="fonts/lilita-one-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #15111a; overscroll-behavior: none; }
+      body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+      canvas#c, canvas#gl { display: block; position: fixed; left: 0; top: 0; touch-action: none; }
+      canvas#gl { pointer-events: none; }
+      @font-face { font-family: 'NS Title'; src: url('fonts/lilita-one-latin.woff2') format('woff2'); font-weight: 100 900; font-display: block; }
+      #load { position: fixed; inset: 0; z-index: 5; background: #15111a; pointer-events: none; }
+      #load b { position: absolute; left: 0; right: 0; top: calc(50% - 30px); transform: translateY(-50%); text-align: center; font: 900 34px 'NS Title', Impact, sans-serif; color: #ffe08a; -webkit-text-stroke: 5px #0b0710; paint-order: stroke fill; letter-spacing: 0.5px; white-space: nowrap; }
+      #load i { position: absolute; left: 50%; top: calc(50% + 10px); width: min(260px, calc(100% - 80px)); height: 10px; transform: translateX(-50%); border-radius: 5px; background: rgba(255, 236, 200, 0.18); overflow: hidden; }
+      #load i::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: var(--p, 4%); min-width: 10px; border-radius: 5px; background: #ffd23a; }
+    </style>
+    <script type="module" crossorigin src="./assets/index-B_TxZqHE.js"></script>
+  </head>
+  <body>
+    <canvas id="gl"></canvas>
+    <canvas id="c"></canvas>
+    <!-- the loading screen: shown before any code arrives; the bar follows the bytes of the first room's files -->
+    <script>window.__nsFirst=[["assets/index-B_TxZqHE.js",973793],["assets/render3d-CaJHs55W.js",1011437],["assets/atlas-BgHXc0ZM.png",70344],["assets/anims-a-DY0P6bC4.glb",104180],["assets/props-CrG9AcWK.bin",231606],["assets/C1-BPNDMxXG.glb",170164],["assets/C2-DdH-O_jH.glb",147640]]</script>
+    <div id="load"><b>NINJA STREETS</b><i></i></div>
+    <script>
+      (function () {
+        var el = document.getElementById('load');
+        var bar = el.lastChild;
+        // [file, bytes] of everything the first room needs (written by the build; empty when served by the dev server)
+        var first = window.__nsFirst || [];
+        var total = 0;
+        for (var i = 0; i < first.length; i++) total += first[i][1];
+        var got = {};
+        var done = 0;
+        var tDone = 0;
+        var t0 = Date.now();
+        var shown = 0;
+        var on = true;
+        function seen(list) {
+          for (var i = 0; i < list.length; i++) {
+            var n = list[i].name;
+            for (var j = 0; j < first.length; j++)
+              if (!got[j] && n.slice(-first[j][0].length - 1) === '/' + first[j][0]) {
+                got[j] = 1;
+                done += first[j][1];
+                tDone = Date.now() - t0;
+              }
+          }
+        }
+        try {
+          if (window.PerformanceObserver) new PerformanceObserver(function (l) { seen(l.getEntries()); }).observe({ type: 'resource', buffered: true });
+        } catch (e) {}
+        function step() {
+          if (!on) return;
+          var ms = Date.now() - t0;
+          var goal;
+          if (total) {
+            // the files still coming: as far as the speed measured so far says (before the first file is in, an
+            // assumed slow line, 1 Mbit/s); never short of the bytes that have come
+            var rate = done ? done / Math.max(tDone, 1) : 125;
+            var guess = Math.max(done, Math.min(total * 0.97, rate * ms));
+            goal = (guess / total) * 0.95;
+          } else goal = Math.min(0.9, ms / 9000);
+          // (never backwards)
+          shown = Math.max(shown, shown + (goal - shown) * 0.08);
+          bar.style.setProperty('--p', (shown * 100).toFixed(1) + '%');
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+        // the game calls this when its first frame is ready
+        window.__nsLoadEnd = function () {
+          on = false;
+          bar.style.setProperty('--p', '100%');
+          if (el.parentNode) el.parentNode.removeChild(el);
+        };
+      })();
+    </script>
+  </body>
+</html>
