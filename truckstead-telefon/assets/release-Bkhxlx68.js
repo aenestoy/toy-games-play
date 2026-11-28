@@ -1,0 +1,1 @@
+var e=e=>e.country!==`NP`&&![`tihar`,`dashain`].includes(e.festival??``),t=e=>!e.startsWith(`nepal`),n=e=>!e.startsWith(`np.`),r=e=>![`NP`,`NPL`].includes(e);export{t as i,r as n,n as r,e as t};
